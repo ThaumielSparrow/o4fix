@@ -1,0 +1,21 @@
+# media & renders (multi-GB)
+sample_vids/
+*.MP4
+*.mp4
+*.gcsv
+
+# analysis harness caches & golden dumps
+analysis/cache/
+goldens/
+*.npz
+*.png
+
+# python
+__pycache__/
+*.pyc
+
+# rust
+rust/target/
+
+# gyroflow projects are kept: they're small JSON eval configs
+!*.gyroflow
