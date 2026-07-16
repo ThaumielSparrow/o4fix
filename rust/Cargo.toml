@@ -1,0 +1,6 @@
+[workspace]
+members = ["o4core", "o4fix-cli"]
+resolver = "2"
+
+[profile.release]
+lto = "thin"
