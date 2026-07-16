@@ -1,0 +1,8 @@
+[package]
+name = "o4fix-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+o4core = { path = "../o4core" }
+clap = { version = "4", features = ["derive"] }
