@@ -1,0 +1,175 @@
+# DJI O4 Pro gyro noise fix — STATUS AFTER SESSION 3: MISSION ACCOMPLISHED
+
+## Problem
+
+DJI switched the gyro on the O4 Pro air unit in early 2026 (this unit: fw
+01.00.07.00, camera model "O4P"). During high-throttle flight the motion
+data carries strong noise, so Gyroflow-stabilized footage shudders /
+wobbles / micro-pans. Goal was: renders as good as Gyroflow with a healthy
+gyro. Test clip: `sample_vids/DJI_20260711124046_0021_D.MP4` (176.4 s,
+1440x1080@100fps CFR, 17639 frames).
+
+## SOLVED (session 3, 2026-07-13): in-place MP4 quat rewrite
+
+`python o4fix.py VIDEO.MP4` → `VIDEO_fixed.MP4` (default mode; `--gcsv`
+keeps the legacy rate-domain pipeline). The fixed file drops into Gyroflow
+like a stock recording, using its native embedded-telemetry path.
+
+Result on the test clip (residual RMS °/s, wobble 2-8 Hz / shake 8-30 Hz):
+
+| render | clean | mild | severe | flicks |
+|---|---|---|---|---|
+| unstabilized original | 5.3/5.5 | 10.2/9.0 | 30.8/23.1 | 40.1/30.4 |
+| A embedded (old target) | 3.1/5.1 | 6.9/7.1 | 18.6/26.3 | 21.0/24.9 |
+| B best gcsv (ceiling-bound) | 5.6/5.9 | 9.0/7.8 | 36.8/29.0 | 20.4/20.0 |
+| **M2 = o4fix default** | **3.3/4.8** | **6.7/7.5** | **12.5/17.0** | **17.8/20.3** |
+
+Per-window: powerloop 7-12 s — A 10.9/18.2, B 5.5/5.1, **M2 3.9/4.0**;
+aggressive 131-159 s — A 8.4/11.5, **M2 5.5/6.8**. Clean/mild diffs vs A
+are within eval coupling noise (clean-zone telemetry is bit-identical).
+Success criteria all met: matches A in clean/mild/flicks, crushes severe.
+
+### How it works
+
+1. **Encoding** (`mp4patch.py`, all verified): O4P metadata-track samples
+   (handler `meta`, 1/frame) are protobufs that carry NO "oq101"/"WA530"
+   marker (head: `dvtm_O4P.proto`), so telemetry-parser decodes them with
+   its **wm169** proto. Path: `frame_meta(3).imu_frame_meta(3).
+   IMU_attitude_after_fusion(2)` = `DeviceAttitude{timestamp=1, vsync=2,
+   attitude[]=3, offset=4}`; attitude element = `Quaternion{w=1,x=2,y=3,
+   z=4}` as **float32 LE fixed32** → in-place rewrite, no stsz/stco fixups.
+   20 quats/sample = 2 kHz slots, each 1 kHz value duplicated. Parser
+   transform: `q_out = (0,0,1,0) ⊗ q_file ⊗ (0.5,-0.5,-0.5,0.5)` + sign
+   continuity (session-1 byte scan failed because it searched transformed
+   values). Slot→1 kHz-sample mapping replicates extract_quats
+   sort/dedupe on the parser's flat stream.
+2. **Gates** (all pass; keep them passing): decode matches
+   telemetry-parser exactly; `nullpatch` → byte-identical file; `inject`
+   → parser returns exactly the injected values, timestamps unchanged.
+   Unmodified samples keep their original bytes (clean zones bit-exact).
+3. **Data** (`splice_orientation` in o4fix.py): base = raw embedded quats;
+   inside severe bursts (30-180 Hz band-RMS > 8 °/s, pad 0.2 s, merge
+   0.2 s — tighter than 0.3/0.5 which leaked LP content into mild zones
+   and cost +0.9 mild shake) replace orientation with the integral of the
+   B-style optical rates (LP8 optical + rate-aware handback, o4fix
+   defaults); accumulated optical drift (up to ~55° on long bursts) is
+   spread across the burst as a smoothstep rotation-vector correction so
+   endpoints match raw exactly; 0.3 s slerp cross-fades at edges.
+
+### Files
+
+- `o4fix.py` — the user tool. Default = MP4 repair; `--gcsv` = legacy.
+  Owns splice_orientation/quat_exp/quat_log/slerp. MP4-repair flags:
+  `--severe 8 --severe-pad 0.2 --severe-merge 0.2 --ramp 0.3`.
+- `mp4patch.py` — encoding toolkit: scan/verify/nullpatch/inject CLI +
+  `inject_and_check()` used by o4fix.
+- `prep_inject.py` — dev tool: builds an injection .npz without writing
+  the MP4 (for harness iterations). Same defaults as o4fix.
+- `analysis/` — harness (eval_render/rank_renders/diff_renders/...,
+  caches incl. eval series for all renders in the table).
+- `sample_vids/` — test clip, projects, renders kept:
+  `eval_A_embedded.mp4` (reference), `eval_M2_tight.mp4` (best,
+  = MPATCH2 source `DJI..._MPATCH2.MP4`), `DJI..._D_fixed.MP4` (o4fix
+  end-to-end output). Superseded renders deleted; their eval caches kept.
+
+## Harness (unchanged from session 2 — use it, don't render blind)
+
+- Gyroflow CLI: store 1.6.3 exe at `C:\Program Files\WindowsApps\
+  29160AdrianRoss.Gyroflow_1.63.2453.0_x64__q81n4e8pq4bra\Gyroflow.exe`;
+  `& $gf project.gyroflow -f --stdout-progress` (~90 s/clip on RTX 5090).
+  Dev build gh2622 in scratchpad (glitch-filter test) renders identically
+  to release on identical data.
+- Project variants: JSON-edit a copy of `eval_M2_tight.gyroflow` (or
+  `eval_A_embedded.gyroflow`): change `videofile` + `gyro_source.filepath`
+  (and DROP `gyro_source.file_metadata` when the gyro file changes),
+  `offsets={}`, set `output.output_filename`, bitrate 30.
+- `analysis/eval_render.py RENDER.mp4` (~7 min) → cache;
+  `analysis/rank_renders.py [stems...]` → banded table.
+- Masks trap: "clean cruise 60-65/100-105 s" are NOT clean. Verified-clean
+  windows: 67-72.5, 94-98, 120-128, 145.5-146.5 s. Tracker floor ~2-3 °/s.
+
+## Established facts (verified; do not re-derive)
+
+- O4 Pro embeds ONLY orientation quats (no raw IMU); `normalized_imu()`
+  empty; use `.telemetry()` → Quaternion/Data; 1 kHz duplicated at 2 kHz;
+  sort+dedupe (o4fix.extract_quats).
+- Rates from quats: vector part of dq (`2*asin(|vec|)`), never arccos(w).
+- Telemetry timestamps on container clock (0 offset; optical↔gyro −4 ms).
+  Never run Gyroflow autosync on patched data (latches onto garbage in
+  band-limited sections) — keep `offsets={}`.
+- gcsv delivery has a hard quality ceiling in Gyroflow 1.6.3 (~5.5 °/s
+  2-8 Hz wobble floor in clean zones vs 3.1 embedded, +2-3 °/s in mild) —
+  bit-identical data renders worse via gcsv than embedded. Mechanism
+  unproven (suspected per-scanline orientation sampling; org-path A-vs-B
+  sub-frame scan has symmetric minima at ±4 ms, local MAX at 0).
+- Noise: throttle-correlated bursts; detector = 30-180 Hz band-RMS
+  (1 kHz fs). Phantom is broadband inside severe bursts; mild-zone 2-8 Hz
+  gyro is trustworthy. Real HF (100-500 Hz vibration) matters for
+  sub-frame correction — never low-pass the clean zones.
+- Optical pipeline (o4fix.video_rates): fisheye undistort (K/D from
+  telemetry), LK half-res, findEssentialMat(RANSAC 0.002) on normalized
+  pts, decomposeEssentialMat smaller-angle R (recoverPose degenerates).
+  Procrustes video→gyro allowing det=−1. This clip: R²=0.995, −4 ms.
+  Optical LF error grows with rate; handback above 100-250 °/s.
+- Gyroflow project facts: user runs 1.6.3, Default smoothing ~0.5,
+  horizon lock OFF, adaptive zoom ON. Embedded loads use integration
+  "None"; gcsv loads integrate.
+
+## Dead ends (all measured — do not revisit)
+
+1. Temporal filtering at any cutoff (phantom is broadband).
+2. gcsv content variants B/C/D/E/G — all ceiling-bound.
+3. `frame_readout_time` in gcsv header — ignored by Gyroflow.
+4. Integration method — only shifts LF wander.
+5. Autosync offsets — root-caused; keep offsets={}.
+6. Project-file blob injection — blobs ignored, always recomputed.
+7. Betaflight blackbox — user-rejected (32 MB flash, workflow).
+8. **Gyroflow's new glitch filtering (commit 7ac9d11, 2026-07-12, in
+   dev builds; toggle + `glitch_filter`/`glitch_strength` in project
+   gyro_source)** — tested at strength 50/100 on this clip: detects only
+   ~7 s (p99-relative threshold saturates with our 17% noisy samples,
+   misses 131-159 s entirely, identical regions at both strengths) and
+   its constant-rate slerp bridges erase real motion → severe 32.8/32.8
+   (s50), 32.4/45.8 (s100) vs A 18.6/26.3; clean/mild unchanged. Useless
+   for sustained noisy aggressive flight; fine upstream idea validation.
+
+## Fast-motion shake investigation (post-solution, 2026-07-14)
+
+User feedback on M2: panning gone, but slight shake remains during sharp
+turns/180s/flips. Localized by cell analysis (rate regime × patched/raw ×
+band; script pattern lives in the session log, rebuild from eval caches):
+ALL of it is in **>150 °/s motion inside patched bursts** (6.5 s of clip).
+Cause: LP8 handback discards the gyro's 8-16 Hz content, which raw data
+shows is ~26 °/s there; Gyroflow can't correct motion it can't see.
+Key asymmetry (from comparing A's per-cell corrections vs unstabilized):
+gyro 8-15 Hz is REAL-dominated above ~150 °/s sustained, but
+PHANTOM-dominated at 50-150 °/s and corrupted during snap transitions
+(throttle punches). Fixes tried, full loop each:
+
+- M3 (`--fast-wide-cutoff 16`, ramp 150-300 °/s): sustained-fast 8-15
+  improved 20.2→17.2, but flicks regressed (snap transitions corrupt the
+  mid-band) — rejected.
+- M4 (+ `--fast-wide-accel 1500` °/s² gate): flick wobble 17.8→16.1,
+  flick 8-15 10.4→9.6, sustained-fast better than M2, clean/mild/severe
+  wobble all best-in-table — but flick 15-30 Hz shake +1.4 vs M2
+  (19.0 vs 17.6). Genuine trade-off, neither dominates.
+
+DECISION: default stays M2 behavior (`--fast-wide-cutoff 0`); M4 profile
+available via `--fast-wide-cutoff 16` (accel gate defaults on). Renders
+`eval_M2_tight.mp4` vs `eval_M4_accelgate.mp4` kept for the user to
+eyeball. Residual-floor honesty: even A only reaches 13.5/23.3 °/s in the
+fast-patched cell (vs M2 20.2/24.1, M4 18.1/24.6) — the 15-30 Hz part is
+phantom-mixed in ALL sources and partially blur/RS artifact; do not chase
+it further with the current signal sources (a better source, e.g. 
+blackbox gyro, would be needed).
+
+## Possible follow-ups (nothing blocking)
+
+- Validate on more clips from the same unit (only one test clip so far);
+  o4fix prints per-burst optical drift — watch for calibration R² < 0.8
+  fallback on clips without clean sections.
+- Visual A/B: user should eyeball `eval_M2_tight.mp4` vs
+  `eval_A_embedded.mp4` and `eval_M4_accelgate.mp4` (numbers are
+  tracker-based; the M2-vs-M4 choice is perceptual).
+- If DJI firmware changes the dvtm layout, `mp4patch.py verify` is the
+  canary (it hard-fails on any mismatch before writing).
