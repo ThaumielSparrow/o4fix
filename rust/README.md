@@ -28,6 +28,58 @@ cargo test -p o4core -- --ignored  # Run integration tests (requires test clips)
 
 Filled in by Task 11 (local OpenCV install required for optical.rs).
 
+## dsp.rs: sci-rs evaluated and rejected (Task 5)
+
+**Status: hand-ported (Task 5).** Per the task brief's decision gate,
+`sci-rs = "0.4.1"` (latest on crates.io, `std` feature) was added as a real
+dependency and probed against `tests/fixtures/filters.json` (scratch
+example, not committed) before writing any hand-port code. Result: **gate
+failed**, sci-rs removed (`cargo remove sci-rs`), Step 4 hand-port used
+instead.
+
+Two independent failures, either one sufficient on its own:
+
+1. **No Ba-format `lfilter`/`filtfilt` at all.** sci-rs only exposes
+   `sosfilt`/`sosfiltfilt` (second-order-sections). The brief's `dsp::`
+   interface requires `lfilter(&Ba, ...)` / `filtfilt(&Ba, ...)` operating
+   directly on single b/a coefficient vectors (matching scipy's default
+   `output='ba'`, which is what the fixture was generated with — e.g. the
+   bandpass case has one 5-tap `b`/`a` pair, not per-section SOS state).
+   There is no upstream code path to wrap for 2 of the 4 required
+   algorithms — the DF2T `lfilter` and odd-extension-padded `filtfilt`
+   would have to be hand-written regardless of the sci-rs decision.
+2. **`butter_dyn(..., FilterOutputType::Ba)` shape mismatch.** For a
+   lowpass/highpass filter of order N, sci-rs pads `b`/`a` to length
+   `2N+1` (the bandpass-shaped length) with trailing exact-zero
+   coefficients, instead of scipy's minimal length `N+1`. E.g. for
+   `butter_low(2, 0.05)`: sci-rs returns `b.len()==5, a.len()==5`
+   (`b=[..., ..., ..., 0.0, 0.0]`) vs. the fixture's `b.len()==3`. The
+   fixture's `close()` helper (and scipy) expect the trimmed length; this
+   would need extra wrapper-side trimming logic on top of an already-thin
+   wrapper.
+
+Where shapes did match (the one bandpass case, order 2, `wn=[0.06,0.36]`),
+the *numeric* values were excellent — `b`/`a` max relative error
+`5.8e-16`, `lfilter_zi` (via `lfilter_zi_dyn`, which does exist for Ba)
+`9.4e-16` — well inside the 1e-12/1e-10 bars. So sci-rs's underlying
+zpk/bilinear math is sound; it's the API surface (SOS-only filtering,
+untrimmed Ba design) that doesn't meet "all fixture cases pass at stated
+tolerances out of the box."
+
+**Hand-port result:** all 6 fixture cases (5 lowpass wn, 1 bandpass) pass
+at the brief's tolerances (b/a ≤1e-12, zi ≤1e-10, lfilter/filtfilt ≤1e-9);
+measured max relative errors are all ≤~4.6e-14 (machine-epsilon range),
+see `.superpowers/sdd/task-5-report.md` for the per-case table. The
+`dsp::` public API (`Ba`, `butter_low`, `butter_band`, `lfilter_zi`,
+`lfilter`, `filtfilt`, `filtfilt_padlen`, `filtfilt3`) is exactly the
+brief's Step 4 code, with one intentional deviation: `lfilter_zi`'s
+companion-transpose loop is written directly to the *documented correct*
+definition (`Ct[i][jj] = -a[i+1]/a[0] when jj==0; = 1 when i==jj-1; else
+0`) rather than the brief's deliberately-buggy Step 4 snippet — verified
+against the bandpass fixture case, which is the one case sensitive to
+this trap (lowpass zi is 1-D and can't distinguish the two index
+conventions).
+
 ## telemetry-parser pin
 
 **Status: validated (Task 3 spike).** Rust crate output is byte-identical
