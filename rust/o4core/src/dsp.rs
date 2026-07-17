@@ -150,3 +150,82 @@ pub fn filtfilt3(ba: &Ba, x: &[[f64; 3]]) -> Vec<[f64; 3]> {
     }).collect();
     (0..x.len()).map(|i| [cols[0][i], cols[1][i], cols[2][i]]).collect()
 }
+
+/// scipy.ndimage.median_filter, 1-D, odd size, mode="nearest".
+pub fn median_filter(x: &[f64], size: usize) -> Vec<f64> {
+    assert!(size % 2 == 1);
+    let n = x.len() as isize;
+    let h = (size / 2) as isize;
+    let mut win = vec![0.0; size];
+    (0..n).map(|i| {
+        for (w, j) in win.iter_mut().zip(i - h..=i + h) {
+            *w = x[j.clamp(0, n - 1) as usize];
+        }
+        win.sort_by(f64::total_cmp);
+        win[size / 2]
+    }).collect()
+}
+
+/// scipy.ndimage.uniform_filter1d, mode="nearest", origin=0.
+/// Even size: window [i - size/2, i + size/2 - 1] (left-heavy), per scipy.
+pub fn uniform_filter1d(x: &[f64], size: usize) -> Vec<f64> {
+    let n = x.len() as isize;
+    let s = size as isize;
+    let lo = -(s / 2);
+    (0..n).map(|i| {
+        let mut acc = 0.0;
+        for k in 0..s { acc += x[(i + lo + k).clamp(0, n - 1) as usize]; }
+        acc / size as f64
+    }).collect()
+}
+
+pub fn uniform_filter3(x: &[[f64; 3]], size: usize) -> Vec<[f64; 3]> {
+    let cols: Vec<Vec<f64>> = (0..3).map(|k| {
+        uniform_filter1d(&x.iter().map(|r| r[k]).collect::<Vec<_>>(), size)
+    }).collect();
+    (0..x.len()).map(|i| [cols[0][i], cols[1][i], cols[2][i]]).collect()
+}
+
+/// o4fix.hampel (o4fix.py:193-201), per axis. Returns (cleaned, spike frac).
+pub fn hampel(x: &[[f64; 3]], k: usize, nsig: f64) -> (Vec<[f64; 3]>, f64) {
+    let size = 2 * k + 1;
+    let mut out = x.to_vec();
+    let mut bad = 0usize;
+    for ax in 0..3 {
+        let col: Vec<f64> = x.iter().map(|r| r[ax]).collect();
+        let med = median_filter(&col, size);
+        let dev: Vec<f64> = col.iter().zip(&med).map(|(a, m)| (a - m).abs()).collect();
+        let sig = median_filter(&dev, size);
+        for i in 0..col.len() {
+            if dev[i] > nsig * (1.4826 * sig[i] + 1e-9) {
+                out[i][ax] = med[i];
+                bad += 1;
+            }
+        }
+    }
+    (out, bad as f64 / (x.len() * 3) as f64)
+}
+
+/// np.interp with edge clamping.
+pub fn interp(xq: &[f64], xp: &[f64], fp: &[f64]) -> Vec<f64> {
+    xq.iter().map(|&q| {
+        if q <= xp[0] { return fp[0]; }
+        if q >= xp[xp.len() - 1] { return fp[fp.len() - 1]; }
+        let j = searchsorted_right(xp, q) - 1;
+        let t = (q - xp[j]) / (xp[j + 1] - xp[j]);
+        fp[j] + t * (fp[j + 1] - fp[j])
+    }).collect()
+}
+
+/// np.gradient, unit spacing: central diffs, one-sided edges.
+pub fn gradient(x: &[f64]) -> Vec<f64> {
+    let n = x.len();
+    (0..n).map(|i| {
+        if i == 0 { x[1] - x[0] }
+        else if i == n - 1 { x[n - 1] - x[n - 2] }
+        else { (x[i + 1] - x[i - 1]) / 2.0 }
+    }).collect()
+}
+
+pub fn searchsorted_left(a: &[f64], v: f64) -> usize { a.partition_point(|&e| e < v) }
+pub fn searchsorted_right(a: &[f64], v: f64) -> usize { a.partition_point(|&e| e <= v) }
