@@ -2,8 +2,8 @@
 //! Layout notes at mp4patch.py:1-17; wire format: protobuf inside 'meta'
 //! handler track samples; quats = float32 LE fixed32 fields 1..4.
 use crate::error::O4Error;
-use crate::quat::qmul;
-use std::io::{Read, Seek, SeekFrom};
+use crate::quat::{qmul, qnorm};
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::Path;
 
 pub const C_RIGHT: [f64; 4] = [0.5, -0.5, -0.5, 0.5];
@@ -229,4 +229,178 @@ pub fn scan_file(path: &Path) -> Result<Vec<ScanSample>, O4Error> {
         out.push(ScanSample { offset: off, size, frame_ts, atts, att_offset });
     }
     Ok(out)
+}
+
+pub struct SlotTable {
+    pub offs: Vec<[u64; 4]>,
+    pub q_file: Vec<[f64; 4]>,
+    pub ts_ms: Vec<f64>,
+    pub q_ref: Vec<[f64; 4]>,
+    pub d_file: Vec<usize>,
+    pub n_dedup: usize,
+}
+
+/// Ports mp4patch._aligned_slots + _dedup_index (mp4patch.py:386-432).
+pub fn aligned_slots(video: &Path) -> Result<SlotTable, O4Error> {
+    let scanned = scan_file(video)?;
+    let mut offs = Vec::new();
+    let mut q_file = Vec::new();
+    for s in &scanned {
+        for (o, v) in &s.atts {
+            if v.iter().any(|x| x.is_nan()) { continue; }
+            let q64: [f64; 4] = core::array::from_fn(|i| v[i] as f64);
+            if file_to_out(q64) == [0.0; 4] { continue; }
+            if o.iter().any(|x| x.is_none()) {
+                return Err(O4Error::Mp4("quat with omitted fields; cannot patch in place".into()));
+            }
+            offs.push([o[0].unwrap(), o[1].unwrap(), o[2].unwrap(), o[3].unwrap()]);
+            q_file.push(q64);
+        }
+    }
+    let (ts_ms, q_ref) = crate::telemetry::flat_quat_stream(video)?;
+    if q_ref.len() != q_file.len() {
+        return Err(O4Error::Mp4(format!(
+            "slot count {} != parser stream {}", q_file.len(), q_ref.len())));
+    }
+    for i in 0..q_file.len() {
+        let qo = file_to_out(q_file[i]);
+        let e1: f64 = (0..4).map(|k| (qo[k] - q_ref[i][k]).abs()).fold(0.0, f64::max);
+        let e2: f64 = (0..4).map(|k| (qo[k] + q_ref[i][k]).abs()).fold(0.0, f64::max);
+        if e1.min(e2) > 1e-12 {
+            return Err(O4Error::Mp4(format!("slot/parser alignment broken at {i}")));
+        }
+    }
+    // dedup index: map each flat slot to its sorted+deduped 1 kHz row
+    let mut order: Vec<usize> = (0..ts_ms.len()).collect();
+    order.sort_by(|&a, &b| ts_ms[a].total_cmp(&ts_ms[b]));
+    let mut d_sorted = vec![0usize; order.len()];
+    for i in 1..order.len() {
+        let changed = q_ref[order[i]] != q_ref[order[i - 1]];
+        d_sorted[i] = d_sorted[i - 1] + usize::from(changed);
+    }
+    let mut d_file = vec![0usize; order.len()];
+    for (i, &oi) in order.iter().enumerate() { d_file[oi] = d_sorted[i]; }
+    let n_dedup = d_sorted[order.len() - 1] + 1;
+    Ok(SlotTable { offs, q_file, ts_ms, q_ref, d_file, n_dedup })
+}
+
+/// Deduped reference stream processed exactly like o4fix.extract_quats
+/// (sorted, deduped, sign-continuous, normalized) — the patching base.
+pub fn deduped_reference(st: &SlotTable) -> Vec<[f64; 4]> {
+    let mut order: Vec<usize> = (0..st.ts_ms.len()).collect();
+    order.sort_by(|&a, &b| st.ts_ms[a].total_cmp(&st.ts_ms[b]));
+    let mut qd: Vec<[f64; 4]> = Vec::with_capacity(st.n_dedup);
+    for (i, &oi) in order.iter().enumerate() {
+        if i == 0 || st.q_ref[oi] != st.q_ref[order[i - 1]] {
+            qd.push(st.q_ref[oi]);
+        }
+    }
+    // hemisphere continuity on RAW neighbors, then flips, then normalize
+    let mut flips = vec![false; qd.len()];
+    let mut cum = false;
+    for i in 1..qd.len() {
+        let dot: f64 = (0..4).map(|k| qd[i][k] * qd[i - 1][k]).sum();
+        if dot < 0.0 { cum = !cum; }
+        flips[i] = cum;
+    }
+    for i in 0..qd.len() {
+        if flips[i] { for c in qd[i].iter_mut() { *c = -*c; } }
+        qd[i] = qnorm(qd[i]);
+    }
+    qd
+}
+
+pub struct PatchReport {
+    pub slots: usize,
+    pub unchanged: usize,
+    pub new_f32: Vec<[f32; 4]>,
+    pub ts_ms: Vec<f64>,
+}
+
+/// Ports mp4patch.patch_video (mp4patch.py:435-503). q_target rows are in
+/// telemetry-parser output frame, one per deduped 1 kHz sample; None = null
+/// patch (must produce a byte-identical file).
+pub fn patch_video(video: &Path, out: &Path, q_target: Option<&[[f64; 4]]>)
+    -> Result<PatchReport, O4Error>
+{
+    let st = aligned_slots(video)?;
+    let mut unchanged_count = st.n_dedup;
+    let new_file: Vec<[f64; 4]> = match q_target {
+        None => st.q_file.clone(),
+        Some(qt) => {
+            if qt.len() != st.n_dedup {
+                return Err(O4Error::Mp4(format!(
+                    "target has {} rows, file has {} deduped samples", qt.len(), st.n_dedup)));
+            }
+            let qd_ref = deduped_reference(&st);
+            let unchanged: Vec<bool> = (0..st.n_dedup)
+                .map(|d| qt[d] == qd_ref[d]).collect();
+            unchanged_count = unchanged.iter().filter(|&&u| u).count();
+            // original file value per deduped row: first slot occurrence wins
+            let mut qf_orig = vec![[0.0f64; 4]; st.n_dedup];
+            for i in (0..st.q_file.len()).rev() { qf_orig[st.d_file[i]] = st.q_file[i]; }
+            let mut merged = vec![[0.0f64; 4]; st.n_dedup];
+            for d in 0..st.n_dedup {
+                merged[d] = if unchanged[d] { qf_orig[d] }
+                            else { out_to_file(qnorm(qt[d])) };
+            }
+            // per-row sign pinned to previous WRITTEN value (mp4patch.py:478-486)
+            let mut prev = merged[0];
+            for d in 1..st.n_dedup {
+                if unchanged[d] { prev = merged[d]; continue; }
+                let dot: f64 = (0..4).map(|k| merged[d][k] * prev[k]).sum();
+                if dot < 0.0 { for c in merged[d].iter_mut() { *c = -*c; } }
+                prev = merged[d];
+            }
+            st.d_file.iter().map(|&d| merged[d]).collect()
+        }
+    };
+    let new_f32: Vec<[f32; 4]> = new_file.iter()
+        .map(|q| core::array::from_fn(|k| q[k] as f32)).collect();
+    for q in &new_f32 {
+        if q.iter().any(|x| x.is_nan()) { return Err(O4Error::Mp4("NaN in injected values".into())); }
+        if *q == [0.0f32; 4] { return Err(O4Error::Mp4("all-zero quat in injected values".into())); }
+    }
+    std::fs::copy(video, out)?;
+    let f = std::fs::OpenOptions::new().read(true).write(true).open(out)?;
+    let mut w = std::io::BufWriter::new(f);
+    // NOTE: slots are written in file order; unchanged rows re-write their
+    // original f32 bytes (f64 came from f32, so the cast is lossless).
+    let mut ordered: Vec<(u64, f32)> = Vec::with_capacity(st.offs.len() * 4);
+    for (o4, v4) in st.offs.iter().zip(&new_f32) {
+        for k in 0..4 { ordered.push((o4[k], v4[k])); }
+    }
+    ordered.sort_by_key(|&(o, _)| o);
+    for (o, v) in ordered {
+        w.get_ref().seek(SeekFrom::Start(o))?;
+        w.get_mut().write_all(&v.to_le_bytes())?;
+    }
+    w.flush()?;
+    Ok(PatchReport { slots: st.offs.len(), unchanged: unchanged_count,
+                     new_f32, ts_ms: st.ts_ms })
+}
+
+/// Ports mp4patch.inject_and_check (mp4patch.py:515-534): the shipping gate.
+pub fn inject_and_check(video: &Path, out: &Path, q_target: &[[f64; 4]],
+                        log: &dyn Fn(&str)) -> Result<bool, O4Error>
+{
+    let rep = patch_video(video, out, Some(q_target))?;
+    log(&format!("  {}/{} samples unchanged (original bytes kept)",
+                 rep.unchanged, q_target.len()));
+    let (ts2, q2) = crate::telemetry::flat_quat_stream(out)?;
+    if ts2.len() != rep.new_f32.len() {
+        log("ROUND-TRIP FAILED: slot count changed");
+        return Ok(false);
+    }
+    let mut dt_max = 0.0f64;
+    let mut err_max = 0.0f64;
+    for i in 0..ts2.len() {
+        dt_max = dt_max.max((ts2[i] - rep.ts_ms[i]).abs());
+        let qe = file_to_out(core::array::from_fn(|k| rep.new_f32[i][k] as f64));
+        let e1: f64 = (0..4).map(|k| (qe[k] - q2[i][k]).abs()).fold(0.0, f64::max);
+        let e2: f64 = (0..4).map(|k| (qe[k] + q2[i][k]).abs()).fold(0.0, f64::max);
+        err_max = err_max.max(e1.min(e2));
+    }
+    log(&format!("timestamps: max diff {dt_max} ms; values: max diff {err_max} (sign-folded)"));
+    Ok(dt_max == 0.0 && err_max == 0.0)
 }
