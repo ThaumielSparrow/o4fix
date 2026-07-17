@@ -24,3 +24,18 @@ fn kernels_match_scipy() {
         assert_eq!(searchsorted_right(&srt, *q), f["ss_right"][i].as_u64().unwrap() as usize);
     }
 }
+
+#[test]
+fn uniform3_matches_per_column() {
+    let f = fx("kernels.json");
+    let input = rows3(&f["hampel_in"]);
+    for size in [4, 15] {
+        let result = uniform_filter3(&input, size);
+        for k in 0..3 {
+            let col_in: Vec<f64> = input.iter().map(|r| r[k]).collect();
+            let col_expected = uniform_filter1d(&col_in, size);
+            let col_result: Vec<f64> = result.iter().map(|r| r[k]).collect();
+            close(&col_result, &col_expected, 0.0, &format!("uniform3 size={} col={}", size, k));
+        }
+    }
+}
