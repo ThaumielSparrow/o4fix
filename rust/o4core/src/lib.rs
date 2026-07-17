@@ -2,7 +2,7 @@ pub mod config;
 pub mod error;
 pub mod detect;
 pub mod dsp;
-// pub mod mp4; // added in Task 9
+pub mod mp4; // added in Task 9
 // pub mod patch; // added in Task 13
 // pub mod pipeline; // added in Task 15
 pub mod quat; // added in Task 4
