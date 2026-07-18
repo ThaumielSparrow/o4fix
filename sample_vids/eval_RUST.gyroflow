@@ -1,0 +1,229 @@
+{
+  "title": "eval_RUST",
+  "version": 3,
+  "app_version": "1.6.3",
+  "videofile": "file:///C:/Users/lzhan/Desktop/o4prostab/sample_vids/DJI_20260711124046_0021_D_RUST.MP4",
+  "calibration_data": {
+    "name": "",
+    "note": "",
+    "calibrated_by": "DJI",
+    "camera_brand": "DJI",
+    "camera_model": "O4P",
+    "lens_model": "",
+    "camera_setting": "",
+    "calib_dimension": {
+      "w": 1440,
+      "h": 1080
+    },
+    "orig_dimension": {
+      "w": 1440,
+      "h": 1080
+    },
+    "output_dimension": {
+      "w": 1440,
+      "h": 810
+    },
+    "frame_readout_time": 5.092569241816712,
+    "frame_readout_direction": null,
+    "gyro_lpf": null,
+    "input_horizontal_stretch": 0.0,
+    "input_vertical_stretch": 0.0,
+    "num_images": 0,
+    "fps": 0.0,
+    "crop": null,
+    "official": true,
+    "asymmetrical": false,
+    "fisheye_params": {
+      "RMS_error": 0.0,
+      "camera_matrix": [
+        [
+          546.4027099609375,
+          0.0,
+          720.0
+        ],
+        [
+          0.0,
+          546.4027099609375,
+          540.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "distortion_coeffs": [
+        0.15513110160827637,
+        0.1371408998966217,
+        -0.0938614010810852,
+        0.0041704000905156136
+      ],
+      "radial_distortion_limit": 6.40876005738274
+    },
+    "identifier": "",
+    "calibrator_version": "---",
+    "date": "",
+    "compatible_settings": [],
+    "sync_settings": {
+      "initial_offset": 0,
+      "initial_offset_inv": false,
+      "search_size": 0.5,
+      "max_sync_points": 5,
+      "every_nth_frame": 1,
+      "time_per_syncpoint": 0.6,
+      "do_autosync": false
+    },
+    "distortion_model": null,
+    "digital_lens": null,
+    "digital_lens_params": null,
+    "interpolations": null,
+    "focal_length": null,
+    "crop_factor": null,
+    "global_shutter": false
+  },
+  "date": "2026-07-12",
+  "image_sequence_start": 0,
+  "image_sequence_fps": 0.0,
+  "background_color": [
+    0.06666667014360428,
+    0.06666667014360428,
+    0.06666667014360428,
+    1.0
+  ],
+  "background_mode": 0,
+  "background_margin": 0.0,
+  "background_margin_feather": 0.0,
+  "light_refraction_coefficient": 1.0,
+  "video_info": {
+    "width": 1440,
+    "height": 1080,
+    "rotation": 0.0,
+    "num_frames": 17639,
+    "fps": 100.0,
+    "duration_ms": 176390.0,
+    "fps_scale": null,
+    "vfr_fps": 100.0,
+    "vfr_duration_ms": 176390.0,
+    "created_at": 1783791646
+  },
+  "stabilization": {
+    "fov": 1.0,
+    "method": "Default",
+    "smoothing_params": [
+      {
+        "name": "smoothness",
+        "value": 0.508
+      },
+      {
+        "name": "smoothness_pitch",
+        "value": 0.5
+      },
+      {
+        "name": "smoothness_yaw",
+        "value": 0.5
+      },
+      {
+        "name": "smoothness_roll",
+        "value": 0.5
+      },
+      {
+        "name": "per_axis",
+        "value": 0.0
+      },
+      {
+        "name": "trim_range_only",
+        "value": 1.0
+      },
+      {
+        "name": "max_smoothness",
+        "value": 1.0
+      },
+      {
+        "name": "alpha_0_1s",
+        "value": 0.1
+      }
+    ],
+    "frame_readout_time": 5.092569241816712,
+    "frame_readout_direction": "TopToBottom",
+    "adaptive_zoom_window": 4.0,
+    "adaptive_zoom_center_offset": [
+      0.0,
+      0.0
+    ],
+    "adaptive_zoom_method": 1,
+    "additional_rotation": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "additional_translation": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "lens_correction_amount": 1.0,
+    "horizon_lock_amount": 0.0,
+    "horizon_lock_roll": 0.0,
+    "use_gravity_vectors": false,
+    "horizon_lock_integration_method": 1,
+    "video_speed": 1.0,
+    "video_speed_affects_smoothing": true,
+    "video_speed_affects_zooming": true,
+    "video_speed_affects_zooming_limit": true,
+    "max_zoom": 130.0,
+    "max_zoom_iterations": 5,
+    "frame_offset": 0
+  },
+  "gyro_source": {
+    "filepath": "file:///C:/Users/lzhan/Desktop/o4prostab/sample_vids/DJI_20260711124046_0021_D_RUST.MP4",
+    "lpf": 0.0,
+    "mf": 0,
+    "rotation": null,
+    "acc_rotation": null,
+    "imu_orientation": null,
+    "gyro_bias": null,
+    "integration_method": 0,
+    "sample_index": null,
+    "detected_source": "DJI O4P"
+  },
+  "offsets": {},
+  "keyframes": {},
+  "trim_ranges_ms": [],
+  "muted": false,
+  "output": {
+    "audio": true,
+    "audio_codec": "AAC",
+    "bitrate": 30,
+    "codec": "H.265/HEVC",
+    "codec_options": "",
+    "encoder_options": "",
+    "export_trims_separately": false,
+    "interpolation": "Lanczos4",
+    "keyframe_distance": 1,
+    "metadata": {
+      "comment": ""
+    },
+    "output_filename": "eval_RUST.mp4",
+    "output_folder": "file:///C:/Users/lzhan/Desktop/o4prostab/sample_vids/",
+    "output_height": 810,
+    "output_width": 1440,
+    "pad_with_black": false,
+    "pixel_format": "",
+    "preserve_other_tracks": false,
+    "use_gpu": true
+  },
+  "playback_speed": 1,
+  "synchronization": {
+    "auto_sync_points": false,
+    "calc_initial_fast": false,
+    "every_nth_frame": 1,
+    "initial_offset": 0,
+    "initial_offset_inv": false,
+    "max_sync_points": 5,
+    "of_method": 2,
+    "offset_method": 2,
+    "pose_method": 0,
+    "search_size": 0.5,
+    "time_per_syncpoint": 0.6
+  }
+}
