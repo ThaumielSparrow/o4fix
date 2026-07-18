@@ -26,7 +26,97 @@ cargo test -p o4core -- --ignored  # Run integration tests (requires test clips)
 
 ## OpenCV setup
 
-Filled in by Task 11 (local OpenCV install required for optical.rs).
+**Status: done (Task 11).** `optical.rs` needs a local OpenCV 4.12.0 install
+(matching the `cv2` version the Python reference/goldens were generated
+with — decode parity requires the exact same C++ OpenCV version) plus
+LLVM/libclang for the `opencv` crate's bindgen step.
+
+### What was installed on this machine
+
+1. **LLVM 22.1.8** via `winget install -e --id LLVM.LLVM --accept-source-agreements --accept-package-agreements`
+   → `C:\Program Files\LLVM\bin\libclang.dll`.
+2. **OpenCV 4.12.0** — downloaded
+   `https://github.com/opencv/opencv/releases/download/4.12.0/opencv-4.12.0-windows.exe`
+   to `%TEMP%` (curl.exe, ~187 MB), ran `opencv-4.12.0-windows.exe -oC:\ -y`
+   (7-zip self-extractor) → `C:\opencv\build\...`. Note: the extractor
+   returns before all files are flushed to disk — if you `Test-Path` the
+   `bin` DLLs immediately after the `&` call returns and see nothing, wait
+   a couple seconds and recheck before concluding the extraction failed.
+3. `cargo add opencv --package o4core` → `opencv = "0.99.0"` in
+   `o4core/Cargo.toml` (default features; pulls in `calib3d`/`imgproc`/
+   `video`/`videoio`/`core` modules, which is all `optical.rs` needs).
+
+### Required environment variables
+
+```
+OPENCV_INCLUDE_PATHS = C:\opencv\build\include
+OPENCV_LINK_PATHS    = C:\opencv\build\x64\vc16\lib
+OPENCV_LINK_LIBS     = opencv_world4120
+LIBCLANG_PATH        = C:\Program Files\LLVM\bin
+PATH                += C:\opencv\build\x64\vc16\bin   (runtime DLLs, incl. opencv_videoio_ffmpeg4120_64.dll)
+PATH                += C:\Program Files\LLVM\bin      (runtime libclang.dll — see gotcha below)
+```
+
+These are persisted user-level (`setx` / `[Environment]::SetEnvironmentVariable`
+with `'User'` scope) but **do not propagate to already-open shells** — set
+them inline in the same command for any `cargo build`/`test` invocation in
+a session that predates the persist, e.g.:
+
+```powershell
+$env:OPENCV_INCLUDE_PATHS='C:\opencv\build\include'; $env:OPENCV_LINK_PATHS='C:\opencv\build\x64\vc16\lib'; $env:OPENCV_LINK_LIBS='opencv_world4120'; $env:LIBCLANG_PATH='C:\Program Files\LLVM\bin'; $env:PATH="$env:PATH;C:\opencv\build\x64\vc16\bin;C:\Program Files\LLVM\bin"
+cargo build -p o4core
+```
+
+### Gotchas hit during setup (both cost real time — save the next person)
+
+1. **`LIBCLANG_PATH` alone is not enough for `PATH`.** The `opencv` crate's
+   build script (`clang-sys`, non-`runtime` linking as configured here)
+   hard-links `libclang.dll` at load time, not just at build.rs discovery
+   time. Without `C:\Program Files\LLVM\bin` also on `PATH`, the build
+   script binary itself fails to *start* with `STATUS_DLL_NOT_FOUND`
+   (`0xc0000135`, cargo reports "process didn't exit successfully ...
+   exit code: 0xc0000135") — a confusing error that looks like a link
+   failure but is actually the loader failing to find `libclang.dll` for
+   the build-script executable. Fix: add the LLVM bin dir to `PATH`, not
+   just `LIBCLANG_PATH`.
+2. **`setx` silently truncates values over 1024 characters.** Running
+   `setx PATH "$oldPath;C:\opencv\build\x64\vc16\bin"` on a `PATH` that's
+   already near/over the limit truncates the stored value mid-entry and
+   prints `WARNING: The data being saved is truncated to 1024 characters.`
+   — easy to miss, and it silently drops trailing PATH entries from the
+   user environment. Use `[Environment]::SetEnvironmentVariable('PATH', $value, 'User')`
+   instead (no length limit); if you must recover a value already
+   truncated by `setx`, the still-running shell's `$env:PATH` (inherited
+   at process start, unaffected by later registry writes) plus
+   `[Environment]::GetEnvironmentVariable('PATH','Machine')` let you diff
+   out the pre-truncation user-scope entries.
+3. The opencv crate ships its generated Rust bindings per-build into
+   `target/debug/build/opencv-<hash>/out/opencv/*.rs` — when the exact
+   arg count/name of a wrapped OpenCV function is unclear (multiple
+   `_def`/numbered overloads for C++ default arguments), grepping that
+   generated output is faster and more reliable than guessing from
+   docs.rs, since it reflects the exact opencv crate version + OpenCV
+   version pair actually linked.
+
+### API notes for `optical.rs` vs. the Python reference (`opencv` crate 0.99.0 / OpenCV 4.12.0)
+
+- `cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)` → `imgproc::cvt_color_def(src, dst, code)`
+  (3-arg form; the base `cvt_color` in this crate version takes 5 args
+  including an explicit `dst_cn`/`AlgorithmHint`, which the Python call
+  doesn't specify — `_def` matches the Python defaults exactly).
+- `cv2.fisheye.undistortPoints(pts, K, D)` (no R/P) →
+  `calib3d::fisheye_undistort_points_def(distorted, undistorted, k, d)`
+  (4-arg form; the base `fisheye_undistort_points` in this crate version
+  requires explicit `r`/`p`/`criteria` args).
+- `Mat::from_slice(&d)` returns `Result<BoxedRef<'_, Mat>>` (borrows the
+  input slice) — since the distortion coefficients are a local stack
+  array in `k_d()`, this needs `.try_clone()` to get an owned `Mat` that
+  can be returned from the function.
+- `good_features_to_track`, `calc_optical_flow_pyr_lk`, `find_essential_mat`
+  (8-arg: points1/points2/camera_matrix/method/prob/threshold/max_iters/mask),
+  `decompose_essential_mat`, `Rodrigues`, `TermCriteria::new`, `Mat::at::<T>`
+  matched the brief's call sites exactly (verified against the generated
+  bindings) — no changes needed there.
 
 ## dsp.rs: sci-rs evaluated and rejected (Task 5)
 
