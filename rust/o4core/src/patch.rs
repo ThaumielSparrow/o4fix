@@ -200,3 +200,62 @@ pub fn optical_patch(video: &Path, tm: &[f64], cleaned: &[[f64; 3]],
     }
     Ok(out.iter().map(|r| core::array::from_fn(|k| r[k] * D2R)).collect())
 }
+
+#[derive(Clone, Copy, Debug)]
+pub struct BurstStat {
+    pub start: f64,
+    pub end: f64,
+    pub drift_deg: f64,
+}
+
+/// Replace q_raw inside each interval with integrated omega_patch, pinned to
+/// raw at both edges (o4fix.py:137-173). Accumulated drift is spread across
+/// the interval as a smoothstep rotation-vector correction; ramp_s slerp
+/// cross-fades at the edges. Samples outside intervals are returned
+/// bit-identical (clean-zone guarantee — feeds mp4::patch_video's
+/// unchanged-row original-bytes path).
+pub fn splice_orientation(t: &[f64], q_raw: &[[f64; 4]], omega_patch: &[[f64; 3]],
+                          intervals: &[(f64, f64)], ramp_s: f64)
+    -> (Vec<[f64; 4]>, Vec<BurstStat>)
+{
+    use crate::quat::{qconj, qexp, qlog, qmul, qnorm, slerp, smoothstep};
+    let mut q_out = q_raw.to_vec();
+    let mut stats = Vec::new();
+    for &(a, b) in intervals {
+        let i0 = crate::dsp::searchsorted_left(t, a);
+        let i1 = crate::dsp::searchsorted_right(t, b)
+            .saturating_sub(1).min(t.len() - 1);
+        if i1 < i0 + 8 { continue; }            // python: if i1 - i0 < 8
+        let n = i1 - i0;
+
+        // sequential integration: qs[k+1] = qs[k] * qexp(omega*dt)
+        let mut qs: Vec<[f64; 4]> = Vec::with_capacity(n + 1);
+        qs.push(q_raw[i0]);
+        for k in 0..n {
+            let dt = t[i0 + k + 1] - t[i0 + k];
+            let o = omega_patch[i0 + k];
+            qs.push(qmul(qs[k], qexp([o[0] * dt, o[1] * dt, o[2] * dt])));
+        }
+        for q in qs.iter_mut() { *q = qnorm(*q); }  // python normalizes ONCE, after the loop
+
+        // endpoint drift, spread as smoothstep rotation-vector correction
+        let e = qlog(qmul(qconj(qs[n]), q_raw[i1]));
+        let drift_deg = (e[0] * e[0] + e[1] * e[1] + e[2] * e[2]).sqrt().to_degrees();
+        let dur = (t[i1] - t[i0]).max(1e-9);
+        for k in 0..=n {
+            let s = smoothstep((t[i0 + k] - t[i0]) / dur);
+            qs[k] = qmul(qs[k], qexp([s * e[0], s * e[1], s * e[2]]));
+            // NOTE: python does NOT renormalize after this multiply — neither do we
+        }
+
+        // edge cross-fade, then write back
+        for k in 0..=n {
+            let tt = t[i0 + k];
+            let r = smoothstep((tt - t[i0]) / ramp_s)
+                .min(smoothstep((t[i1] - tt) / ramp_s));
+            q_out[i0 + k] = slerp(q_raw[i0 + k], qs[k], r);
+        }
+        stats.push(BurstStat { start: a, end: b, drift_deg });
+    }
+    (q_out, stats)
+}
