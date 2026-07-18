@@ -3,7 +3,7 @@
 //! — OpenCV's theRNG is thread-local, so this is deterministic under rayon.
 use crate::error::O4Error;
 use crate::telemetry::Meta;
-use opencv::core::{self, Mat, Point2f, Scalar, Size, TermCriteria, Vector, no_array};
+use opencv::core::{self, Mat, Point2f, Size, TermCriteria, Vector, no_array};
 use opencv::prelude::*;
 use opencv::{calib3d, imgproc, video, videoio};
 use rayon::prelude::*;
@@ -14,10 +14,6 @@ pub struct OpticalRates {
     pub t: Vec<f64>,
     pub omega: Vec<[f64; 3]>,   // rad/s, camera frame
     pub quality: Vec<f64>,
-}
-
-impl From<opencv::Error> for O4Error {
-    fn from(e: opencv::Error) -> Self { O4Error::Cv(e.to_string()) }
 }
 
 fn k_d(meta: &Meta, w: i32, h: i32) -> (Mat, Mat) {
@@ -236,4 +232,20 @@ pub fn fit_video_alignment(opt: &OpticalRates, tm: &[f64],
         }
     }
     Some(Alignment { shift, n: n_mat, r2: 1.0 - ss_res / ss_tot })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fit_video_alignment_returns_none_below_good_gate() {
+        let opt = OpticalRates {
+            t: vec![0.0; 10],
+            omega: vec![[0.0; 3]; 10],
+            quality: vec![0.0; 10],
+        };
+        let result = fit_video_alignment(&opt, &[0.0, 0.001], &[[0.0; 3]; 2], 1000.0);
+        assert!(result.is_none());
+    }
 }

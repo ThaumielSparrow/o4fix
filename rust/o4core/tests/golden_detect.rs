@@ -2,10 +2,6 @@
 use ndarray::{Array1, Array2};
 use o4core::{config::Config, detect, quat};
 
-fn r3(a: &Array2<f64>) -> Vec<[f64; 3]> {
-    (0..a.nrows()).map(|i| [a[[i, 0]], a[[i, 1]], a[[i, 2]]]).collect()
-}
-
 #[test]
 #[ignore]
 fn clean_stage_matches_python() {

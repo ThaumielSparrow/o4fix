@@ -161,6 +161,11 @@ pub fn read_meta(path: &Path) -> Result<Meta, O4Error> {
     })
 }
 
+/// LOCKSTEP: this function's sort/dedupe/flip/normalize contract must stay
+/// in exact agreement with `mp4::deduped_reference`, which reprocesses the
+/// same flat quat stream for in-place patching — the e2e test's clean-zone
+/// EXACT-0.0 gate (`tests/e2e.rs`) enforces that agreement at runtime. Any
+/// edit here must be mirrored there.
 pub fn extract_quats(path: &Path) -> Result<Telemetry, O4Error> {
     let (ts_ms, qs) = flat_quat_stream(path)?;
     let meta = read_meta(path)?;

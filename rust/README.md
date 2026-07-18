@@ -26,6 +26,18 @@ cargo test -p o4core         # Run o4core unit tests
 cargo test -p o4core -- --ignored  # Run integration tests (requires test clips)
 ```
 
+### Goldens
+
+`cargo test -p o4core -- --ignored` (and the individual `--test golden_*`/
+`--test e2e` runs) compare against Python-generated golden fixtures that
+are NOT checked in. Before running any `--ignored` test, generate them
+from the repo root:
+
+```bash
+python tools/dump_goldens.py   # ~10-20 min; writes untracked goldens/,
+                                # including the seeded reference goldens/ref_fixed.MP4
+```
+
 ## o4fix-cli (Task 16)
 
 `o4fix-cli` is a clap-derive CLI over `o4core::pipeline::process`, ported

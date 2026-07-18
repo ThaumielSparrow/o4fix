@@ -40,6 +40,20 @@ pub fn fs(t: &[f64]) -> f64 {
     1.0 / median(&t.windows(2).map(|w| w[1] - w[0]).collect::<Vec<_>>())
 }
 
+/// Run the full O4P repair pipeline on `video`.
+///
+/// - `video`: input MP4 with embedded O4P telemetry.
+/// - `out`: output path; `None` writes `VIDEO_fixed.MP4` next to the input
+///   (extension case preserved; see the default-naming branch below).
+/// - `cfg`: tuning parameters (detection thresholds, optical/patch knobs).
+/// - `on_progress`: called with a `Progress` message as each stage runs.
+/// - `cancel`: checked between stages and inside the optical-flow work
+///   (`optical::video_rates` polls it per interval); set it to abort early.
+///
+/// Returns `Outcome::Healthy` when no severe bursts are found — telemetry
+/// looks clean and NO output file is written. Otherwise returns
+/// `Outcome::Repaired` with the output path and per-burst optical-drift
+/// stats.
 pub fn process(video: &Path, out: Option<&Path>, cfg: &Config,
                on_progress: &(dyn Fn(Progress) + Sync), cancel: &AtomicBool)
     -> Result<Outcome, O4Error>
@@ -52,6 +66,13 @@ pub fn process(video: &Path, out: Option<&Path>, cfg: &Config,
 
     check()?;
     let tel = telemetry::extract_quats(video)?;
+    // rate-domain filtering needs > filtfilt padlen (15) samples; 100 = 0.1 s
+    // at 1 kHz, far below any real clip - turns degenerate-input panics
+    // (median/fs, filtfilt, find_intervals) into a clean error
+    if tel.t.len() < 100 {
+        return Err(O4Error::NoTelemetry(format!(
+            "only {} telemetry samples - clip too short to analyze", tel.t.len())));
+    }
     let fs = fs(&tel.t);
     say(Stage::Extract, format!(
         "   {} {}, {} quat samples @ {:.0} Hz, {:.1} s",
@@ -101,7 +122,9 @@ pub fn process(video: &Path, out: Option<&Path>, cfg: &Config,
         None => {
             let stem = video.file_stem().unwrap_or_default().to_string_lossy();
             let ext = video.extension().map(|e| e.to_string_lossy()).unwrap_or_default();
-            video.with_file_name(format!("{stem}_fixed.{ext}"))  // preserves .MP4 vs .mp4
+            let name = if ext.is_empty() { format!("{stem}_fixed") }
+                       else { format!("{stem}_fixed.{ext}") };  // preserves .MP4 vs .mp4
+            video.with_file_name(name)
         }
     };
     let wlog = |s: &str| say(Stage::Write, s.to_string());
