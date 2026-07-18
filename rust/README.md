@@ -13,7 +13,9 @@
   - `optical.rs` — video-based motion estimation (video_rates, fit_video_alignment)
   - `patch.rs` — quaternion rewriting (optical_patch, splice_orientation)
   - `pipeline.rs` — main processing pipeline (process)
-- `o4fix-cli/` — command-line interface (stub; Task 16 replaces with full CLI)
+- `o4fix-cli/` — command-line interface (`o4fix-cli.exe` binary; `src/args.rs`
+  is a clap-derive `Cli` mirroring `o4fix.py`'s argparse block field-for-field,
+  `src/main.rs` drives `o4core::pipeline::process` over each video)
 
 ## Dev commands
 
@@ -23,6 +25,40 @@ cargo build                   # Build all crates
 cargo test -p o4core         # Run o4core unit tests
 cargo test -p o4core -- --ignored  # Run integration tests (requires test clips)
 ```
+
+## o4fix-cli (Task 16)
+
+`o4fix-cli` is a clap-derive CLI over `o4core::pipeline::process`, ported
+from `o4fix.py`'s MP4-repair mode only. Flag names, help text, and every
+tuning default are copied field-for-field from `o4fix.py`'s `argparse`
+block (`--severe 8`, `--noise-band 30 180`, `--fast-wide-accel 1500`,
+etc. — see `src/args.rs`'s `Cli::to_config()` for the full mapping onto
+`o4core::config::Config`). The legacy gcsv pipeline stays Python-only per
+spec: `--gcsv`, `--plot`, `--orientation`, `--lpf`, `--no-optical` are
+intentionally NOT ported, so passing any of them errors out via clap's
+"unknown flag" handling — that error is the correct/intended behavior,
+not a bug.
+
+Build/run:
+
+```powershell
+cd rust
+cargo build -p o4fix-cli --release
+cargo test -p o4fix-cli                 # 3 CLI-parsing tests, no clip needed
+./target/release/o4fix-cli.exe VIDEO.MP4 -o OUT.MP4
+```
+
+**DEVIATION (exit codes):** `o4fix.py` always exits 0, even when
+`process(v, args)` fails for one of several input videos (Python's
+`main()` never checks a return value or catches per-video exceptions
+into a failure flag). `o4fix-cli` exits 1 (`std::process::ExitCode::FAILURE`)
+if *any* video in the batch fails, and 0 only if all succeed — better for
+scripting/CI, and it's what `process()`'s `Result` return already gives
+us for free. Usage errors (bad flags, `-o` with multiple videos) exit 2
+in both implementations (argparse's `p.error()` / clap's default `Error::exit()`).
+Console message text and order match Python's, with the one exception
+already noted in `pipeline.rs`'s doc comment (Task 15 deliberate reorder:
+the severe-burst-count line prints before optical progress, not after).
 
 ## OpenCV setup
 
