@@ -148,3 +148,92 @@ fn pair_rotation(prev: &Mat, gray: &Mat, k: &Mat, d: &Mat)
     let quality = (((inl - 60) as f64) / 150.0).min(1.0).max(0.0);
     Ok((rvec, quality))
 }
+
+use nalgebra::Matrix3;
+
+pub struct Alignment { pub shift: f64, pub n: [[f64; 3]; 3], pub r2: f64 }
+
+/// Ports o4fix.fit_video_alignment (o4fix.py:352-400).
+pub fn fit_video_alignment(opt: &OpticalRates, tm: &[f64],
+                           gyro_deg: &[[f64; 3]], fs: f64) -> Option<Alignment>
+{
+    use crate::dsp;
+    let good: Vec<usize> = (0..opt.quality.len())
+        .filter(|&i| opt.quality[i] > 0.5).collect();
+    if good.len() < 200 { return None; }
+    const R2D: f64 = 180.0 / std::f64::consts::PI;
+    let ovd: Vec<[f64; 3]> = good.iter()
+        .map(|&i| std::array::from_fn(|k| opt.omega[i][k] * R2D)).collect();
+    let tv: Vec<f64> = good.iter().map(|&i| opt.t[i]).collect();
+
+    // gyro_at: 10 ms-smoothed gyro sampled at query times (o4fix.py:363-366)
+    let sm = dsp::uniform_filter3(gyro_deg, ((fs / 100.0) as usize).max(1));
+    let cols: Vec<Vec<f64>> = (0..3).map(|k| sm.iter().map(|r| r[k]).collect()).collect();
+    let gyro_at = |tq: &[f64]| -> Vec<[f64; 3]> {
+        let per: Vec<Vec<f64>> = (0..3).map(|k| dsp::interp(tq, tm, &cols[k])).collect();
+        (0..tq.len()).map(|i| [per[0][i], per[1][i], per[2][i]]).collect()
+    };
+    let ba = dsp::butter_low(2, 5.0 / 50.0);
+    let lowf = |x: &[[f64; 3]]| dsp::filtfilt3(&ba, x);
+
+    let procrustes = |b: &[[f64; 3]], a: &[[f64; 3]]| -> [[f64; 3]; 3] {
+        let mut m = Matrix3::<f64>::zeros();   // B^T A
+        for i in 0..b.len() {
+            for r in 0..3 { for c in 0..3 { m[(r, c)] += b[i][r] * a[i][c]; } }
+        }
+        let svd = m.svd(true, true);
+        let n = svd.u.unwrap() * svd.v_t.unwrap();
+        std::array::from_fn(|r| std::array::from_fn(|c| n[(r, c)]))
+    };
+    let apply = |b: &[[f64; 3]], n: &[[f64; 3]; 3]| -> Vec<[f64; 3]> {
+        b.iter().map(|row| std::array::from_fn(|c| {
+            (0..3).map(|r| row[r] * n[r][c]).sum()
+        })).collect()
+    };
+    let pearson = |x: &[f64], y: &[f64]| -> f64 {
+        let n = x.len() as f64;
+        let (mx, my) = (x.iter().sum::<f64>() / n, y.iter().sum::<f64>() / n);
+        let (mut sxy, mut sxx, mut syy) = (0.0, 0.0, 0.0);
+        for i in 0..x.len() {
+            let (dx, dy) = (x[i] - mx, y[i] - my);
+            sxy += dx * dy; sxx += dx * dx; syy += dy * dy;
+        }
+        sxy / (sxx.sqrt() * syy.sqrt())
+    };
+
+    let b_low = lowf(&ovd);
+    let mut shift = 0.0f64;
+    let mut n_mat = [[0.0; 3]; 3];
+    for _ in 0..3 {
+        let tq: Vec<f64> = tv.iter().map(|t| t + shift).collect();
+        let a_low = lowf(&gyro_at(&tq));
+        n_mat = procrustes(&b_low, &a_low);
+        let p = apply(&b_low, &n_mat);
+        let mut best = (f64::NEG_INFINITY, shift);
+        for k in 0..=60 {                       // scan shift-0.06 .. +0.06 by 2 ms
+            let sh = shift - 0.06 + 0.002 * k as f64;
+            let tq: Vec<f64> = tv.iter().map(|t| t + sh).collect();
+            let g = lowf(&gyro_at(&tq));
+            let r: f64 = (0..3).map(|ax| pearson(
+                &g.iter().map(|r| r[ax]).collect::<Vec<_>>(),
+                &p.iter().map(|r| r[ax]).collect::<Vec<_>>(),
+            )).sum::<f64>() / 3.0;
+            if r > best.0 { best = (r, sh); }
+        }
+        shift = best.1;
+    }
+    let tq: Vec<f64> = tv.iter().map(|t| t + shift).collect();
+    let g = lowf(&gyro_at(&tq));
+    let p = apply(&b_low, &n_mat);
+    let (mut ss_res, mut ss_tot) = (0.0, 0.0);
+    let mean: [f64; 3] = std::array::from_fn(|k| {
+        g.iter().map(|r| r[k]).sum::<f64>() / g.len() as f64
+    });
+    for i in 0..g.len() {
+        for k in 0..3 {
+            ss_res += (g[i][k] - p[i][k]).powi(2);
+            ss_tot += (g[i][k] - mean[k]).powi(2);
+        }
+    }
+    Some(Alignment { shift, n: n_mat, r2: 1.0 - ss_res / ss_tot })
+}
