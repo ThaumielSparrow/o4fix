@@ -9,6 +9,8 @@ pub fn npz(name: &str) -> NpzReader<File> {
     NpzReader::new(File::open(repo(&format!("goldens/{name}"))).unwrap()).unwrap()
 }
 
+#[allow(dead_code)] // only golden_splice.rs's #[path] copy of this module calls it;
+                     // every other test binary compiles this file as its own crate
 pub fn npz_extract() -> (Vec<f64>, Vec<[f64; 4]>) {
     let mut z = npz("extract.npz");
     let t: Array1<f64> = z.by_name("t").unwrap();

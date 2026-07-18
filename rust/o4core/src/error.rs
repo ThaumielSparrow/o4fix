@@ -20,3 +20,7 @@ pub enum O4Error {
     #[error(transparent)]
     Io(#[from] std::io::Error),
 }
+
+impl From<opencv::Error> for O4Error {
+    fn from(e: opencv::Error) -> Self { O4Error::Cv(e.to_string()) }
+}

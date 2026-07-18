@@ -57,7 +57,7 @@ pub fn read_meta_track_samples(path: &Path) -> Result<Vec<(u64, u32)>, O4Error> 
     let mut hdr = [0u8; 16];
     while pos + 8 <= flen {
         f.seek(SeekFrom::Start(pos))?;
-        f.read_exact(&mut hdr[..8.min((flen - pos) as usize)]).ok();
+        f.read_exact(&mut hdr[..8])?;
         let mut size = u32::from_be_bytes(hdr[0..4].try_into().unwrap()) as u64;
         let is_moov = &hdr[4..8] == b"moov";
         let mut hsz = 8usize;
@@ -83,15 +83,16 @@ pub fn read_meta_track_samples(path: &Path) -> Result<Vec<(u64, u32)>, O4Error> 
         if &t != b"trak" { continue; }
         let Some(mdia) = find_box(&moov, tps, tpe, &[b"mdia"]) else { continue };
         let Some(hdlr) = find_box(&moov, mdia.0, mdia.1, &[b"hdlr"]) else { continue };
-        if &moov[hdlr.0 + 8..hdlr.0 + 12] != b"meta" { continue; }
-        let stbl = find_box(&moov, mdia.0, mdia.1, &[b"minf", b"stbl"])
-            .ok_or_else(|| O4Error::Mp4("no stbl".into()))?;
+        let Some(h) = moov.get(hdlr.0 + 8..hdlr.0 + 12) else { continue };
+        if h != b"meta" { continue; }
+        let Some(stbl) = find_box(&moov, mdia.0, mdia.1, &[b"minf", b"stbl"]) else { continue };
         let mut boxes = std::collections::HashMap::new();
         for (bt, bps, bpe) in walk_boxes(&moov, stbl.0, stbl.1) {
             boxes.insert(bt, (bps, bpe));
         }
         // stsz
-        let (sps, _) = boxes[b"stsz"];
+        let (sps, _) = *boxes.get(b"stsz")
+            .ok_or_else(|| O4Error::Mp4("meta track missing stsz".into()))?;
         let sample_size = be32(&moov, sps + 4) as u32;
         let count = be32(&moov, sps + 8) as usize;
         let sizes: Vec<u32> = if sample_size != 0 {
@@ -104,12 +105,14 @@ pub fn read_meta_track_samples(path: &Path) -> Result<Vec<(u64, u32)>, O4Error> 
             let n = be32(&moov, cps + 4) as usize;
             (0..n).map(|i| be32(&moov, cps + 8 + 4 * i)).collect()
         } else {
-            let (cps, _) = boxes[b"co64"];
+            let (cps, _) = *boxes.get(b"co64")
+                .ok_or_else(|| O4Error::Mp4("meta track missing stco/co64".into()))?;
             let n = be32(&moov, cps + 4) as usize;
             (0..n).map(|i| be64(&moov, cps + 8 + 8 * i)).collect()
         };
         // stsc
-        let (cps, _) = boxes[b"stsc"];
+        let (cps, _) = *boxes.get(b"stsc")
+            .ok_or_else(|| O4Error::Mp4("meta track missing stsc".into()))?;
         let n = be32(&moov, cps + 4) as usize;
         let stsc: Vec<(u64, u64)> = (0..n)
             .map(|i| (be32(&moov, cps + 8 + 12 * i), be32(&moov, cps + 12 + 12 * i)))
@@ -286,6 +289,12 @@ pub fn aligned_slots(video: &Path) -> Result<SlotTable, O4Error> {
 
 /// Deduped reference stream processed exactly like o4fix.extract_quats
 /// (sorted, deduped, sign-continuous, normalized) — the patching base.
+///
+/// LOCKSTEP: this must stay in exact agreement with
+/// `telemetry::extract_quats`'s sort/dedupe/flip/normalize contract — the
+/// e2e test's clean-zone EXACT-0.0 gate (`tests/e2e.rs`) enforces that
+/// agreement at runtime. Any edit to one function's sort/dedupe/sign-flip/
+/// normalize logic must be mirrored in the other.
 pub fn deduped_reference(st: &SlotTable) -> Vec<[f64; 4]> {
     let mut order: Vec<usize> = (0..st.ts_ms.len()).collect();
     order.sort_by(|&a, &b| st.ts_ms[a].total_cmp(&st.ts_ms[b]));
@@ -362,8 +371,7 @@ pub fn patch_video(video: &Path, out: &Path, q_target: Option<&[[f64; 4]]>)
         if *q == [0.0f32; 4] { return Err(O4Error::Mp4("all-zero quat in injected values".into())); }
     }
     std::fs::copy(video, out)?;
-    let f = std::fs::OpenOptions::new().read(true).write(true).open(out)?;
-    let mut w = std::io::BufWriter::new(f);
+    let mut f = std::fs::OpenOptions::new().read(true).write(true).open(out)?;
     // NOTE: slots are written in file order; unchanged rows re-write their
     // original f32 bytes (f64 came from f32, so the cast is lossless).
     let mut ordered: Vec<(u64, f32)> = Vec::with_capacity(st.offs.len() * 4);
@@ -372,10 +380,10 @@ pub fn patch_video(video: &Path, out: &Path, q_target: Option<&[[f64; 4]]>)
     }
     ordered.sort_by_key(|&(o, _)| o);
     for (o, v) in ordered {
-        w.get_ref().seek(SeekFrom::Start(o))?;
-        w.get_mut().write_all(&v.to_le_bytes())?;
+        f.seek(SeekFrom::Start(o))?;
+        f.write_all(&v.to_le_bytes())?;
     }
-    w.flush()?;
+    f.flush()?;
     Ok(PatchReport { slots: st.offs.len(), unchanged: unchanged_count,
                      new_f32, ts_ms: st.ts_ms })
 }

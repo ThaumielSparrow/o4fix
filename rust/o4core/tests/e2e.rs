@@ -58,6 +58,7 @@ fn e2e_matches_seeded_python_reference() {
             assert_eq!(d.min(dn), 0.0, "clean-zone sample {i} must be bit-exact");
         }
     }
+    std::fs::remove_file(&out).ok();
 }
 
 fn stream(p: &std::path::Path) -> (Vec<f64>, Vec<[f64; 4]>) {

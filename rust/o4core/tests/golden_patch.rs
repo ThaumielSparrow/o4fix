@@ -1,5 +1,5 @@
 #[path = "golden_telemetry.rs"] mod gt;
-use ndarray::{Array1, Array2};
+use ndarray::Array2;
 use std::sync::atomic::AtomicBool;
 
 #[test]
