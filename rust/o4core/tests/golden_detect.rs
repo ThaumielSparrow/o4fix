@@ -23,7 +23,7 @@ fn clean_stage_matches_python() {
     let fs = {
         let mut d: Vec<f64> = tel.t.windows(2).map(|w| w[1] - w[0]).collect();
         d.sort_by(f64::total_cmp);
-        1.0 / d[d.len() / 2]  // CAREFUL: np.median averages middle two for even n
+        1.0 / ((d[d.len()/2 - 1] + d[d.len()/2]) / 2.0)  // np.median, even n
     };
     let (tm, omega) = quat::quats_to_rates(&tel.t, &tel.q);
     let cfg = Config::default();
