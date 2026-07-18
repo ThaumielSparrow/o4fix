@@ -13,7 +13,7 @@
   - `optical.rs` — video-based motion estimation (video_rates, fit_video_alignment)
   - `patch.rs` — quaternion rewriting (optical_patch, splice_orientation)
   - `pipeline.rs` — main processing pipeline (process)
-- `o4fix-cli/` — command-line interface (`o4fix-cli.exe` binary; `src/args.rs`
+- `o4fix-cli/` — command-line interface (`o4fix.exe` binary; `src/args.rs`
   is a clap-derive `Cli` mirroring `o4fix.py`'s argparse block field-for-field,
   `src/main.rs` drives `o4core::pipeline::process` over each video)
 
@@ -45,7 +45,7 @@ Build/run:
 cd rust
 cargo build -p o4fix-cli --release
 cargo test -p o4fix-cli                 # 3 CLI-parsing tests, no clip needed
-./target/release/o4fix-cli.exe VIDEO.MP4 -o OUT.MP4
+./target/release/o4fix.exe VIDEO.MP4 -o OUT.MP4
 ```
 
 **DEVIATION (exit codes):** `o4fix.py` always exits 0, even when
