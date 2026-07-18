@@ -9,6 +9,7 @@ num-complex = "0.4"
 nalgebra = "0.33"
 rayon = "1"
 telemetry-parser = { git = "https://github.com/AdrianEddy/telemetry-parser", rev = "4abe30846be4da7d4e9dbbb55002f6d9cfd86ae5", version = "0.3.0" }
+opencv = "0.99.0"
 
 [dev-dependencies]
 serde_json = "1"
