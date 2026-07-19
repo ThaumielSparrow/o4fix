@@ -1,4 +1,5 @@
-#[path = "helpers.rs"] mod helpers;
+#[path = "helpers.rs"]
+mod helpers;
 use helpers::*;
 use o4core::quat::*;
 
