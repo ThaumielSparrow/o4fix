@@ -7,7 +7,9 @@ before each frame pair's essential-matrix estimation, so RANSAC is
 reproducible cross-language. o4fix.py itself is never modified; video_rates
 is monkeypatched with a seeded copy of its loop.
 
-Usage: python tools/dump_goldens.py   (~10-20 min: optical runs twice)
+Usage: python tools/dump_goldens.py            (~10-20 min: optical runs twice)
+       python tools/dump_goldens.py --m4-only   (~8-12 min: optical runs once;
+       only (re)generates goldens/ref_fixed_m4.MP4, skips the M2 stage dumps)
 """
 import argparse, json, sys
 from pathlib import Path
@@ -24,7 +26,7 @@ VIDEO = ROOT / "sample_vids/DJI_20260711124046_0021_D.MP4"
 GOLD = ROOT / "goldens"
 
 
-def build_args():
+def build_args(fast_wide_cutoff=0.0):
     return argparse.Namespace(
         output=None, gcsv=False, severe=8.0, severe_pad=0.2, severe_merge=0.2,
         ramp=0.3, plot=False, orientation="XYZ", light_cutoff=25.0,
@@ -32,7 +34,8 @@ def build_args():
         noise_band=[30.0, 180.0], noise_window=100.0, hampel_window=7,
         hampel_sigma=6.0, lpf=None, no_optical=False, optical_cutoff=8.0,
         fast_handback=[100.0, 250.0], patch_pad=0.5, patch_merge=1.0,
-        optical_noise=None, handback_cutoff=None, fast_wide_cutoff=0.0,
+        optical_noise=None, handback_cutoff=None,
+        fast_wide_cutoff=fast_wide_cutoff,
         fast_wide_ramp=[150.0, 300.0], fast_wide_accel=1500.0,
         anchor_mode=False, anchor_cutoff=1.5)
 
@@ -82,62 +85,78 @@ def seeded_video_rates(video_path, intervals, meta):
 
 def main():
     GOLD.mkdir(exist_ok=True)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--m4-only", action="store_true",
+                    help="only (re)generate goldens/ref_fixed_m4.MP4 (~10 min); "
+                         "skips the M2 stage dumps")
+    opts = ap.parse_args()
+
     args = build_args()
 
     t, q, meta = o4fix.extract_quats(VIDEO)
-    np.savez(GOLD / "extract.npz", t=t, q=q)
-    json.dump({k: meta.get(k) for k in
-               ("camera", "model", "frame_readout_time", "calib_dimension",
-                "fisheye_params")},
-              open(GOLD / "meta.json", "w"), default=str, indent=1)
-
     fs = 1.0 / np.median(np.diff(t))
     tm, omega = o4fix.quats_to_rates(t, q)
     clean, diag = o4fix.adaptive_clean(omega, fs, args)
-    np.savez(GOLD / "clean.npz", tm=tm, omega=omega, cleaned=clean,
-             alpha=diag["alpha"], noise=diag["noise"], light=diag["light"],
-             strong=diag["strong"], spike_frac=diag["spikes"].mean())
-
-    noisy = o4fix.find_intervals(diag["alpha"] > 0.15, tm,
-                                 pad_s=args.patch_pad,
-                                 merge_s=args.patch_merge, min_s=0.2)
-    calib_all = o4fix.find_intervals(diag["alpha"] < 0.02, tm, -0.2, 0.0, 3.0)
-    motion = np.degrees(np.linalg.norm(clean, axis=1))
-    scored = []
-    for (a, b) in calib_all:
-        m = (tm >= a) & (tm <= b)
-        scored.append((motion[m].std(), a, min(b, a + 4.0)))
-    scored.sort(reverse=True)
-    calib = [(a, b) for _, a, b in scored[:6]]
     severe = o4fix.find_intervals(diag["noise"] > args.severe, tm,
                                   args.severe_pad, args.severe_merge, 0.2)
-    np.savez(GOLD / "intervals.npz", noisy=np.array(noisy),
-             calib=np.array(calib), severe=np.array(severe))
+    o4fix.video_rates = seeded_video_rates      # monkeypatch once, both modes
 
-    tvc, ovc, qvc = seeded_video_rates(VIDEO, calib, meta)
-    np.savez(GOLD / "optical_calib.npz", t=tvc, omega=ovc, quality=qvc)
-    fit = o4fix.fit_video_alignment(tvc, ovc, qvc, tm, np.degrees(clean), fs)
-    shift, N, r2 = fit
-    np.savez(GOLD / "fit.npz", shift=shift, n=N, r2=r2)
-    tvn, ovn, qvn = seeded_video_rates(VIDEO, noisy, meta)
-    np.savez(GOLD / "optical_noisy.npz", t=tvn, omega=ovn, quality=qvn)
+    if not opts.m4_only:
+        np.savez(GOLD / "extract.npz", t=t, q=q)
+        json.dump({k: meta.get(k) for k in
+                   ("camera", "model", "frame_readout_time", "calib_dimension",
+                    "fisheye_params")},
+                  open(GOLD / "meta.json", "w"), default=str, indent=1)
 
-    o4fix.video_rates = seeded_video_rates       # monkeypatch, then full stage
-    patched = o4fix.optical_patch(VIDEO, tm, clean, diag, fs, args, meta)
-    np.savez(GOLD / "patched.npz", rates=patched)
+        np.savez(GOLD / "clean.npz", tm=tm, omega=omega, cleaned=clean,
+                 alpha=diag["alpha"], noise=diag["noise"], light=diag["light"],
+                 strong=diag["strong"], spike_frac=diag["spikes"].mean())
 
-    q_out, stats = o4fix.splice_orientation(t, q, patched, severe, args.ramp)
-    np.savez(GOLD / "splice.npz", q_out=q_out,
-             drifts=np.array([(a, b, d) for a, b, d in stats]))
+        noisy = o4fix.find_intervals(diag["alpha"] > 0.15, tm,
+                                     pad_s=args.patch_pad,
+                                     merge_s=args.patch_merge, min_s=0.2)
+        calib_all = o4fix.find_intervals(diag["alpha"] < 0.02, tm, -0.2, 0.0, 3.0)
+        motion = np.degrees(np.linalg.norm(clean, axis=1))
+        scored = []
+        for (a, b) in calib_all:
+            m = (tm >= a) & (tm <= b)
+            scored.append((motion[m].std(), a, min(b, a + 4.0)))
+        scored.sort(reverse=True)
+        calib = [(a, b) for _, a, b in scored[:6]]
+        np.savez(GOLD / "intervals.npz", noisy=np.array(noisy),
+                 calib=np.array(calib), severe=np.array(severe))
 
-    # SEEDED python-reference MP4 for the Task 15 e2e gate. The user's
-    # sample_vids/..._fixed.MP4 was made with unseeded RANSAC and is NOT
-    # bit-comparable; this one shares the rust seed scheme.
-    ok = mp4patch.inject_and_check(str(VIDEO), q_out, str(GOLD / "ref_fixed.MP4"))
-    assert ok, "python reference round-trip failed"
+        tvc, ovc, qvc = seeded_video_rates(VIDEO, calib, meta)
+        np.savez(GOLD / "optical_calib.npz", t=tvc, omega=ovc, quality=qvc)
+        fit = o4fix.fit_video_alignment(tvc, ovc, qvc, tm, np.degrees(clean), fs)
+        shift, N, r2 = fit
+        np.savez(GOLD / "fit.npz", shift=shift, n=N, r2=r2)
+        tvn, ovn, qvn = seeded_video_rates(VIDEO, noisy, meta)
+        np.savez(GOLD / "optical_noisy.npz", t=tvn, omega=ovn, quality=qvn)
 
-    so, qf, ts_ms, q_ref = mp4patch._aligned_slots(str(VIDEO))
-    np.savez(GOLD / "slots.npz", offs=so, q_file=qf, ts_ms=ts_ms, q_ref=q_ref)
+        patched = o4fix.optical_patch(VIDEO, tm, clean, diag, fs, args, meta)
+        np.savez(GOLD / "patched.npz", rates=patched)
+
+        q_out, stats = o4fix.splice_orientation(t, q, patched, severe, args.ramp)
+        np.savez(GOLD / "splice.npz", q_out=q_out,
+                 drifts=np.array([(a, b, d) for a, b, d in stats]))
+
+        # SEEDED python-reference MP4 for the Task 15 e2e gate. The user's
+        # sample_vids/..._fixed.MP4 was made with unseeded RANSAC and is NOT
+        # bit-comparable; this one shares the rust seed scheme.
+        ok = mp4patch.inject_and_check(str(VIDEO), q_out, str(GOLD / "ref_fixed.MP4"))
+        assert ok, "python reference round-trip failed"
+
+        so, qf, ts_ms, q_ref = mp4patch._aligned_slots(str(VIDEO))
+        np.savez(GOLD / "slots.npz", offs=so, q_file=qf, ts_ms=ts_ms, q_ref=q_ref)
+
+    # SEEDED M4 reference (Plan 2 Task 3): same clip, fast_wide_cutoff=16
+    args_m4 = build_args(fast_wide_cutoff=16.0)
+    patched_m4 = o4fix.optical_patch(VIDEO, tm, clean, diag, fs, args_m4, meta)
+    q_out_m4, _ = o4fix.splice_orientation(t, q, patched_m4, severe, args_m4.ramp)
+    ok = mp4patch.inject_and_check(str(VIDEO), q_out_m4,
+                                   str(GOLD / "ref_fixed_m4.MP4"))
+    assert ok, "python M4 reference round-trip failed"
     print("goldens written to", GOLD)
 
 

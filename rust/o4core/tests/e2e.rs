@@ -86,3 +86,36 @@ fn e2e_matches_seeded_python_reference() {
 fn stream(p: &std::path::Path) -> (Vec<f64>, Vec<[f64; 4]>) {
     o4core::telemetry::flat_quat_stream(p).unwrap()
 }
+
+#[test]
+#[ignore] // ~10 min: full pipeline incl. optical, M4 profile
+fn e2e_m4_matches_seeded_python_reference() {
+    let out = std::env::temp_dir().join("o4fix_e2e_m4_test.MP4");
+    let _ = std::fs::remove_file(&out);
+    let r = run(&Config::m4(), &out).unwrap();
+    let Outcome::Repaired { bursts, .. } = r else {
+        panic!("expected Repaired")
+    };
+    assert!(!bursts.is_empty());
+    let (t_r, q_r) = stream(&out);
+    let (t_p, q_p) = stream(&gt::repo("goldens/ref_fixed_m4.MP4"));
+    assert_eq!(t_r, t_p, "timestamps must be identical");
+    let mut zi = gt::npz("intervals.npz");
+    let sev: ndarray::Array2<f64> = zi.by_name("severe").unwrap();
+    for i in 0..q_r.len() {
+        let d = (0..4)
+            .map(|k| (q_r[i][k] - q_p[i][k]).abs())
+            .fold(0.0, f64::max);
+        let dn = (0..4)
+            .map(|k| (q_r[i][k] + q_p[i][k]).abs())
+            .fold(0.0, f64::max);
+        let t_s = t_r[i] / 1000.0;
+        let inside = (0..sev.nrows()).any(|j| t_s >= sev[[j, 0]] && t_s <= sev[[j, 1]]);
+        if inside {
+            assert!(d.min(dn) <= 1e-6, "repaired sample {i}: {}", d.min(dn));
+        } else {
+            assert_eq!(d.min(dn), 0.0, "clean-zone sample {i} must be bit-exact");
+        }
+    }
+    std::fs::remove_file(&out).ok();
+}
