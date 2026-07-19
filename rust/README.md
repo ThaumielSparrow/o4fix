@@ -45,6 +45,9 @@ python tools/dump_goldens.py   # ~10-20 min; writes untracked goldens/,
                                 # including the seeded reference goldens/ref_fixed.MP4
 ```
 
+`dump_goldens.py --m4-only` regenerates only `goldens/ref_fixed_m4.MP4`
+(M4-profile e2e reference; the full run now writes both).
+
 ## o4fix-cli (Task 16)
 
 `o4fix-cli` is a clap-derive CLI over `o4core::pipeline::process`, ported
