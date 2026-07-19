@@ -1,5 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod queue;
+mod settings;
+
 fn main() {
     // Portable zip = no installer bootstrapper; spec: runtime check + link.
     if tauri::webview_version().is_err() {
@@ -17,6 +20,14 @@ fn main() {
     }
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .manage(queue::AppState::default())
+        .invoke_handler(tauri::generate_handler![
+            queue::start_queue,
+            queue::cancel_job,
+            queue::pick_files,
+            queue::load_settings,
+            queue::save_settings
+        ])
         .run(tauri::generate_context!())
         .expect("error while running o4fix");
 }

@@ -1,5 +1,5 @@
 /// Tuning parameters. Defaults are the tuned M2 profile (spec §8).
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Config {
     pub severe: f64,
     pub severe_pad: f64,
