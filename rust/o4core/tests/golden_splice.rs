@@ -1,5 +1,5 @@
-#[path = "golden_telemetry.rs"]
-mod gt;
+mod common;
+use self::common as gt;
 use ndarray::Array2;
 
 #[test]

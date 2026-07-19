@@ -1,4 +1,28 @@
-#![allow(dead_code)]
+//! Shared test helpers. Lives in a subdirectory so Cargo does NOT compile
+//! it as its own test binary; each tests/*.rs declares `mod common;`.
+#![allow(dead_code)] // each test binary compiles its own copy and uses a subset
+use ndarray::{Array1, Array2};
+use ndarray_npy::NpzReader;
+use std::fs::File;
+
+pub fn repo(p: &str) -> std::path::PathBuf {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../")
+        .join(p)
+}
+pub fn npz(name: &str) -> NpzReader<File> {
+    NpzReader::new(File::open(repo(&format!("goldens/{name}"))).unwrap()).unwrap()
+}
+pub fn npz_extract() -> (Vec<f64>, Vec<[f64; 4]>) {
+    let mut z = npz("extract.npz");
+    let t: Array1<f64> = z.by_name("t").unwrap();
+    let q: Array2<f64> = z.by_name("q").unwrap();
+    let t_vec = t.to_vec();
+    let q_vec: Vec<[f64; 4]> = (0..q.nrows())
+        .map(|i| [q[[i, 0]], q[[i, 1]], q[[i, 2]], q[[i, 3]]])
+        .collect();
+    (t_vec, q_vec)
+}
 pub fn fx(name: &str) -> serde_json::Value {
     let p = format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"));
     serde_json::from_str(&std::fs::read_to_string(p).unwrap()).unwrap()

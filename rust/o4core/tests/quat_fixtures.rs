@@ -1,5 +1,5 @@
-#[path = "helpers.rs"]
-mod helpers;
+mod common;
+use self::common as helpers;
 use helpers::*;
 use o4core::quat::*;
 
