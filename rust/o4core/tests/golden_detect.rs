@@ -1,5 +1,5 @@
-#[path = "golden_telemetry.rs"]
-mod gt; // reuse repo()/npz() helpers via pub fns
+mod common;
+use self::common as gt;
 use ndarray::{Array1, Array2};
 use o4core::{config::Config, detect, quat};
 

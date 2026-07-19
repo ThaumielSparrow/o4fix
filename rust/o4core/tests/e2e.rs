@@ -1,5 +1,5 @@
-#[path = "golden_telemetry.rs"]
-mod gt;
+mod common;
+use self::common as gt;
 use o4core::config::Config;
 use o4core::pipeline::{process, Outcome, Progress};
 use std::sync::atomic::AtomicBool;
