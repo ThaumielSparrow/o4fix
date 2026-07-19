@@ -75,7 +75,7 @@ fn uniform3_matches_per_column() {
                 &col_result,
                 &col_expected,
                 0.0,
-                &format!("uniform3 size={} col={}", size, k),
+                &format!("uniform3 size={size} col={k}"),
             );
         }
     }

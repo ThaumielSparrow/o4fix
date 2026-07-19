@@ -209,7 +209,7 @@ fn pair_rotation(prev: &Mat, gray: &Mat, k: &Mat, d: &Mat) -> Result<([f64; 3], 
     let (v1, v2) = (rod(&r1)?, rod(&r2)?);
     let n = |v: &[f64; 3]| (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
     let rvec = if n(&v1) <= n(&v2) { v1 } else { v2 };
-    let quality = (((inl - 60) as f64) / 150.0).min(1.0).max(0.0);
+    let quality = (((inl - 60) as f64) / 150.0).clamp(0.0, 1.0);
     Ok((rvec, quality))
 }
 
@@ -321,9 +321,9 @@ pub fn fit_video_alignment(
     let mean: [f64; 3] =
         std::array::from_fn(|k| g.iter().map(|r| r[k]).sum::<f64>() / g.len() as f64);
     for i in 0..g.len() {
-        for k in 0..3 {
+        for (k, mk) in mean.iter().enumerate() {
             ss_res += (g[i][k] - p[i][k]).powi(2);
-            ss_tot += (g[i][k] - mean[k]).powi(2);
+            ss_tot += (g[i][k] - mk).powi(2);
         }
     }
     Some(Alignment {

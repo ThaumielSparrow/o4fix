@@ -10,6 +10,8 @@ use std::sync::atomic::AtomicBool;
 const R2D: f64 = 180.0 / std::f64::consts::PI;
 const D2R: f64 = std::f64::consts::PI / 180.0;
 
+// mirrors o4fix.py's optical_patch(video, tm, cleaned_rad, diag, fs, args, meta); log/cancel are Rust-only additions (no print()/cancellation in Python)
+#[allow(clippy::too_many_arguments)]
 pub fn optical_patch(
     video: &Path,
     tm: &[f64],
