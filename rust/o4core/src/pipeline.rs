@@ -24,6 +24,19 @@ pub enum Stage {
 pub struct Progress {
     pub stage: Stage,
     pub message: String,
+    /// Overall job fraction [0,1]. Events with an empty `message` are
+    /// pct-only ticks: CLI skips them, GUI drives the bar with them.
+    pub pct: f64,
+}
+
+/// Optical-stage share of overall progress: calib intervals 0.10-0.30,
+/// noisy intervals 0.30-0.85 (optical dominates wall time).
+pub fn optical_pct(phase: crate::patch::OptPhase, done: usize, total: usize) -> f64 {
+    let f = done as f64 / total.max(1) as f64;
+    match phase {
+        crate::patch::OptPhase::Calib => 0.10 + 0.20 * f,
+        crate::patch::OptPhase::Noisy => 0.30 + 0.55 * f,
+    }
 }
 
 #[derive(Debug)]
@@ -74,7 +87,13 @@ pub fn process(
     on_progress: &(dyn Fn(Progress) + Sync),
     cancel: &AtomicBool,
 ) -> Result<Outcome, O4Error> {
-    let say = |stage: Stage, message: String| on_progress(Progress { stage, message });
+    let say = |stage: Stage, pct: f64, message: String| {
+        on_progress(Progress {
+            stage,
+            message,
+            pct,
+        })
+    };
     let check = || -> Result<(), O4Error> {
         if cancel.load(Ordering::Relaxed) {
             Err(O4Error::Cancelled)
@@ -97,6 +116,7 @@ pub fn process(
     let fs = fs(&tel.t);
     say(
         Stage::Extract,
+        0.05,
         format!(
             "   {} {}, {} quat samples @ {:.0} Hz, {:.1} s",
             tel.meta.camera,
@@ -113,6 +133,7 @@ pub fn process(
     let frac = diag.alpha.iter().filter(|&&a| a > 0.5).count() as f64 / diag.alpha.len() as f64;
     say(
         Stage::Analyze,
+        0.08,
         format!(
             "   spikes replaced: {:.1}% of samples, noise bursts cover: {:.1}% of flight",
             diag.spike_frac * 100.0,
@@ -127,6 +148,7 @@ pub fn process(
     if intervals.is_empty() {
         say(
             Stage::Analyze,
+            1.0,
             format!(
                 "   no severe bursts (> {:?} deg/s band-RMS) found - telemetry \
              looks healthy, nothing to repair",
@@ -138,6 +160,7 @@ pub fn process(
     let tot: f64 = intervals.iter().map(|(a, b)| b - a).sum();
     say(
         Stage::Analyze,
+        0.10,
         format!(
             "   replacing orientation in {} severe bursts ({tot:.1} s)",
             intervals.len()
@@ -145,9 +168,30 @@ pub fn process(
     );
 
     check()?;
-    let log = |s: &str| say(Stage::Optical, s.to_string());
+    let opt_pct = std::sync::atomic::AtomicU64::new(0.10f64.to_bits());
+    let log = |s: &str| {
+        say(
+            Stage::Optical,
+            f64::from_bits(opt_pct.load(Ordering::Relaxed)),
+            s.to_string(),
+        )
+    };
+    let on_interval = |ph, d, n| {
+        let p = optical_pct(ph, d, n);
+        opt_pct.store(p.to_bits(), Ordering::Relaxed);
+        say(Stage::Optical, p, String::new()); // pct-only tick
+    };
     let patched = patch::optical_patch(
-        video, &tm, &cleaned, &diag, fs, cfg, &tel.meta, &log, cancel,
+        video,
+        &tm,
+        &cleaned,
+        &diag,
+        fs,
+        cfg,
+        &tel.meta,
+        &log,
+        &on_interval,
+        cancel,
     )?;
 
     check()?;
@@ -155,6 +199,7 @@ pub fn process(
     for b in &bursts {
         say(
             Stage::Splice,
+            0.87,
             format!(
                 "     [{:7.2}, {:7.2}] optical drift over burst: {:5.2} deg",
                 b.start, b.end, b.drift_deg
@@ -179,11 +224,12 @@ pub fn process(
             video.with_file_name(name)
         }
     };
-    let wlog = |s: &str| say(Stage::Write, s.to_string());
+    let wlog = |s: &str| say(Stage::Write, 0.92, s.to_string());
     match mp4::inject_and_check(video, &out_path, &q_out, &wlog) {
         Ok(true) => {
             say(
                 Stage::Write,
+                1.0,
                 format!(
                     "   wrote {} - load it in Gyroflow like a stock recording",
                     out_path.display()
@@ -215,5 +261,16 @@ mod tests {
         assert_eq!(median(&[1.0, 3.0, 2.0]), 2.0); // odd: middle after sort
         assert_eq!(median(&[5.0]), 5.0);
         assert!((fs(&[0.0, 0.001, 0.002, 0.0035]) - 1000.0).abs() < 1e-9); // median dt = 1 ms
+    }
+
+    #[test]
+    fn optical_pct_anchors() {
+        use crate::patch::OptPhase::*;
+        assert!((optical_pct(Calib, 0, 4) - 0.10).abs() < 1e-12);
+        assert!((optical_pct(Calib, 4, 4) - 0.30).abs() < 1e-12);
+        assert!((optical_pct(Noisy, 0, 23) - 0.30).abs() < 1e-12);
+        assert!((optical_pct(Noisy, 23, 23) - 0.85).abs() < 1e-12);
+        assert!(optical_pct(Noisy, 0, 0).is_finite()); // total=0 guarded by max(1)
+        assert!(optical_pct(Calib, 1, 4) < optical_pct(Calib, 2, 4)); // monotone
     }
 }

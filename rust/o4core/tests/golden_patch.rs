@@ -21,6 +21,7 @@ fn patched_rates_match_python() {
         &cfg,
         &tel.meta,
         &|s: &str| println!("{s}"),
+        &|_, _, _| (),
         &AtomicBool::new(false),
     )
     .unwrap();
