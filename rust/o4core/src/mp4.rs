@@ -243,20 +243,19 @@ fn sub(buf: &[u8], span: (usize, usize), field_no: u64) -> Option<(usize, usize)
         .map(|(_, _, ps, pe)| (ps, pe))
 }
 
+/// (absolute file offsets of the 4 float payloads, wxyz f32 values)
+type AttEntry = ([Option<u64>; 4], [f32; 4]);
+
 pub struct ScanSample {
     pub offset: u64,
     pub size: u32,
     pub frame_ts: Option<u64>,
-    /// (absolute file offsets of the 4 float payloads, wxyz f32 values)
-    pub atts: Vec<([Option<u64>; 4], [f32; 4])>,
+    pub atts: Vec<AttEntry>,
     pub att_offset: f32,
 }
 
 /// Ports mp4patch.scan_sample (mp4patch.py:221-257).
-fn scan_sample(
-    data: &[u8],
-    base_off: u64,
-) -> (Option<u64>, Vec<([Option<u64>; 4], [f32; 4])>, f32) {
+fn scan_sample(data: &[u8], base_off: u64) -> (Option<u64>, Vec<AttEntry>, f32) {
     let Some(fm) = sub(data, (0, data.len()), 3) else {
         return (None, vec![], 0.0);
     };
