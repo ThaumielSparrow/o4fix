@@ -1,4 +1,5 @@
-#[path = "golden_telemetry.rs"] mod gt;
+#[path = "golden_telemetry.rs"]
+mod gt;
 use ndarray::Array2;
 
 #[test]
@@ -11,11 +12,18 @@ fn slot_scan_matches_python() {
     let mut vals = Vec::new();
     for s in &scanned {
         for (o, v) in &s.atts {
-            if v.iter().any(|x| x.is_nan()) { continue; }
+            if v.iter().any(|x| x.is_nan()) {
+                continue;
+            }
             let q64: [f64; 4] = core::array::from_fn(|i| v[i] as f64);
             let qo = o4core::mp4::file_to_out(q64);
-            if qo == [0.0; 4] { continue; }
-            assert!(o.iter().all(|x| x.is_some()), "omitted field in scanned quat");
+            if qo == [0.0; 4] {
+                continue;
+            }
+            assert!(
+                o.iter().all(|x| x.is_some()),
+                "omitted field in scanned quat"
+            );
             offs.push([o[0].unwrap(), o[1].unwrap(), o[2].unwrap(), o[3].unwrap()]);
             vals.push(q64);
         }

@@ -11,14 +11,28 @@ fn main() -> std::process::ExitCode {
     let cancel = AtomicBool::new(false); // v1: Ctrl+C kills the process; GUI adds real cancel
     let mut failed = false;
     for video in &cli.videos {
-        println!("== {}", video.file_name().unwrap_or_default().to_string_lossy());
+        println!(
+            "== {}",
+            video.file_name().unwrap_or_default().to_string_lossy()
+        );
         let r = o4core::pipeline::process(
-            video, cli.output.as_deref(), &cfg,
-            &|p| println!("{}", p.message), &cancel);
+            video,
+            cli.output.as_deref(),
+            &cfg,
+            &|p| println!("{}", p.message),
+            &cancel,
+        );
         match r {
-            Ok(_) => {}                       // Repaired and Healthy both print their own lines
-            Err(e) => { eprintln!("   ERROR: {e}"); failed = true; }
+            Ok(_) => {} // Repaired and Healthy both print their own lines
+            Err(e) => {
+                eprintln!("   ERROR: {e}");
+                failed = true;
+            }
         }
     }
-    if failed { std::process::ExitCode::FAILURE } else { std::process::ExitCode::SUCCESS }
+    if failed {
+        std::process::ExitCode::FAILURE
+    } else {
+        std::process::ExitCode::SUCCESS
+    }
 }
