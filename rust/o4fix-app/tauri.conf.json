@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "o4fix",
+  "version": "0.1.0",
+  "identifier": "com.thaumielsparrow.o4fix",
+  "build": { "frontendDist": "ui" },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "o4fix — DJI O4 Pro gyro repair",
+        "width": 920,
+        "height": 680,
+        "minWidth": 720,
+        "minHeight": 520,
+        "dragDropEnabled": true
+      }
+    ],
+    "security": { "csp": null }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.ico"] }
+}

@@ -17,5 +17,9 @@ __pycache__/
 # rust
 rust/target/
 
+# tauri-build regenerates these capability-schema files every build
+# (used only for IDE autocompletion of capabilities/*.json, not source)
+rust/o4fix-app/gen/schemas/
+
 # gyroflow projects are kept: they're small JSON eval configs
 !*.gyroflow
