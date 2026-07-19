@@ -26,6 +26,13 @@ cargo test -p o4core         # Run o4core unit tests
 cargo test -p o4core -- --ignored  # Run integration tests (requires test clips)
 ```
 
+### Formatting
+
+The workspace is rustfmt-clean and CI enforces `cargo fmt --check`.
+The initial mechanical reformat is listed in `.git-blame-ignore-revs`;
+run `git config blame.ignoreRevsFile .git-blame-ignore-revs` once locally
+so `git blame` skips it.
+
 ### Goldens
 
 `cargo test -p o4core -- --ignored` (and the individual `--test golden_*`/
