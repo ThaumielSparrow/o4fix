@@ -10,6 +10,12 @@ use std::sync::atomic::AtomicBool;
 const R2D: f64 = 180.0 / std::f64::consts::PI;
 const D2R: f64 = std::f64::consts::PI / 180.0;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum OptPhase {
+    Calib,
+    Noisy,
+}
+
 // mirrors o4fix.py's optical_patch(video, tm, cleaned_rad, diag, fs, args, meta); log/cancel are Rust-only additions (no print()/cancellation in Python)
 #[allow(clippy::too_many_arguments)]
 pub fn optical_patch(
@@ -21,6 +27,7 @@ pub fn optical_patch(
     cfg: &Config,
     meta: &Meta,
     log: &(dyn Fn(&str) + Sync),
+    on_interval: &(dyn Fn(OptPhase, usize, usize) + Sync),
     cancel: &AtomicBool,
 ) -> Result<Vec<[f64; 3]>, O4Error> {
     // alpha_opt: separate optical trigger if configured (o4fix.py:405-412)
@@ -88,7 +95,9 @@ pub fn optical_patch(
         calib.len(),
         total
     ));
-    let opt_c = optical::video_rates(video, &calib, meta, cancel, &|_, _| ())?;
+    let opt_c = optical::video_rates(video, &calib, meta, cancel, &|d, n| {
+        on_interval(OptPhase::Calib, d, n)
+    })?;
     let gyro_deg: Vec<[f64; 3]> = cleaned
         .iter()
         .map(|r| core::array::from_fn(|k| r[k] * R2D))
@@ -106,7 +115,9 @@ pub fn optical_patch(
         return Err(O4Error::CalibrationFailed { r2: Some(al.r2) });
     }
 
-    let opt_n = optical::video_rates(video, &noisy, meta, cancel, &|_, _| ())?;
+    let opt_n = optical::video_rates(video, &noisy, meta, cancel, &|d, n| {
+        on_interval(OptPhase::Noisy, d, n)
+    })?;
     if opt_n.t.is_empty() {
         // DEVIATION from o4fix.py:456 (`return clean`): python's caller detects
         // that via `patched is clean` and refuses to write output; Rust makes

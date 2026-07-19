@@ -19,7 +19,11 @@ fn main() -> std::process::ExitCode {
             video,
             cli.output.as_deref(),
             &cfg,
-            &|p| println!("{}", p.message),
+            &|p| {
+                if !p.message.is_empty() {
+                    println!("{}", p.message)
+                }
+            },
             &cancel,
         );
         match r {

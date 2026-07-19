@@ -10,7 +10,11 @@ fn run(cfg: &Config, out: &std::path::Path) -> Result<Outcome, o4core::error::O4
         &video,
         Some(out),
         cfg,
-        &|p: Progress| println!("{}", p.message),
+        &|p: Progress| {
+            if !p.message.is_empty() {
+                println!("{}", p.message)
+            }
+        },
         &AtomicBool::new(false),
     )
 }
