@@ -26,5 +26,5 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
         working-directory: rust
       - name: Unit tests
-        run: cargo test -p o4core -p o4fix-cli
+        run: cargo test -p o4core -p o4fix-cli -p o4fix-app
         working-directory: rust
