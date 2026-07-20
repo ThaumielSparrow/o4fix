@@ -16,7 +16,7 @@ pub enum OptPhase {
     Noisy,
 }
 
-// mirrors o4fix.py's optical_patch(video, tm, cleaned_rad, diag, fs, args, meta); log/cancel are Rust-only additions (no print()/cancellation in Python)
+// mirrors o4fix.py's optical_patch(video, tm, cleaned_rad, diag, fs, args, meta); log/on_interval/cancel are Rust-only additions (no print()/cancellation in Python)
 #[allow(clippy::too_many_arguments)]
 pub fn optical_patch(
     video: &Path,
