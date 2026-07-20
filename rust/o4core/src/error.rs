@@ -22,5 +22,7 @@ pub enum O4Error {
 }
 
 impl From<opencv::Error> for O4Error {
-    fn from(e: opencv::Error) -> Self { O4Error::Cv(e.to_string()) }
+    fn from(e: opencv::Error) -> Self {
+        O4Error::Cv(e.to_string())
+    }
 }

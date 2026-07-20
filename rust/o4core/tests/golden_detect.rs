@@ -1,12 +1,14 @@
-#[path = "golden_telemetry.rs"] mod gt; // reuse repo()/npz() helpers via pub fns
+mod common;
+use self::common as gt;
 use ndarray::{Array1, Array2};
 use o4core::{config::Config, detect, quat};
 
 #[test]
 #[ignore]
 fn clean_stage_matches_python() {
-    let tel = o4core::telemetry::extract_quats(
-        &gt::repo("sample_vids/DJI_20260711124046_0021_D.MP4")).unwrap();
+    let tel =
+        o4core::telemetry::extract_quats(&gt::repo("sample_vids/DJI_20260711124046_0021_D.MP4"))
+            .unwrap();
     let mut z = gt::npz("clean.npz");
     let tm_g: Array1<f64> = z.by_name("tm").unwrap();
     let omega_g: Array2<f64> = z.by_name("omega").unwrap();
@@ -19,7 +21,7 @@ fn clean_stage_matches_python() {
     let fs = {
         let mut d: Vec<f64> = tel.t.windows(2).map(|w| w[1] - w[0]).collect();
         d.sort_by(f64::total_cmp);
-        1.0 / ((d[d.len()/2 - 1] + d[d.len()/2]) / 2.0)  // np.median, even n
+        1.0 / ((d[d.len() / 2 - 1] + d[d.len() / 2]) / 2.0) // np.median, even n
     };
     let (tm, omega) = quat::quats_to_rates(&tel.t, &tel.q);
     let cfg = Config::default();
@@ -29,8 +31,14 @@ fn clean_stage_matches_python() {
     for i in 0..tm.len() {
         assert!((tm[i] - tm_g[i]).abs() <= 1e-12);
         for k in 0..3 {
-            assert!((omega[i][k] - omega_g[[i, k]]).abs() <= 1e-11, "omega[{i}][{k}]");
-            assert!((cleaned[i][k] - cleaned_g[[i, k]]).abs() <= 1e-9, "cleaned[{i}][{k}]");
+            assert!(
+                (omega[i][k] - omega_g[[i, k]]).abs() <= 1e-11,
+                "omega[{i}][{k}]"
+            );
+            assert!(
+                (cleaned[i][k] - cleaned_g[[i, k]]).abs() <= 1e-9,
+                "cleaned[{i}][{k}]"
+            );
             assert!((diag.light[i][k] - light_g[[i, k]]).abs() <= 1e-9);
             assert!((diag.strong[i][k] - strong_g[[i, k]]).abs() <= 1e-9);
         }
@@ -44,10 +52,22 @@ fn clean_stage_matches_python() {
     let severe_g: Array2<f64> = zi.by_name("severe").unwrap();
     let noisy = detect::find_intervals(
         &diag.alpha.iter().map(|&a| a > 0.15).collect::<Vec<_>>(),
-        &tm, cfg.patch_pad, cfg.patch_merge, 0.2);
+        &tm,
+        cfg.patch_pad,
+        cfg.patch_merge,
+        0.2,
+    );
     let severe = detect::find_intervals(
-        &diag.noise.iter().map(|&n| n > cfg.severe).collect::<Vec<_>>(),
-        &tm, cfg.severe_pad, cfg.severe_merge, 0.2);
+        &diag
+            .noise
+            .iter()
+            .map(|&n| n > cfg.severe)
+            .collect::<Vec<_>>(),
+        &tm,
+        cfg.severe_pad,
+        cfg.severe_merge,
+        0.2,
+    );
     assert_eq!(noisy.len(), noisy_g.nrows());
     for (i, (a, b)) in noisy.iter().enumerate() {
         assert!((a - noisy_g[[i, 0]]).abs() <= 1e-12 && (b - noisy_g[[i, 1]]).abs() <= 1e-12);

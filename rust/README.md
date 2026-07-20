@@ -16,6 +16,9 @@
 - `o4fix-cli/` — command-line interface (`o4fix.exe` binary; `src/args.rs`
   is a clap-derive `Cli` mirroring `o4fix.py`'s argparse block field-for-field,
   `src/main.rs` drives `o4core::pipeline::process` over each video)
+- `o4fix-app/` — Tauri 2 GUI ("o4fix-app.exe"; plain HTML/CSS/JS in ui/,
+  no Node build step; settings persist to
+  %APPDATA%\com.thaumielsparrow.o4fix\settings.json)
 
 ## Dev commands
 
@@ -24,7 +27,16 @@ cd rust
 cargo build                   # Build all crates
 cargo test -p o4core         # Run o4core unit tests
 cargo test -p o4core -- --ignored  # Run integration tests (requires test clips)
+cargo run -p o4fix-app        # Run the GUI in debug (devtools via right-click → Inspect)
+cargo build --release -p o4fix-app  # Build the GUI in release
 ```
+
+### Formatting
+
+The workspace is rustfmt-clean and CI enforces `cargo fmt --check`.
+The initial mechanical reformat is listed in `.git-blame-ignore-revs`;
+run `git config blame.ignoreRevsFile .git-blame-ignore-revs` once locally
+so `git blame` skips it.
 
 ### Goldens
 
@@ -37,6 +49,9 @@ from the repo root:
 python tools/dump_goldens.py   # ~10-20 min; writes untracked goldens/,
                                 # including the seeded reference goldens/ref_fixed.MP4
 ```
+
+`dump_goldens.py --m4-only` regenerates only `goldens/ref_fixed_m4.MP4`
+(M4-profile e2e reference; the full run now writes both).
 
 ## o4fix-cli (Task 16)
 
