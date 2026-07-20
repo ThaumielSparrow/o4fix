@@ -5,6 +5,10 @@ let settings = null;              // GuiSettings from backend
 let pending = [];                 // absolute paths not yet queued
 const rows = new Map();           // job id -> DOM refs
 let activeJobs = 0;
+// events that can arrive before start()'s row registration runs (instant-error
+// jobs emit job_done synchronously from the backend thread) — buffered and
+// replayed once the row exists.
+let earlyEvents = [];
 
 const $ = (id) => document.getElementById(id);
 const busy = () => activeJobs > 0;
@@ -42,26 +46,37 @@ async function start() {
     li.dataset.id = id;
     const cancelBtn = li.querySelector(".cancel");
     cancelBtn.hidden = false;
-    cancelBtn.onclick = () => invoke("cancel_job", { id });
+    cancelBtn.onclick = () => {
+      const r = rows.get(id);
+      if (r) { r.cancelling = true; r.chip.textContent = "cancelling…"; r.chip.className = "chip cancelled"; }
+      cancelBtn.disabled = true;
+      invoke("cancel_job", { id });
+    };
     rows.set(id, { li, chip: li.querySelector(".chip"),
                    bar: li.querySelector("progress"),
                    msg: li.querySelector(".msg"), cancel: cancelBtn });
   });
+  const replay = earlyEvents;
+  earlyEvents = [];
+  for (const [fn, e] of replay) fn(e);
   pending = [];
   setControls();
 }
 
 function onProgress(e) {
   const r = rows.get(e.payload.id);
-  if (!r) return;
-  r.chip.textContent = e.payload.stage;
-  r.chip.className = "chip " + e.payload.stage.replace(/ /g, "-");
+  if (!r) { earlyEvents.push([onProgress, e]); return; }
+  if (!r.cancelling) {
+    r.chip.textContent = e.payload.stage;
+    r.chip.className = "chip " + e.payload.stage.replace(/ /g, "-");
+  }
   r.bar.value = e.payload.pct;
 }
 
 function onLog(e) {
   const r = rows.get(e.payload.id);
-  const name = r ? r.li.querySelector(".fname").textContent : e.payload.id;
+  if (!r) { earlyEvents.push([onLog, e]); return; }
+  const name = r.li.querySelector(".fname").textContent;
   $("log").textContent += `[${name}]${e.payload.line}\n`;
   $("log").scrollTop = $("log").scrollHeight;
 }
@@ -69,7 +84,7 @@ function onLog(e) {
 function onDone(e) {
   const { id, status, message } = e.payload;
   const r = rows.get(id);
-  if (!r) return;
+  if (!r) { earlyEvents.push([onDone, e]); return; }
   r.chip.textContent = status === "healthy" ? "healthy — nothing to repair" : status;
   r.chip.className = "chip " + status;
   r.cancel.hidden = true;
