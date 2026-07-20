@@ -1,6 +1,53 @@
 <!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <title>o4fix</title>
-<body style="background:#12161e;color:#e6ebf0;font-family:sans-serif">
-  <h1>o4fix scaffold OK</h1>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>o4fix <span class="sub">DJI O4 Pro gyro repair</span></h1>
+  <button id="gear" title="Advanced settings">⚙</button>
+</header>
+<main>
+  <div id="dropzone" tabindex="0">
+    <p><strong>Drop DJI O4 Pro videos here</strong></p>
+    <p>or click to browse</p>
+  </div>
+  <div class="bar">
+    <button id="start" disabled>Start repair</button>
+    <button id="clear" disabled>Clear finished</button>
+    <span id="profile-badge">Profile: Default (M2)</span>
+  </div>
+  <ul id="queue"></ul>
+  <details id="logpane">
+    <summary>Log</summary>
+    <pre id="log"></pre>
+  </details>
+</main>
+<aside id="settings" hidden>
+  <h2>Advanced settings <button id="close-settings">✕</button></h2>
+  <fieldset id="profiles">
+    <legend>Profile</legend>
+    <label><input type="radio" name="profile" value="m2"> Default (M2)</label>
+    <label><input type="radio" name="profile" value="m4"> Sharp-turn (M4)</label>
+    <label><input type="radio" name="profile" value="custom"> Custom</label>
+    <button id="reset">Reset to defaults</button>
+  </fieldset>
+  <div id="fields"></div>
+  <fieldset>
+    <legend>App</legend>
+    <label>Output folder <input id="output-dir" type="text"
+           placeholder="next to source video">
+           <button id="browse-out">…</button>
+           <button id="clear-out" title="back to next-to-source">✕</button></label>
+    <label>Parallel files
+      <select id="concurrent"><option>1</option><option>2</option><option>3</option></select>
+    </label>
+  </fieldset>
+</aside>
+<script src="help.js"></script>
+<script src="app.js"></script>
 </body>
+</html>
