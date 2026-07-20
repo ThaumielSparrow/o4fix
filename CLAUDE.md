@@ -165,6 +165,7 @@ blackbox gyro, would be needed).
 
 ## Possible follow-ups (nothing blocking)
 
+- DONE (Plan 2, 2026-07-19): Rust port shipped as o4fix-app GUI + CLI, portable zip on GitHub Releases (v0.1.0), CI on GitHub Actions. Multi-clip validation still open (deferred post-release).
 - Validate on more clips from the same unit (only one test clip so far);
   o4fix prints per-burst optical drift — watch for calibration R² < 0.8
   fallback on clips without clean sections.
