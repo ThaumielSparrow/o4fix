@@ -5,7 +5,7 @@ use ndarray::Array2;
 #[test]
 #[ignore] // needs test clip + goldens
 fn splice_matches_python() {
-    let (t, q) = gt::npz_extract(); // helper added below: (Vec<f64>, Vec<[f64;4]>) from extract.npz
+    let (t, q) = gt::npz_extract(); // helper in tests/common: (Vec<f64>, Vec<[f64;4]>) from extract.npz
     let mut zp = gt::npz("patched.npz");
     let rates: Array2<f64> = zp.by_name("rates").unwrap();
     let omega: Vec<[f64; 3]> = (0..rates.nrows())
