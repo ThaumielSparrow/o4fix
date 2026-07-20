@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate JSON unit fixtures for the Rust port from numpy/scipy/o4fix.
 
-Writes rust/o4core/tests/fixtures/*.json. Values come from the exact
+Writes o4core/tests/fixtures/*.json. Values come from the exact
 reference code the port must match. Commit the outputs.
 """
 import json, sys
@@ -10,11 +10,12 @@ import numpy as np
 from scipy.ndimage import median_filter, uniform_filter1d
 from scipy.signal import butter, filtfilt, lfilter, lfilter_zi
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+PY = Path(__file__).resolve().parents[1]   # python/  (o4fix lives here)
+REPO = PY.parent                           # repo root (o4core/ lives here)
+sys.path.insert(0, str(PY))
 import o4fix
 
-OUT = ROOT / "rust/o4core/tests/fixtures"
+OUT = REPO / "o4core/tests/fixtures"
 
 def j(x):
     return np.asarray(x, dtype=np.float64).tolist()

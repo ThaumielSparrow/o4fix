@@ -7,7 +7,7 @@ use std::fs::File;
 
 pub fn repo(p: &str) -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../")
+        .join("../")
         .join(p)
 }
 pub fn npz(name: &str) -> NpzReader<File> {

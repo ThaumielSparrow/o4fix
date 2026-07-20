@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Print telemetry-parser's flat quat stream as CSV: t_ms,w,x,y,z.
 
-Python twin of rust/o4core/examples/dump_quats.rs (Task 3 spike). Reads
+Python twin of o4core/examples/dump_quats.rs (Task 3 spike). Reads
 the same GroupId::Quaternion / TagId::Data flat stream in raw emission
 order (no sort, no dedup) via mp4patch._flat_reference(), which itself
 calls the `telemetry_parser` Python bindings' Parser.telemetry(). Both

@@ -22,8 +22,9 @@
 
 ## Dev commands
 
+Run all cargo commands from the repo root (the Cargo workspace lives there).
+
 ```bash
-cd rust
 cargo build                   # Build all crates
 cargo test -p o4core         # Run o4core unit tests
 cargo test -p o4core -- --ignored  # Run integration tests (requires test clips)
@@ -46,7 +47,7 @@ are NOT checked in. Before running any `--ignored` test, generate them
 from the repo root:
 
 ```bash
-python tools/dump_goldens.py   # ~10-20 min; writes untracked goldens/,
+python python/tools/dump_goldens.py   # ~10-20 min; writes untracked goldens/,
                                 # including the seeded reference goldens/ref_fixed.MP4
 ```
 
@@ -69,7 +70,6 @@ not a bug.
 Build/run:
 
 ```powershell
-cd rust
 cargo build -p o4fix-cli --release
 cargo test -p o4fix-cli                 # 3 CLI-parsing tests, no clip needed
 ./target/release/o4fix.exe VIDEO.MP4 -o OUT.MP4
@@ -239,13 +239,13 @@ conventions).
 to the installed Python bindings' output on the real test clip
 (`sample_vids/DJI_20260711124046_0021_D.MP4`, 352,736 flat quat-stream
 rows, sha256 `8964bfea733954cd0ba2c7b1ccc4c277cd3750c757de02e527b64abcdfaf3300`
-on both sides). See `rust/o4core/examples/dump_quats.rs` /
-`tools/dump_quats_py.py` (untracked CSVs; do not commit them).
+on both sides). See `o4core/examples/dump_quats.rs` /
+`python/tools/dump_quats_py.py` (untracked CSVs; do not commit them).
 
 ### Pin
 
 ```toml
-# rust/o4core/Cargo.toml
+# o4core/Cargo.toml
 telemetry-parser = { git = "https://github.com/AdrianEddy/telemetry-parser", rev = "4abe30846be4da7d4e9dbbb55002f6d9cfd86ae5", version = "0.3.0" }
 ```
 
@@ -337,7 +337,7 @@ downstream in `o4fix.extract_quats` / Task 7's `telemetry.rs`), full
 precision (18 significant digits: `{:.17e}` in Rust). Python's `%.17e`
 renders the identical mantissa digits but a different exponent
 convention (always-signed, >=2-digit-padded, e.g. `e+03`/`e-04` vs.
-Rust's `e3`/`e-4`) — `tools/dump_quats_py.py`'s `_rust_exp()` re-renders
+Rust's `e3`/`e-4`) — `python/tools/dump_quats_py.py`'s `_rust_exp()` re-renders
 to Rust's convention before comparing, and Python's stdout also needs
 `reconfigure(newline="\n")` on Windows or it CRLF-translates and breaks
 the byte diff. Neither adjustment changes any data value; both are

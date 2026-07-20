@@ -1,8 +1,8 @@
-"""One-off: generate rust/o4fix-app/icons/icon.ico (output is committed)."""
+"""One-off: generate o4fix-app/icons/icon.ico (output is committed)."""
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-out = Path(__file__).resolve().parents[1] / "rust/o4fix-app/icons/icon.ico"
+out = Path(__file__).resolve().parents[2] / "o4fix-app/icons/icon.ico"
 out.parent.mkdir(parents=True, exist_ok=True)
 img = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
 d = ImageDraw.Draw(img)

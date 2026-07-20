@@ -8,8 +8,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.88.0
         with:
           components: rustfmt
-      - run: cargo fmt --check
-        working-directory: rust
+      - run: cargo fmt --all --check
   test:
     runs-on: windows-latest
     timeout-minutes: 45
@@ -20,11 +19,7 @@ jobs:
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: rust
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
-        working-directory: rust
       - name: Unit tests
         run: cargo test -p o4core -p o4fix-cli -p o4fix-app
-        working-directory: rust
