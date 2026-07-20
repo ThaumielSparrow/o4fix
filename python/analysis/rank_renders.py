@@ -6,11 +6,11 @@ import numpy as np
 from scipy.signal import butter, filtfilt
 from scipy.ndimage import uniform_filter1d
 
-root = Path(r"C:\Users\lzhan\Desktop\o4prostab")
-sys.path.insert(0, str(root))
+PY = Path(__file__).resolve().parents[1]   # python/
+sys.path.insert(0, str(PY))
 import o4fix
 
-CACHE = root / "analysis/cache"
+CACHE = PY / "analysis/cache"
 STEMS = ["DJI_20260711124046_0021_D", "eval_A_embedded",
          "eval_B_gcsv_current", "eval_C_lpf50", "eval_D_v2",
          "eval_R_noreadout", "eval_I_integrator"]

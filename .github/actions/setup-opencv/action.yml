@@ -15,7 +15,7 @@ runs:
       run: |
         curl.exe -L -o "$env:TEMP\opencv-4.12.0-windows.exe" https://github.com/opencv/opencv/releases/download/4.12.0/opencv-4.12.0-windows.exe
         & "$env:TEMP\opencv-4.12.0-windows.exe" -oC:\ -y
-        # self-extractor returns before files are flushed (rust/README.md gotcha): poll
+        # self-extractor returns before files are flushed (docs/development.md gotcha): poll
         $dll = 'C:\opencv\build\x64\vc16\bin\opencv_world4120.dll'
         for ($i = 0; $i -lt 60 -and -not (Test-Path $dll); $i++) { Start-Sleep 2 }
         if (-not (Test-Path $dll)) { throw 'OpenCV extraction incomplete' }
