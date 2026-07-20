@@ -1,0 +1,50 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-opencv
+      - uses: dtolnay/rust-toolchain@1.88.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - name: Check version sync
+        shell: pwsh
+        run: |
+          $tag  = $env:GITHUB_REF_NAME.TrimStart('v')
+          $conf = (Get-Content rust/o4fix-app/tauri.conf.json | ConvertFrom-Json).version
+          $cli  = (Select-String '^version = "(.+)"' rust/o4fix-cli/Cargo.toml).Matches[0].Groups[1].Value
+          $app  = (Select-String '^version = "(.+)"' rust/o4fix-app/Cargo.toml).Matches[0].Groups[1].Value
+          if ($conf -ne $tag -or $cli -ne $tag -or $app -ne $tag) {
+            throw "version mismatch: tag=$tag tauri.conf=$conf cli=$cli app=$app"
+          }
+      - name: Build
+        run: cargo build --release -p o4fix-cli -p o4fix-app
+        working-directory: rust
+      - name: Assemble portable zip
+        shell: pwsh
+        run: |
+          $dist = "o4fix-$env:GITHUB_REF_NAME-windows-x64"
+          New-Item -ItemType Directory $dist | Out-Null
+          Copy-Item rust/target/release/o4fix-app.exe $dist
+          Copy-Item rust/target/release/o4fix.exe $dist
+          Copy-Item C:\opencv\build\x64\vc16\bin\opencv_world4120.dll $dist
+          Copy-Item C:\opencv\build\x64\vc16\bin\opencv_videoio_ffmpeg4120_64.dll $dist
+          Copy-Item packaging/README.txt $dist
+          Compress-Archive -Path $dist -DestinationPath "$dist.zip"
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create $env:GITHUB_REF_NAME
+          "o4fix-$env:GITHUB_REF_NAME-windows-x64.zip"
+          --title "o4fix $env:GITHUB_REF_NAME"
+          --notes "Portable Windows build - unzip, run o4fix-app.exe (GUI) or o4fix.exe (CLI). See README.txt inside the zip."
