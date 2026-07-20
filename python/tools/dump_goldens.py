@@ -7,8 +7,8 @@ before each frame pair's essential-matrix estimation, so RANSAC is
 reproducible cross-language. o4fix.py itself is never modified; video_rates
 is monkeypatched with a seeded copy of its loop.
 
-Usage: python tools/dump_goldens.py            (~10-20 min: optical runs twice)
-       python tools/dump_goldens.py --m4-only   (~8-12 min: optical runs once;
+Usage: python python/tools/dump_goldens.py            (~10-20 min: optical runs twice)
+       python python/tools/dump_goldens.py --m4-only   (~8-12 min: optical runs once;
        only (re)generates goldens/ref_fixed_m4.MP4, skips the M2 stage dumps)
 """
 import argparse, json, sys
@@ -16,14 +16,15 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+PY = Path(__file__).resolve().parents[1]   # python/  (o4fix, mp4patch live here)
+REPO = PY.parent                           # repo root (sample_vids, goldens, o4core)
+sys.path.insert(0, str(PY))
 import mp4patch
 import o4fix
 
 SEED_BASE = 1_000_000
-VIDEO = ROOT / "sample_vids/DJI_20260711124046_0021_D.MP4"
-GOLD = ROOT / "goldens"
+VIDEO = REPO / "sample_vids/DJI_20260711124046_0021_D.MP4"
+GOLD = REPO / "goldens"
 
 
 def build_args(fast_wide_cutoff=0.0):

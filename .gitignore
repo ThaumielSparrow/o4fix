@@ -5,7 +5,7 @@ sample_vids/
 *.gcsv
 
 # analysis harness caches & golden dumps
-analysis/cache/
+python/analysis/cache/
 goldens/
 *.npz
 *.png
@@ -15,11 +15,11 @@ __pycache__/
 *.pyc
 
 # rust
-rust/target/
+target/
 
 # tauri-build regenerates these capability-schema files every build
 # (used only for IDE autocompletion of capabilities/*.json, not source)
-rust/o4fix-app/gen/schemas/
+o4fix-app/gen/schemas/
 
 # gyroflow projects are kept: they're small JSON eval configs
 !*.gyroflow

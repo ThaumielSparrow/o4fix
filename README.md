@@ -31,13 +31,17 @@ tuning flags.
 
 ## Repository layout
 
-- `rust/` — the shipped implementation (`o4core` library, `o4fix` CLI,
-  `o4fix-app` Tauri GUI). See `rust/README.md` for building.
-- `o4fix.py`, `mp4patch.py` — the original Python research pipeline,
-  kept as the golden reference the Rust port is verified against.
-- `analysis/`, `tools/` — evaluation harness and golden-fixture dev
-  tools (Python; not needed to use o4fix).
-- `docs/` — design specs, implementation plans, release checklist.
+This is a Rust-first project: the Cargo workspace is the repository root.
+
+- `o4core/`, `o4fix-cli/`, `o4fix-app/` — the shipped implementation
+  (`o4core` library, `o4fix` CLI, `o4fix-app` Tauri GUI). See
+  `docs/development.md` for building.
+- `python/o4fix.py`, `python/mp4patch.py` — the original Python research
+  pipeline, kept as the golden reference the Rust port is verified against.
+- `python/analysis/`, `python/tools/` — evaluation harness and
+  golden-fixture dev tools (Python; not needed to use o4fix).
+- `docs/` — design specs, implementation plans, release checklist,
+  and `development.md` (Rust build/dev notes).
 
 Details of the underlying problem and the verification methodology live
 in `CLAUDE.md` and `docs/superpowers/specs/`.
