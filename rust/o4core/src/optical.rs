@@ -62,7 +62,7 @@ pub fn video_rates(
             if cancel.load(Ordering::Relaxed) {
                 return Err(O4Error::Cancelled);
             }
-            let r = interval_rates(video_path, a, b, fps, w, h, meta);
+            let r = interval_rates(video_path, a, b, fps, w, h, meta, cancel);
             on_interval(done.fetch_add(1, Ordering::Relaxed) + 1, intervals.len());
             r
         })
@@ -81,6 +81,9 @@ pub fn video_rates(
     Ok(out)
 }
 
+// cancel is a Rust-only addition over o4fix.py's interval helper (no
+// cancellation in Python); pushes the arg count past clippy's default limit.
+#[allow(clippy::too_many_arguments)]
 fn interval_rates(
     video_path: &Path,
     a: f64,
@@ -89,6 +92,7 @@ fn interval_rates(
     w: i32,
     h: i32,
     meta: &Meta,
+    cancel: &AtomicBool,
 ) -> Result<OpticalRates, O4Error> {
     let (k, d) = k_d(meta, w, h);
     let mut cap = videoio::VideoCapture::from_file(video_path.to_str().unwrap(), videoio::CAP_ANY)?;
@@ -103,6 +107,9 @@ fn interval_rates(
     let mut prev: Option<Mat> = None;
     let mut frame = Mat::default();
     for fidx in f0..=f1 {
+        if cancel.load(Ordering::Relaxed) {
+            return Err(O4Error::Cancelled);
+        }
         if !cap.read(&mut frame)? {
             break;
         }

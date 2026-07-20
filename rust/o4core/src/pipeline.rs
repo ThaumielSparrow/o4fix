@@ -74,7 +74,8 @@ pub fn fs(t: &[f64]) -> f64 {
 /// - `cfg`: tuning parameters (detection thresholds, optical/patch knobs).
 /// - `on_progress`: called with a `Progress` message as each stage runs.
 /// - `cancel`: checked between stages and inside the optical-flow work
-///   (`optical::video_rates` polls it per interval); set it to abort early.
+///   (`optical::video_rates` polls it per interval and per frame); set it
+///   to abort early.
 ///
 /// Returns `Outcome::Healthy` when no severe bursts are found — telemetry
 /// looks clean and NO output file is written. Otherwise returns
