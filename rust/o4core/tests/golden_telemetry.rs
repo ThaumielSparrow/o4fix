@@ -1,31 +1,12 @@
+mod common;
+use self::common::{npz, repo};
 use ndarray::{Array1, Array2};
-use ndarray_npy::NpzReader;
-use std::fs::File;
-
-pub fn repo(p: &str) -> std::path::PathBuf {   // pub: later tests import via #[path]
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../").join(p)
-}
-pub fn npz(name: &str) -> NpzReader<File> {
-    NpzReader::new(File::open(repo(&format!("goldens/{name}"))).unwrap()).unwrap()
-}
-
-#[allow(dead_code)] // only golden_splice.rs's #[path] copy of this module calls it;
-                     // every other test binary compiles this file as its own crate
-pub fn npz_extract() -> (Vec<f64>, Vec<[f64; 4]>) {
-    let mut z = npz("extract.npz");
-    let t: Array1<f64> = z.by_name("t").unwrap();
-    let q: Array2<f64> = z.by_name("q").unwrap();
-    let t_vec = t.to_vec();
-    let q_vec: Vec<[f64; 4]> = (0..q.nrows())
-        .map(|i| [q[[i, 0]], q[[i, 1]], q[[i, 2]], q[[i, 3]]])
-        .collect();
-    (t_vec, q_vec)
-}
 
 #[test]
 #[ignore] // needs test clip + goldens
 fn extraction_matches_python() {
-    let tel = o4core::telemetry::extract_quats(&repo("sample_vids/DJI_20260711124046_0021_D.MP4")).unwrap();
+    let tel = o4core::telemetry::extract_quats(&repo("sample_vids/DJI_20260711124046_0021_D.MP4"))
+        .unwrap();
     let mut z = npz("extract.npz");
     let t: Array1<f64> = z.by_name("t").unwrap();
     let q: Array2<f64> = z.by_name("q").unwrap();

@@ -1,0 +1,30 @@
+name: Setup OpenCV 4.12.0
+description: Cached prebuilt OpenCV 4.12.0 for the opencv crate, plus libclang env
+runs:
+  using: composite
+  steps:
+    - name: Cache OpenCV
+      id: cache-opencv
+      uses: actions/cache@v4
+      with:
+        path: C:\opencv
+        key: opencv-4.12.0-windows
+    - name: Download and extract OpenCV
+      if: steps.cache-opencv.outputs.cache-hit != 'true'
+      shell: pwsh
+      run: |
+        curl.exe -L -o "$env:TEMP\opencv-4.12.0-windows.exe" https://github.com/opencv/opencv/releases/download/4.12.0/opencv-4.12.0-windows.exe
+        & "$env:TEMP\opencv-4.12.0-windows.exe" -oC:\ -y
+        # self-extractor returns before files are flushed (rust/README.md gotcha): poll
+        $dll = 'C:\opencv\build\x64\vc16\bin\opencv_world4120.dll'
+        for ($i = 0; $i -lt 60 -and -not (Test-Path $dll); $i++) { Start-Sleep 2 }
+        if (-not (Test-Path $dll)) { throw 'OpenCV extraction incomplete' }
+    - name: Export build env
+      shell: pwsh
+      run: |
+        Add-Content $env:GITHUB_ENV 'OPENCV_INCLUDE_PATHS=C:\opencv\build\include'
+        Add-Content $env:GITHUB_ENV 'OPENCV_LINK_PATHS=C:\opencv\build\x64\vc16\lib'
+        Add-Content $env:GITHUB_ENV 'OPENCV_LINK_LIBS=opencv_world4120'
+        Add-Content $env:GITHUB_ENV 'LIBCLANG_PATH=C:\Program Files\LLVM\bin'
+        Add-Content $env:GITHUB_PATH 'C:\opencv\build\x64\vc16\bin'
+        Add-Content $env:GITHUB_PATH 'C:\Program Files\LLVM\bin'

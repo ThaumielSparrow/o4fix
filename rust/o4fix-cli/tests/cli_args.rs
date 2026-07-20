@@ -1,6 +1,7 @@
 use clap::Parser;
 // includes the REAL parser source (same file main.rs declares as `mod args;`)
-#[path = "../src/args.rs"] mod args;
+#[path = "../src/args.rs"]
+mod args;
 use args::Cli;
 
 #[test]
@@ -24,6 +25,9 @@ fn m4_profile_via_flags() {
 
 #[test]
 fn output_with_multiple_videos_rejected() {
-    assert!(Cli::try_parse_from(["o4fix", "a.MP4", "b.MP4", "-o", "x.MP4"])
-        .and_then(|c| c.validate()).is_err());
+    assert!(
+        Cli::try_parse_from(["o4fix", "a.MP4", "b.MP4", "-o", "x.MP4"])
+            .and_then(|c| c.validate())
+            .is_err()
+    );
 }

@@ -12,7 +12,9 @@ use telemetry_parser::tags_impl::*;
 use telemetry_parser::Input;
 
 fn main() {
-    let path = std::env::args().nth(1).expect("usage: dump_quats VIDEO.MP4");
+    let path = std::env::args()
+        .nth(1)
+        .expect("usage: dump_quats VIDEO.MP4");
     let mut f = File::open(&path).expect("open video");
     let size = f.metadata().expect("stat video").len() as usize;
 
