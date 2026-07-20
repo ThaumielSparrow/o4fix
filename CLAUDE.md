@@ -11,7 +11,7 @@ gyro. Test clip: `sample_vids/DJI_20260711124046_0021_D.MP4` (176.4 s,
 
 ## SOLVED (session 3, 2026-07-13): in-place MP4 quat rewrite
 
-`python o4fix.py VIDEO.MP4` → `VIDEO_fixed.MP4` (default mode; `--gcsv`
+`python python/o4fix.py VIDEO.MP4` → `VIDEO_fixed.MP4` (default mode; `--gcsv`
 keeps the legacy rate-domain pipeline). The fixed file drops into Gyroflow
 like a stock recording, using its native embedded-telemetry path.
 
@@ -58,14 +58,18 @@ Success criteria all met: matches A in clean/mild/flicks, crushes severe.
 
 ### Files
 
-- `o4fix.py` — the user tool. Default = MP4 repair; `--gcsv` = legacy.
+Repo is rust-first: the Cargo workspace (`o4core/`, `o4fix-cli/`,
+`o4fix-app/`, `Cargo.toml`) is at the root; all Python lives under
+`python/`. Rust dev/build notes are in `docs/development.md`.
+
+- `python/o4fix.py` — the user tool. Default = MP4 repair; `--gcsv` = legacy.
   Owns splice_orientation/quat_exp/quat_log/slerp. MP4-repair flags:
   `--severe 8 --severe-pad 0.2 --severe-merge 0.2 --ramp 0.3`.
-- `mp4patch.py` — encoding toolkit: scan/verify/nullpatch/inject CLI +
+- `python/mp4patch.py` — encoding toolkit: scan/verify/nullpatch/inject CLI +
   `inject_and_check()` used by o4fix.
-- `prep_inject.py` — dev tool: builds an injection .npz without writing
+- `python/prep_inject.py` — dev tool: builds an injection .npz without writing
   the MP4 (for harness iterations). Same defaults as o4fix.
-- `analysis/` — harness (eval_render/rank_renders/diff_renders/...,
+- `python/analysis/` — harness (eval_render/rank_renders/diff_renders/...,
   caches incl. eval series for all renders in the table).
 - `sample_vids/` — test clip, projects, renders kept:
   `eval_A_embedded.mp4` (reference), `eval_M2_tight.mp4` (best,
@@ -83,8 +87,8 @@ Success criteria all met: matches A in clean/mild/flicks, crushes severe.
   `eval_A_embedded.gyroflow`): change `videofile` + `gyro_source.filepath`
   (and DROP `gyro_source.file_metadata` when the gyro file changes),
   `offsets={}`, set `output.output_filename`, bitrate 30.
-- `analysis/eval_render.py RENDER.mp4` (~7 min) → cache;
-  `analysis/rank_renders.py [stems...]` → banded table.
+- `python/analysis/eval_render.py RENDER.mp4` (~7 min) → cache;
+  `python/analysis/rank_renders.py [stems...]` → banded table.
 - Masks trap: "clean cruise 60-65/100-105 s" are NOT clean. Verified-clean
   windows: 67-72.5, 94-98, 120-128, 145.5-146.5 s. Tracker floor ~2-3 °/s.
 

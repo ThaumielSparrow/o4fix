@@ -10,11 +10,12 @@ import numpy as np
 from scipy.signal import butter, filtfilt
 from scipy.ndimage import uniform_filter1d
 
-root = Path(r"C:\Users\lzhan\Desktop\o4prostab")
-sys.path.insert(0, str(root))
+PY = Path(__file__).resolve().parents[1]   # python/
+REPO = PY.parent                           # repo root (sample_vids lives here)
+sys.path.insert(0, str(PY))
 import o4fix
 
-d = np.load(root / "analysis/cache/DJI_20260711124046_0021_D_rates.npz")
+d = np.load(PY / "analysis/cache/DJI_20260711124046_0021_D_rates.npz")
 tm, deg = d["tm"], d["om_deg"]
 fs = 1.0 / np.median(np.diff(tm))
 x, _ = o4fix.hampel(deg, 7, 6.0)
@@ -37,7 +38,7 @@ def load_gcsv(p):
 
 for name in ["DJI_20260711124046_0021_D.gcsv", "eval_D_v2.gcsv",
              "eval_E_anchor.gcsv", "eval_G_raw.gcsv"]:
-    tg, g = load_gcsv(root / "sample_vids" / name)
+    tg, g = load_gcsv(REPO / "sample_vids" / name)
     n = min(len(tg), len(tm))
     diff = g[:n] - x[:n]
     for lo, hi, lab in [(2, 8, "2-8"), (8, 25, "8-25")]:
