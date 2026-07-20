@@ -29,6 +29,9 @@ button:disabled { opacity: .4; cursor: default; }
 .fname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip { font-size: 12px; padding: 2px 10px; border-radius: 999px;
         border: 1px solid var(--edge); color: var(--dim); white-space: nowrap; }
+/* sentence-case the status text ("Measuring motion") without changing the
+   backend's lowercase stage/status strings, which double as CSS classes */
+.chip::first-letter { text-transform: uppercase; }
 .chip.analyzing, .chip.measuring-motion, .chip.patching, .chip.verifying
   { border-color: var(--accent); color: var(--accent); }
 .chip.done { border-color: var(--ok); color: var(--ok); }
