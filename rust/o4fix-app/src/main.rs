@@ -26,7 +26,8 @@ fn main() {
             queue::cancel_job,
             queue::pick_files,
             queue::load_settings,
-            queue::save_settings
+            queue::save_settings,
+            queue::pick_folder
         ])
         .run(tauri::generate_context!())
         .expect("error while running o4fix");

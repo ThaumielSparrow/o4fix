@@ -187,3 +187,12 @@ pub fn load_settings(app: AppHandle) -> GuiSettings {
 pub fn save_settings(app: AppHandle, settings: GuiSettings) -> Result<(), String> {
     crate::settings::save_to(&crate::settings::settings_path(&app), &settings)
 }
+
+#[tauri::command]
+pub async fn pick_folder(app: AppHandle) -> Option<String> {
+    use tauri_plugin_dialog::DialogExt;
+    app.dialog()
+        .file()
+        .blocking_pick_folder()
+        .map(|f| f.to_string())
+}
