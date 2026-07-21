@@ -50,6 +50,9 @@ pub struct Cli {
     #[arg(long, num_args = 2, value_names = ["LO", "HI"],
           default_values_t = [100.0, 250.0])]
     pub fast_handback: Vec<f64>,
+    #[arg(long, num_args = 2, value_names = ["LO", "HI"],
+          default_values_t = [200.0, 300.0])]
+    pub gyro_trust_noise: Vec<f64>,
     #[arg(long, default_value_t = 0.5)]
     pub patch_pad: f64,
     #[arg(long, default_value_t = 1.0)]
@@ -99,6 +102,7 @@ impl Cli {
             optical_cutoff: self.optical_cutoff,
             handback_cutoff: self.handback_cutoff,
             fast_handback: (self.fast_handback[0], self.fast_handback[1]),
+            gyro_trust_noise: (self.gyro_trust_noise[0], self.gyro_trust_noise[1]),
             patch_pad: self.patch_pad,
             patch_merge: self.patch_merge,
             optical_noise: self.optical_noise.as_ref().map(|v| (v[0], v[1])),

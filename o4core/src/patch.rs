@@ -149,11 +149,6 @@ pub fn optical_patch(
         .collect();
     let rate_mag = dsp::uniform_filter1d(&mag, ((0.1 * fs) as usize).max(3));
     let (lo_r, hi_r) = cfg.fast_handback;
-    let wf0: Vec<f64> = rate_mag
-        .iter()
-        .map(|&m| ((m - lo_r) / (hi_r - lo_r).max(1e-6)).clamp(0.0, 1.0))
-        .collect();
-    let w_fast = dsp::uniform_filter1d(&wf0, ((0.15 * fs) as usize).max(3));
 
     // fast-wide branch (M4; o4fix.py:474-487)
     if cfg.fast_wide_cutoff != 0.0 {
@@ -261,6 +256,32 @@ pub fn optical_patch(
                 .map(|i| [per[0][i], per[1][i], per[2][i]])
                 .collect()
         };
+        // handback rate estimate (o4fix.py:509-532): in monster bursts
+        // (30-180 Hz band-RMS of 300+ deg/s) the phantom leaks below 8 Hz
+        // and inflates the gyro LP magnitude past the handback ramp, so a
+        // gyro-only estimate hands orientation back to the very gyro being
+        // repaired. Optical never invents motion, so above the
+        // gyro_trust_noise ramp - judged on the segment's PEAK noise, since
+        // the LF leak persists where the instantaneous RMS momentarily dips -
+        // the estimate switches to min(gyro, optical): handback then engages
+        // only when both sources agree the motion is genuinely fast.
+        let vmag: Vec<f64> = video_1k
+            .iter()
+            .map(|r| (r[0] * r[0] + r[1] * r[1] + r[2] * r[2]).sqrt())
+            .collect();
+        let rate_opt = dsp::uniform_filter1d(&vmag, ((0.1 * fs) as usize).max(3));
+        let (lo_n, hi_n) = cfg.gyro_trust_noise;
+        let seg_noise = gm.iter().map(|&i| diag.noise[i]).fold(f64::MIN, f64::max);
+        let trust = (1.0 - (seg_noise - lo_n) / (hi_n - lo_n).max(1e-6)).clamp(0.0, 1.0);
+        let wf0: Vec<f64> = (0..gm.len())
+            .map(|i| {
+                let wf_gyro = ((rate_mag[gm[i]] - lo_r) / (hi_r - lo_r).max(1e-6)).clamp(0.0, 1.0);
+                let r_min = rate_mag[gm[i]].min(rate_opt[i]);
+                let wf_min = ((r_min - lo_r) / (hi_r - lo_r).max(1e-6)).clamp(0.0, 1.0);
+                trust * wf_gyro + (1.0 - trust) * wf_min
+            })
+            .collect();
+        let w_fast = dsp::uniform_filter1d(&wf0, ((0.15 * fs) as usize).max(3));
         let burst: Vec<[f64; 3]> = if cfg.anchor_mode {
             // optical = LF drift anchor on band-limited gyro (o4fix.py:513-525)
             let g: Vec<[f64; 3]> = gm.iter().map(|&i| strong[i]).collect();
@@ -286,13 +307,13 @@ pub fn optical_patch(
                     .collect();
             }
             (0..g.len())
-                .map(|i| core::array::from_fn(|k| g[i][k] + (1.0 - w_fast[gm[i]]) * corr[i][k]))
+                .map(|i| core::array::from_fn(|k| g[i][k] + (1.0 - w_fast[i]) * corr[i][k]))
                 .collect()
         } else {
             (0..gm.len())
                 .map(|i| {
                     core::array::from_fn(|k| {
-                        let wf = w_fast[gm[i]];
+                        let wf = w_fast[i];
                         (1.0 - wf) * video_1k[i][k] + wf * medium[gm[i]][k]
                     })
                 })
@@ -325,11 +346,12 @@ pub struct BurstStat {
 }
 
 /// Replace q_raw inside each interval with integrated omega_patch, pinned to
-/// raw at both edges (o4fix.py:137-173). Accumulated drift is spread across
-/// the interval as a smoothstep rotation-vector correction; ramp_s slerp
-/// cross-fades at the edges. Samples outside intervals are returned
+/// raw at both edges (o4fix.py:137-178). Accumulated drift is spread across
+/// the interval as a smoothstep-over-time rotation-vector correction; ramp_s
+/// slerp cross-fades at the edges. Samples outside intervals are returned
 /// bit-identical (clean-zone guarantee — feeds mp4::patch_video's
-/// unchanged-row original-bytes path).
+/// unchanged-row original-bytes path). (Measured 2026-07-21: rate-weighted
+/// spreading of the correction is WORSE on both test clips; keep uniform.)
 pub fn splice_orientation(
     t: &[f64],
     q_raw: &[[f64; 4]],

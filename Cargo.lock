@@ -2617,7 +2617,7 @@ dependencies = [
 
 [[package]]
 name = "o4core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "nalgebra",
  "ndarray",
@@ -2633,7 +2633,7 @@ dependencies = [
 
 [[package]]
 name = "o4fix-app"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "o4core",
  "rfd 0.15.4",
@@ -2646,7 +2646,7 @@ dependencies = [
 
 [[package]]
 name = "o4fix-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap",
  "o4core",
