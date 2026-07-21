@@ -140,9 +140,12 @@ def splice_orientation(t, q_raw, omega_patch_rad, intervals, ramp_s):
 
     The accumulated drift of the integrated path over each interval is spread
     across the whole interval as a slow rotation-vector correction
-    (smoothstep), so both endpoints match raw exactly with no fast fake
-    motion; a ramp_s slerp cross-fade at each edge blends rate content
+    (smoothstep over time), so both endpoints match raw exactly with no fast
+    fake motion; a ramp_s slerp cross-fade at each edge blends rate content
     smoothly. Samples outside intervals are returned bit-identical.
+    (Measured 2026-07-21: rate-weighted spreading of the correction is WORSE
+    on both test clips - concentrating it into fast moments adds rate error
+    where Gyroflow cannot follow; keep the uniform smoothstep.)
     """
     q_out = q_raw.copy()
     stats = []
@@ -463,9 +466,6 @@ def optical_patch(video, tm, cleaned_rad, diag, fs, args, meta):
     rate_mag = uniform_filter1d(np.linalg.norm(medium, axis=1),
                                 size=max(3, int(0.1 * fs)), mode="nearest")
     lo_r, hi_r = args.fast_handback
-    w_fast = np.clip((rate_mag - lo_r) / max(hi_r - lo_r, 1e-6), 0.0, 1.0)
-    w_fast = uniform_filter1d(w_fast, size=max(3, int(0.15 * fs)),
-                              mode="nearest")
 
     # very fast motion (>~150 deg/s): the gyro's 8-16 Hz content is
     # real-motion dominated (verified: embedded renders correct 8-15 Hz well
@@ -509,7 +509,34 @@ def optical_patch(video, tm, cleaned_rad, diag, fs, args, meta):
         gm = (tm >= a) & (tm <= b)
         video_1k = np.stack([np.interp(tm[gm], seg_t, seg_o[:, k])
                              for k in range(3)], axis=1)
-        wf = w_fast[gm, None]
+        # handback rate estimate: in monster bursts (30-180 Hz band-RMS of
+        # 300+ deg/s, seen on some clips) the phantom leaks below 8 Hz and
+        # inflates the gyro LP magnitude past the handback ramp, so a
+        # gyro-only estimate hands orientation back to the very gyro being
+        # repaired. Optical never invents motion, so above the
+        # --gyro-trust-noise ramp the estimate switches to
+        # min(gyro, optical): handback then engages only when both sources
+        # agree the motion is genuinely fast. Below the ramp the gyro
+        # estimate is kept unchanged (its LF leak is small vs the handback
+        # ramp, and real snaps must keep full gyro handback).
+        rate_opt = uniform_filter1d(np.linalg.norm(video_1k, axis=1),
+                                    size=max(3, int(0.1 * fs)),
+                                    mode="nearest")
+        wf_gyro = np.clip((rate_mag[gm] - lo_r) / max(hi_r - lo_r, 1e-6),
+                          0.0, 1.0)
+        r_min = np.minimum(rate_mag[gm], rate_opt)
+        wf_min = np.clip((r_min - lo_r) / max(hi_r - lo_r, 1e-6), 0.0, 1.0)
+        # trust is judged per segment on the PEAK noise: the phantom's LF
+        # leak persists across a whole burst even where the instantaneous
+        # 30-180 Hz RMS momentarily dips, and where noise is genuinely
+        # moderate min(gyro, optical) equals the gyro estimate anyway
+        lo_n, hi_n = args.gyro_trust_noise
+        trust = np.clip(1.0 - (diag["noise"][gm].max() - lo_n) /
+                        max(hi_n - lo_n, 1e-6), 0.0, 1.0)
+        wseg = trust * wf_gyro + (1 - trust) * wf_min
+        wseg = uniform_filter1d(wseg, size=max(3, int(0.15 * fs)),
+                                mode="nearest")
+        wf = wseg[:, None]
         if args.anchor_mode:
             # optical is only a low-frequency drift anchor on the band-limited
             # gyro: mid/high frequencies keep the gyro's crisp real motion
@@ -725,6 +752,15 @@ def main():
                         "optical data back to band-limited gyro during fast "
                         "motion, where gyro SNR is high and optical flow "
                         "degrades (default 100 250)")
+    f.add_argument("--gyro-trust-noise", type=float, nargs=2,
+                   default=[200.0, 300.0], metavar=("LO", "HI"),
+                   help="deg/s ramp on a patch segment's PEAK 30-180 Hz "
+                        "band-RMS above which the fast-handback rate "
+                        "estimate stops trusting the gyro and uses "
+                        "min(gyro, optical) instead; in such monster "
+                        "bursts the phantom inflates the gyro rate "
+                        "estimate and would wrongly hand orientation back "
+                        "to the noisy gyro (default 200 300)")
     f.add_argument("--patch-pad", type=float, default=0.5,
                    help="s, padding added around each optical-patch interval "
                         "(default 0.5)")

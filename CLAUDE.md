@@ -167,6 +167,66 @@ phantom-mixed in ALL sources and partially blur/RS artifact; do not chase
 it further with the current signal sources (a better source, e.g. 
 blackbox gyro, would be needed).
 
+## Monster-burst handback fix (2026-07-21, second clip)
+
+New clip `sample_vids/DJI_20260721141550_0027_D.MP4` (248 s, same format):
+noise bursts hit **300-580 °/s** 30-180 Hz band-RMS (0021 never exceeds
+161) but cover only 5.9% of the clip. o4fix's output still shook violently
+there. Root cause: `w_fast` (rate-aware handback) measured "rate" from the
+LP8 gyro itself; monster phantom leaks below 8 Hz, inflates that estimate
+past the 100-250 °/s ramp, and hands orientation back to the very gyro
+being repaired — the fixed file kept 150-330 °/s of 2-8 Hz wobble inside
+those bursts. Optical ground truth: real motion in most monster bursts is
+<150 °/s, and LK flow stays quality-1.0 even at 553 °/s real.
+
+Fix (default-on, Python `o4fix.py` + Rust `o4core` + GUI field):
+`--gyro-trust-noise 200 300` — per optical-patch segment, when the
+segment's **peak** noise exceeds the ramp, the handback rate estimate
+becomes `min(gyro, optical)`, so handback engages only when both sources
+agree the motion is genuinely fast. Two designs that FAILED and why:
+- pure min() ungated regressed 0021 (severe wobble +1.2, flick shake
+  +1.8): real fast/violent moments (landing 175.9 s, flick 22.1 s) need
+  full gyro handback when noise is sane;
+- gating on *instantaneous* noise recovered only 115/165 °/s in-burst
+  wobble (vs 24 for segment-peak): the RMS estimate dips mid-burst while
+  the phantom LF persists.
+
+Render results 0027 (wobble/shake °/s; eval windows in
+`scratchpad cmp_eval27.py` pattern, caches `eval_eval27_*.npz`):
+monster bursts old-fix 128-198 / 26-64 → **6-23 / 4-9**; unstabilized
+141-188 / 111-387. Mild + clean windows unchanged (deltas ≤1.5 = eval
+coupling noise; the eval tracker floor on this clip is ~3-5 °/s,
+median track quality 0.62). 0021 regression: new pipeline output is
+byte-identical to the shipped `_fixed.MP4` except ONE quat sample × one
+float32 ulp (segment-local smoothing boundary); rank_renders row
+`eval21_MINRATE` (pure-min variant, worst case) already sat on the M2 row
+in clean/mild. Renders kept for eyeballing: `eval27_ORIG.mp4` (stabilized
+on noisy telemetry), `eval27_OLDFIX.mp4` (pre-fix pipeline),
+`eval27_V3.mp4` (fixed, = render of regenerated
+`DJI_20260721141550_0027_D_fixed.MP4`).
+
+Residual on 0027 after the fix (user: "smaller, slower judders,
+noticeable but not footage-ruining"): the drift bridge is the floor. Each
+monster burst must end on the raw quat frame (clean zones are bit-exact
+by design), and the drift to bridge is 33-84 deg — larger than the
+burst's real rotation, so it is mostly DJI fusion divergence under
+monster vibration, not optical error; SOME bridge motion is unavoidable
+with current sources. Dead end (measured, do not revisit): rate-weighted
+drift spreading (concentrate the correction where |optical rate| is high,
+10 deg/s floor) — WORSE on both clips (0027 monster 5.5s 2-8 Hz
+11.0→14.2, flick 219.5s 14.5→29.9; 0021 flicks 17.8/20.3→20.1/23.6 —
+fake rate stacked on fast motion is exactly what Gyroflow can't follow).
+Uniform smoothstep-over-time is the measured-best bridge shape. Ideas NOT
+tried: absorb drift into following clean zone (breaks bit-exactness),
+blackbox gyro as LF reference (user-rejected hardware-wise).
+
+Eval-harness notes for non-0021 clips: `make_cache.py CLIP.MP4` then
+`eval_render.py RENDER.mp4 --cache .../CLIP_rates.npz`; the named WINDOWS
+in eval_render.py are 0021-specific (ignore them, use the series npz).
+Store Gyroflow.exe now refuses direct CreateProcess from this harness —
+use the dev build `447e384b...\scratchpad\gyroflow-dev\Gyroflow.exe`
+(renders identically) or `cmd /c start "" /wait`.
+
 ## Possible follow-ups (nothing blocking)
 
 - DONE (Plan 2, 2026-07-19): Rust port shipped as o4fix-app GUI + CLI, portable zip on GitHub Releases (v0.1.0), CI on GitHub Actions. Multi-clip validation still open (deferred post-release).
