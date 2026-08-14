@@ -227,6 +227,25 @@ Store Gyroflow.exe now refuses direct CreateProcess from this harness —
 use the dev build `447e384b...\scratchpad\gyroflow-dev\Gyroflow.exe`
 (renders identically) or `cmd /c start "" /wait`.
 
+## Stale-build incident (2026-08-13, four new clips 0057-0060)
+
+User's "violent shakes" at 1:46/4:09 in `DJI_20260808151831_0060_D_fixed`
+(and equivalents in `DJI_202608*_0057/0058/0059`) were NOT a pipeline gap:
+the local `target\release\o4fix-app.exe` GUI was still the **Jul-20 build,
+one day before the monster-burst fix** — settings.json written at run time
+had no `gyro_trust_noise` field (the canary for a pre-v0.1.1 binary). All
+complaint spots were monster bursts (peak 300-608 °/s band-RMS); the stale
+output kept 190-350 °/s of 2-8 Hz wobble there. Rebuilt at HEAD and
+regenerated all four `_fixed.MP4`: monster-burst wobble → 5-25 °/s,
+every non-monster burst bit-identical to the stale output (verified
+per-burst, telemetry domain) — no regressions. Calibration R² 0.988-0.999
+on all four clips. **Rule: after changing o4core, immediately
+`cargo build --release` — the user launches the repo's target\release
+GUI.** Known benign leftovers: clip-end landing impacts (0057 @315.9 s,
+0058 @364.7 s peak 1854 °/s, final second on the ground) and
+sub-threshold real-fast maneuvers; monster-burst drift bridges on these
+clips run 26-175° (same slow-judder floor as 0027).
+
 ## Possible follow-ups (nothing blocking)
 
 - DONE (Plan 2, 2026-07-19): Rust port shipped as o4fix-app GUI + CLI, portable zip on GitHub Releases (v0.1.0), CI on GitHub Actions. Multi-clip validation still open (deferred post-release).
