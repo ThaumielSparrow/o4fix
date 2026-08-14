@@ -64,7 +64,7 @@ def main():
 
     q_out, stats = splice_orientation(t, q_raw, patched, intervals,
                                       args_local.ramp)
-    for a, b, drift in stats:
+    for a, b, drift, _rebased in stats:
         print(f"     [{a:7.2f}, {b:7.2f}] optical drift over burst: {drift:5.2f} deg")
 
     changed = np.any(q_out != q_raw, axis=1).mean()

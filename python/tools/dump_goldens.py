@@ -141,7 +141,7 @@ def main():
 
         q_out, stats = o4fix.splice_orientation(t, q, patched, severe, args.ramp)
         np.savez(GOLD / "splice.npz", q_out=q_out,
-                 drifts=np.array([(a, b, d) for a, b, d in stats]))
+                 drifts=np.array([(a, b, d) for a, b, d, _ in stats]))
 
         # SEEDED python-reference MP4 for the Task 15 e2e gate. The user's
         # sample_vids/..._fixed.MP4 was made with unseeded RANSAC and is NOT
