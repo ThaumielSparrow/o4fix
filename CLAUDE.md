@@ -275,6 +275,21 @@ blur/RS + handed-back LP8 gyro phantom), which the old bridge's endpoint
 pinning was inadvertently correcting. Rebase must not discard that
 correction where the patch path itself is untrustworthy.
 
+USER EYEBALL A/B (2026-08-14, eval60_BRIDGE vs eval60_REBASE; "very
+close" / "differences are quite subtle" throughout): 1:46 bridge looks
+better; 3:45 rebase better; 4:09 rebase better; 5:08 rebase better.
+NOTE this partially CONTRADICTS the metrics — both metric-regressed
+bursts (4:09/248s +7.2%, 5:08/308s +11.2%) looked BETTER as rebase,
+while the metric's biggest win (1:46/106s, -50%) looked better as
+bridge. Confound the user spotted: lens-correction/zoom edge dips into
+frame sometimes (adaptive zoom possibly misconfigured in these eval
+projects — template inherited from the 0021 clip), which may mask or
+mimic perceived motion. Implication for next session: don't over-trust
+the +7/11% tracker regressions when tuning the guard threshold — the
+perceptual data says rebase is not clearly worse even there; consider
+re-rendering with a properly configured zoom before final judgment, and
+weigh whether the guard is still needed at all vs. shipping as-is.
+
 USER DECISION (2026-08-14): add a **fast-motion guard** — skip rebase
 (keep bridge) for bursts with fast in-burst motion — then revalidate;
 default-on only if every window improves-or-holds. NEXT SESSION: 1) guard
