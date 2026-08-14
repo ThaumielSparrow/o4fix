@@ -734,10 +734,14 @@ def process_mp4(video, args, t, q_raw, meta, tm, omega, clean, diag, fs):
     print(f"   replacing orientation in {len(intervals)} severe bursts "
           f"({tot:.1f} s)")
 
-    q_out, stats = splice_orientation(t, q_raw, patched, intervals, args.ramp)
-    for a, b, drift, _rebased in stats:
+    q_out, stats = splice_orientation(t, q_raw, patched, intervals,
+                                      args.ramp,
+                                      rebase_above=args.drift_rebase_above,
+                                      decay_rate=args.drift_decay_rate)
+    for a, b, drift, rebased in stats:
+        tag = "  REBASED" if rebased else ""
         print(f"     [{a:7.2f}, {b:7.2f}] optical drift over burst: "
-              f"{drift:5.2f} deg")
+              f"{drift:5.2f} deg{tag}")
 
     import mp4patch
     out = Path(args.output) if args.output else \
@@ -771,6 +775,20 @@ def main():
     m.add_argument("--ramp", type=float, default=0.3,
                    help="s, slerp cross-fade to the raw path at burst edges "
                         "(default 0.3)")
+    m.add_argument("--drift-rebase-above", type=float, default=0.0,
+                   metavar="DEG_S",
+                   help="deg/s implied bridge rate (1.5*drift/duration) "
+                        "above which a burst's optical drift is carried "
+                        "forward as a constant orientation offset instead "
+                        "of being bridged inside the burst (0 = always "
+                        "bridge in-burst). A constant offset is invisible "
+                        "to stabilization; do not enable with Gyroflow "
+                        "horizon lock ON")
+    m.add_argument("--drift-decay-rate", type=float, default=1.5,
+                   metavar="DEG_S",
+                   help="deg/s cap at which a carried drift offset bleeds "
+                        "back to identity in the following clean zone "
+                        "(0 = carry forever; default 1.5)")
     p.add_argument("--plot", action="store_true",
                    help="save a before/after diagnostic .png next to the .gcsv")
     p.add_argument("--orientation", default="XYZ",
