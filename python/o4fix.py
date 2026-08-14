@@ -134,7 +134,33 @@ def smoothstep(x):
     return x * x * (3 - 2 * x)
 
 
-def splice_orientation(t, q_raw, omega_patch_rad, intervals, ramp_s):
+def _apply_offset_span(q_out, q_raw, t, off, k0, k1, decay_rate):
+    """Write q_out[k0:k1] = O(t) (x) q_raw with the offset O decaying toward
+    identity at decay_rate deg/s (0 = carry forever). Samples reached after
+    the decay completes are left untouched (bit-identical raw). Returns the
+    offset remaining at index k1."""
+    v = quat_log(off[None, :])[0]
+    ang = np.linalg.norm(v)
+    if ang < 1e-12 or k1 <= k0:
+        return off if ang >= 1e-12 else np.array([1.0, 0.0, 0.0, 0.0])
+    axis = v / ang
+    if decay_rate > 0:
+        angs = np.maximum(ang - np.radians(decay_rate) * (t[k0:k1] - t[k0]),
+                          0.0)
+        rem = max(ang - np.radians(decay_rate) *
+                  (t[min(k1, len(t) - 1)] - t[k0]), 0.0)
+    else:
+        angs = np.full(k1 - k0, ang)
+        rem = ang
+    live = angs > 0
+    if live.any():
+        offs = quat_exp(angs[live, None] * axis[None, :])
+        q_out[k0:k1][live] = quat_mul(offs, q_raw[k0:k1][live])
+    return quat_exp((rem * axis)[None, :])[0]
+
+
+def splice_orientation(t, q_raw, omega_patch_rad, intervals, ramp_s,
+                       rebase_above=0.0, decay_rate=1.5):
     """Replace q_raw inside each interval with integrated omega_patch, pinned
     to raw at both edges. omega_patch_rad[k] applies to step t[k]->t[k+1].
 
@@ -146,33 +172,67 @@ def splice_orientation(t, q_raw, omega_patch_rad, intervals, ramp_s):
     (Measured 2026-07-21: rate-weighted spreading of the correction is WORSE
     on both test clips - concentrating it into fast moments adds rate error
     where Gyroflow cannot follow; keep the uniform smoothstep.)
+
+    Drift rebase (spec 2026-08-13): bursts whose implied bridge rate
+    1.5*drift/duration exceeds rebase_above (deg/s; 0 disables) skip the
+    smoothstep endpoint correction entirely - the path lands on the optical
+    endpoint and the drift is carried forward as a constant orientation
+    offset on the following samples (invisible to stabilization, which only
+    sees rate of orientation error). The offset decays toward identity at
+    decay_rate deg/s (0 = carry forever) and composes across bursts.
+    Samples under an identity offset keep their original bit patterns.
     """
     q_out = q_raw.copy()
     stats = []
+    off = np.array([1.0, 0.0, 0.0, 0.0])
+    prev_end = 0
     for (a, b) in intervals:
         i0 = max(int(np.searchsorted(t, a, "left")), 0)
         i1 = min(int(np.searchsorted(t, b, "right")) - 1, len(t) - 1)
         if i1 - i0 < 8:
             continue
+        off = _apply_offset_span(q_out, q_raw, t, off, prev_end, i0,
+                                 decay_rate)
+        off_pre = off
         n = i1 - i0
         dt = np.diff(t[i0:i1 + 1])
         dq = quat_exp(omega_patch_rad[i0:i1] * dt[:, None])
         qs = np.empty((n + 1, 4))
-        qs[0] = q_raw[i0]
+        qs[0] = quat_mul(off_pre[None, :], q_raw[i0:i0 + 1])[0]
         for k in range(n):
             qs[k + 1] = quat_mul(qs[k], dq[k])
         qs /= np.linalg.norm(qs, axis=1, keepdims=True)
 
-        e = quat_log(quat_mul(quat_conj(qs[-1:]), q_raw[i1:i1 + 1]))[0]
+        q_end_base = quat_mul(off_pre[None, :], q_raw[i1:i1 + 1])
+        e = quat_log(quat_mul(quat_conj(qs[-1:]), q_end_base))[0]
         drift_deg = np.degrees(np.linalg.norm(e))
-        s = smoothstep((t[i0:i1 + 1] - t[i0]) / max(t[i1] - t[i0], 1e-9))
-        qs = quat_mul(qs, quat_exp(s[:, None] * e[None, :]))
+        dur = max(t[i1] - t[i0], 1e-9)
+        rebased = bool(rebase_above > 0
+                       and 1.5 * drift_deg / dur > rebase_above)
+        s = smoothstep((t[i0:i1 + 1] - t[i0]) / dur)
+        if rebased:
+            off = quat_mul(qs[-1:], quat_conj(q_raw[i1:i1 + 1]))[0]
+            off /= np.linalg.norm(off)
+        else:
+            qs = quat_mul(qs, quat_exp(s[:, None] * e[None, :]))
+
+        # base path the edge ramps blend toward: pre-offset frame at entry,
+        # post-offset frame at exit (identical unless rebased); smoothstep
+        # interpolation keeps it continuous and flat at both edges
+        d_off = quat_log(quat_mul(off[None, :], quat_conj(off_pre[None, :])))
+        offs = quat_mul(quat_exp(s[:, None] * d_off),
+                        np.broadcast_to(off_pre, (n + 1, 4)))
+        base = quat_mul(offs, q_raw[i0:i1 + 1])
+        if not rebased and np.linalg.norm(quat_log(off_pre[None, :])) < 1e-12:
+            base = q_raw[i0:i1 + 1]  # exact original path (bit-identical)
 
         tt = t[i0:i1 + 1]
         r = np.minimum(smoothstep((tt - tt[0]) / ramp_s),
                        smoothstep((tt[-1] - tt) / ramp_s))
-        q_out[i0:i1 + 1] = slerp(q_raw[i0:i1 + 1], qs, r)
-        stats.append((a, b, drift_deg))
+        q_out[i0:i1 + 1] = slerp(base, qs, r)
+        stats.append((a, b, drift_deg, rebased))
+        prev_end = i1 + 1
+    _apply_offset_span(q_out, q_raw, t, off, prev_end, len(t), decay_rate)
     return q_out, stats
 
 
