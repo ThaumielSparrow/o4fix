@@ -32,6 +32,8 @@ pub struct ConfigDto {
     pub fast_wide_accel: f64,
     pub anchor_mode: bool,
     pub anchor_cutoff: f64,
+    pub drift_rebase_above: f64,
+    pub drift_decay_rate: f64,
 }
 
 impl Default for ConfigDto {
@@ -67,6 +69,8 @@ impl ConfigDto {
             fast_wide_accel: c.fast_wide_accel,
             anchor_mode: c.anchor_mode,
             anchor_cutoff: c.anchor_cutoff,
+            drift_rebase_above: c.drift_rebase_above,
+            drift_decay_rate: c.drift_decay_rate,
         }
     }
 
@@ -98,6 +102,8 @@ impl ConfigDto {
             fast_wide_accel: self.fast_wide_accel,
             anchor_mode: self.anchor_mode,
             anchor_cutoff: self.anchor_cutoff,
+            drift_rebase_above: self.drift_rebase_above,
+            drift_decay_rate: self.drift_decay_rate,
         }
     }
 }
@@ -171,6 +177,31 @@ mod tests {
         };
         let j = serde_json::to_string(&s).unwrap();
         assert_eq!(serde_json::from_str::<GuiSettings>(&j).unwrap(), s);
+    }
+
+    /// 2026-08-13 incident: an old settings.json written before a Config
+    /// field was added must still deserialize (missing keys fall back to
+    /// Config::default() via the struct-level `#[serde(default)]`).
+    #[test]
+    fn config_dto_tolerates_settings_missing_drift_fields() {
+        let old = serde_json::json!({
+            "severe": 8.0, "severe_pad": 0.2, "severe_merge": 0.2, "ramp": 0.3,
+            "light_cutoff": 25.0, "strong_cutoff": 2.5, "noise_low": 1.5,
+            "noise_high": 5.0, "noise_band": [30.0, 180.0],
+            "noise_window": 100.0, "hampel_window": 7, "hampel_sigma": 6.0,
+            "optical_cutoff": 8.0, "handback_cutoff": null,
+            "fast_handback": [100.0, 250.0],
+            "gyro_trust_noise": [200.0, 300.0], "patch_pad": 0.5,
+            "patch_merge": 1.0, "optical_noise": null,
+            "fast_wide_cutoff": 0.0, "fast_wide_ramp": [150.0, 300.0],
+            "fast_wide_accel": 1500.0, "anchor_mode": false,
+            "anchor_cutoff": 1.5
+            // no drift_rebase_above / drift_decay_rate keys
+        });
+        let dto: ConfigDto = serde_json::from_value(old).unwrap();
+        assert_eq!(dto.drift_rebase_above, 0.0);
+        assert_eq!(dto.drift_decay_rate, 1.5);
+        assert_eq!(dto.to_config(), Config::default());
     }
 
     #[test]

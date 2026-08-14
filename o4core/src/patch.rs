@@ -343,25 +343,83 @@ pub struct BurstStat {
     pub start: f64,
     pub end: f64,
     pub drift_deg: f64,
+    pub rebased: bool,
+}
+
+/// Write q_out[k0..k1] = O(t) (x) q_raw with the offset O decaying toward
+/// identity at decay_rate deg/s (0 = carry forever). Samples reached after
+/// the decay completes are left untouched (bit-identical raw). Returns the
+/// offset remaining at index k1. Ports o4fix.py's `_apply_offset_span`.
+fn apply_offset_span(
+    q_out: &mut [[f64; 4]],
+    q_raw: &[[f64; 4]],
+    t: &[f64],
+    off: [f64; 4],
+    k0: usize,
+    k1: usize,
+    decay_rate: f64,
+) -> [f64; 4] {
+    use crate::quat::{qexp, qlog, qmul, qnorm};
+    let v = qlog(off);
+    let ang = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+    if ang < 1e-12 || k1 <= k0 {
+        return if ang < 1e-12 {
+            [1.0, 0.0, 0.0, 0.0]
+        } else {
+            off
+        };
+    }
+    let axis = [v[0] / ang, v[1] / ang, v[2] / ang];
+    let rate = decay_rate.to_radians();
+    let mut rem = ang;
+    for k in k0..k1 {
+        let a = if decay_rate > 0.0 {
+            (ang - rate * (t[k] - t[k0])).max(0.0)
+        } else {
+            ang
+        };
+        if a > 0.0 {
+            let o = qexp([a * axis[0], a * axis[1], a * axis[2]]);
+            q_out[k] = qmul(o, q_raw[k]);
+        }
+    }
+    if decay_rate > 0.0 {
+        rem = (ang - rate * (t[k1.min(t.len() - 1)] - t[k0])).max(0.0);
+    }
+    qnorm(qexp([rem * axis[0], rem * axis[1], rem * axis[2]]))
 }
 
 /// Replace q_raw inside each interval with integrated omega_patch, pinned to
-/// raw at both edges (o4fix.py:137-178). Accumulated drift is spread across
-/// the interval as a smoothstep-over-time rotation-vector correction; ramp_s
-/// slerp cross-fades at the edges. Samples outside intervals are returned
+/// raw at both edges (o4fix.py:137-178, `_apply_offset_span` +
+/// `splice_orientation`). Accumulated drift is spread across the interval as
+/// a smoothstep-over-time rotation-vector correction; ramp_s slerp
+/// cross-fades at the edges. Samples outside intervals are returned
 /// bit-identical (clean-zone guarantee — feeds mp4::patch_video's
 /// unchanged-row original-bytes path). (Measured 2026-07-21: rate-weighted
 /// spreading of the correction is WORSE on both test clips; keep uniform.)
+///
+/// Drift rebase (spec 2026-08-13): bursts whose implied bridge rate
+/// 1.5*drift/duration exceeds rebase_above (deg/s; 0 disables) skip the
+/// smoothstep endpoint correction entirely — the path lands on the optical
+/// endpoint and the drift is carried forward as a constant orientation
+/// offset on the following samples (invisible to stabilization, which only
+/// sees rate of orientation error). The offset decays toward identity at
+/// decay_rate deg/s (0 = carry forever) and composes across bursts. Samples
+/// under an identity offset keep their original bit patterns.
 pub fn splice_orientation(
     t: &[f64],
     q_raw: &[[f64; 4]],
     omega_patch: &[[f64; 3]],
     intervals: &[(f64, f64)],
     ramp_s: f64,
+    rebase_above: f64,
+    decay_rate: f64,
 ) -> (Vec<[f64; 4]>, Vec<BurstStat>) {
     use crate::quat::{qconj, qexp, qlog, qmul, qnorm, slerp, smoothstep};
     let mut q_out = q_raw.to_vec();
     let mut stats = Vec::new();
+    let mut off = [1.0, 0.0, 0.0, 0.0];
+    let mut prev_end = 0usize;
     for &(a, b) in intervals {
         let i0 = crate::dsp::searchsorted_left(t, a);
         let i1 = crate::dsp::searchsorted_right(t, b)
@@ -370,11 +428,15 @@ pub fn splice_orientation(
         if i1 < i0 + 8 {
             continue;
         } // python: if i1 - i0 < 8
+
+        off = apply_offset_span(&mut q_out, q_raw, t, off, prev_end, i0, decay_rate);
+        let off_pre = off;
         let n = i1 - i0;
 
-        // sequential integration: qs[k+1] = qs[k] * qexp(omega*dt)
+        // sequential integration: qs[k+1] = qs[k] * qexp(omega*dt), seeded
+        // from the pre-burst offset frame
         let mut qs: Vec<[f64; 4]> = Vec::with_capacity(n + 1);
-        qs.push(q_raw[i0]);
+        qs.push(qmul(off_pre, q_raw[i0]));
         for k in 0..n {
             let dt = t[i0 + k + 1] - t[i0 + k];
             let o = omega_patch[i0 + k];
@@ -384,29 +446,205 @@ pub fn splice_orientation(
             *q = qnorm(*q);
         } // python normalizes ONCE, after the loop
 
-        // endpoint drift, spread as smoothstep rotation-vector correction
-        let e = qlog(qmul(qconj(qs[n]), q_raw[i1]));
+        // endpoint drift vs the raw endpoint (in the same offset frame)
+        let e = qlog(qmul(qconj(qs[n]), qmul(off_pre, q_raw[i1])));
         let drift_deg = (e[0] * e[0] + e[1] * e[1] + e[2] * e[2])
             .sqrt()
             .to_degrees();
         let dur = (t[i1] - t[i0]).max(1e-9);
-        for k in 0..=n {
-            let s = smoothstep((t[i0 + k] - t[i0]) / dur);
-            qs[k] = qmul(qs[k], qexp([s * e[0], s * e[1], s * e[2]]));
-            // NOTE: python does NOT renormalize after this multiply — neither do we
+        let rebased = rebase_above > 0.0 && 1.5 * drift_deg / dur > rebase_above;
+        if rebased {
+            // land on the optical endpoint; carry the drift forward as a
+            // constant offset instead of bridging it inside the burst
+            off = qnorm(qmul(qs[n], qconj(q_raw[i1])));
+        } else {
+            for k in 0..=n {
+                let s = smoothstep((t[i0 + k] - t[i0]) / dur);
+                qs[k] = qmul(qs[k], qexp([s * e[0], s * e[1], s * e[2]]));
+                // NOTE: python does NOT renormalize after this multiply — neither do we
+            }
         }
 
-        // edge cross-fade, then write back
+        // base path the edge ramps blend toward: pre-offset frame at entry,
+        // post-offset frame at exit (identical unless rebased); smoothstep
+        // interpolation keeps it continuous and flat at both edges
+        let d_off = qlog(qmul(off, qconj(off_pre)));
+        let off_pre_ang = {
+            let v = qlog(off_pre);
+            (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt()
+        };
         for k in 0..=n {
             let tt = t[i0 + k];
+            let s = smoothstep((tt - t[i0]) / dur);
+            let base = if !rebased && off_pre_ang < 1e-12 {
+                q_raw[i0 + k] // exact original path (bit-identical branch)
+            } else {
+                let o = qmul(qexp([s * d_off[0], s * d_off[1], s * d_off[2]]), off_pre);
+                qmul(o, q_raw[i0 + k])
+            };
             let r = smoothstep((tt - t[i0]) / ramp_s).min(smoothstep((t[i1] - tt) / ramp_s));
-            q_out[i0 + k] = slerp(q_raw[i0 + k], qs[k], r);
+            q_out[i0 + k] = slerp(base, qs[k], r);
         }
         stats.push(BurstStat {
             start: a,
             end: b,
             drift_deg,
+            rebased,
         });
+        prev_end = i1 + 1;
     }
+    apply_offset_span(&mut q_out, q_raw, t, off, prev_end, t.len(), decay_rate);
     (q_out, stats)
+}
+
+#[cfg(test)]
+mod splice_rebase_tests {
+    use super::*;
+    use crate::quat::{qexp, quats_to_rates};
+
+    /// Mirrors python/tests/test_splice_rebase.py::make_case: 1 kHz
+    /// still-camera clip, one 1 s burst [2, 3] whose raw endpoint is
+    /// drift_deg away from where zero patch rates integrate to.
+    fn make_case(drift_deg: f64, axis: [f64; 3]) -> (Vec<f64>, Vec<[f64; 4]>, Vec<[f64; 3]>) {
+        let fs = 1000.0;
+        let n = (10.0 * fs) as usize;
+        let t: Vec<f64> = (0..n).map(|i| i as f64 / fs).collect();
+        let norm = (axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]).sqrt();
+        let ax = [axis[0] / norm, axis[1] / norm, axis[2] / norm];
+        let q_raw: Vec<[f64; 4]> = t
+            .iter()
+            .map(|&tt| {
+                let frac = ((tt - 2.0) / 1.0).clamp(0.0, 1.0);
+                let rad = drift_deg.to_radians() * frac;
+                qexp([rad * ax[0], rad * ax[1], rad * ax[2]])
+            })
+            .collect();
+        let omega = vec![[0.0, 0.0, 0.0]; n - 1]; // optical says: camera did not move
+        (t, q_raw, omega)
+    }
+
+    fn rates_deg(t: &[f64], q: &[[f64; 4]]) -> (Vec<f64>, Vec<[f64; 3]>) {
+        let (tm, om) = quats_to_rates(t, q);
+        (
+            tm,
+            om.iter()
+                .map(|r| core::array::from_fn(|k| r[k].to_degrees()))
+                .collect(),
+        )
+    }
+
+    fn max_norm_in_window(tm: &[f64], om: &[[f64; 3]], lo: f64, hi: f64) -> f64 {
+        tm.iter()
+            .zip(om)
+            .filter(|(&t, _)| t > lo && t < hi)
+            .map(|(_, r)| (r[0] * r[0] + r[1] * r[1] + r[2] * r[2]).sqrt())
+            .fold(f64::MIN, f64::max)
+    }
+
+    #[test]
+    fn rebase_off_is_previous_behavior() {
+        let (t, q_raw, omega) = make_case(60.0, [0.0, 0.0, 1.0]);
+        let (q_out, stats) = splice_orientation(&t, &q_raw, &omega, &[(2.0, 3.0)], 0.3, 0.0, 1.5);
+        assert!(!stats[0].rebased);
+        let i1 = crate::dsp::searchsorted_right(&t, 3.0).saturating_sub(1);
+        let dot: f64 = (0..4)
+            .map(|k| q_out[i1][k] * q_raw[i1][k])
+            .sum::<f64>()
+            .abs();
+        assert!((2.0 * dot.min(1.0).acos()).to_degrees() < 1e-7);
+        for i in 0..t.len() {
+            if t[i] < 2.0 || t[i] > 3.0 {
+                assert_eq!(
+                    q_out[i], q_raw[i],
+                    "outside interval must be bit-identical at i={i}"
+                );
+            }
+        }
+        let (tm, om) = rates_deg(&t, &q_out);
+        assert!(max_norm_in_window(&tm, &om, 2.2, 2.8) > 30.0);
+    }
+
+    #[test]
+    fn rebase_kills_in_burst_fake_rate() {
+        // implied 1.5*60/1 = 90 deg/s
+        let (t, q_raw, omega) = make_case(60.0, [0.0, 0.0, 1.0]);
+        let (q_out, stats) = splice_orientation(&t, &q_raw, &omega, &[(2.0, 3.0)], 0.3, 30.0, 1.5);
+        assert!(stats[0].rebased);
+        assert!((stats[0].drift_deg - 60.0).abs() < 1.0);
+        let (tm, om) = rates_deg(&t, &q_out);
+        assert!(max_norm_in_window(&tm, &om, 2.35, 2.65) < 2.0);
+        assert!(max_norm_in_window(&tm, &om, 3.4, 40.0) < 1.5 + 0.1);
+    }
+
+    #[test]
+    fn offset_decays_to_bit_identical_raw() {
+        // implied 1.5*6/1 = 9 deg/s
+        let (t, q_raw, omega) = make_case(6.0, [0.0, 0.0, 1.0]);
+        let (q_out, stats) = splice_orientation(&t, &q_raw, &omega, &[(2.0, 3.0)], 0.3, 5.0, 1.5);
+        assert!(stats[0].rebased);
+        // 6 deg at 1.5 deg/s -> gone 4 s after the burst; far samples bit-exact
+        let far = 3.0 + 6.0 / 1.5 + 0.5;
+        for i in 0..t.len() {
+            if t[i] > far {
+                assert_eq!(
+                    q_out[i], q_raw[i],
+                    "far sample must be bit-identical at i={i}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn offsets_compose_across_bursts() {
+        let fs = 1000.0;
+        let n = (20.0 * fs) as usize;
+        let t: Vec<f64> = (0..n).map(|i| i as f64 / fs).collect();
+        // two bursts, each drifting raw 40 deg further about z
+        let q_raw: Vec<[f64; 4]> = t
+            .iter()
+            .map(|&tt| {
+                let frac = (tt - 2.0).clamp(0.0, 1.0) + (tt - 8.0).clamp(0.0, 1.0);
+                let rad = 40.0f64.to_radians() * frac;
+                qexp([0.0, 0.0, rad])
+            })
+            .collect();
+        let omega = vec![[0.0, 0.0, 0.0]; n - 1];
+        let (q_out, stats) = splice_orientation(
+            &t,
+            &q_raw,
+            &omega,
+            &[(2.0, 3.0), (8.0, 9.0)],
+            0.3,
+            30.0,
+            0.0, // carry forever
+        );
+        assert_eq!(
+            stats.iter().map(|s| s.rebased).collect::<Vec<_>>(),
+            vec![true, true]
+        );
+        // with zero decay the offset after burst 2 is the composed 80 deg:
+        // q_out stays at identity attitude (optical said "no motion") forever
+        let (tm, om) = rates_deg(&t, &q_out);
+        assert!(max_norm_in_window(&tm, &om, 9.4, f64::MAX) < 0.5);
+        let end_err = crate::quat::qlog(*q_out.last().unwrap());
+        let end_err_deg =
+            (end_err[0] * end_err[0] + end_err[1] * end_err[1] + end_err[2] * end_err[2])
+                .sqrt()
+                .to_degrees();
+        assert!(end_err_deg < 1.0);
+    }
+
+    #[test]
+    fn identity_offset_spans_bit_identical() {
+        let (t, q_raw, omega) = make_case(60.0, [0.0, 0.0, 1.0]);
+        let (q_out, _) = splice_orientation(&t, &q_raw, &omega, &[(2.0, 3.0)], 0.3, 1000.0, 1.5); // gate never trips
+        for i in 0..t.len() {
+            if t[i] < 2.0 || t[i] > 3.0 {
+                assert_eq!(
+                    q_out[i], q_raw[i],
+                    "outside interval must be bit-identical at i={i}"
+                );
+            }
+        }
+    }
 }

@@ -8,6 +8,7 @@ window.DEFAULTS = {
   patch_pad: 0.5, patch_merge: 1.0, optical_noise: null,
   fast_wide_cutoff: 0.0, fast_wide_ramp: [150.0, 300.0],
   fast_wide_accel: 1500.0, anchor_mode: false, anchor_cutoff: 1.5,
+  drift_rebase_above: 0.0, drift_decay_rate: 1.5,
 };
 window.M4 = Object.assign({}, window.DEFAULTS, { fast_wide_cutoff: 16.0 });
 
@@ -36,6 +37,8 @@ window.HELP = {
   fast_wide_accel: "deg/s^2 above which the wider handback fades back out (snap transitions corrupt the mid-band gyro; default 1500, 0 disables the gate)",
   anchor_mode: "in noise bursts keep --strong-cutoff band-limited gyro and use optical only as a low-frequency drift anchor (see --anchor-cutoff), instead of replacing the motion with optical rates",
   anchor_cutoff: "Hz, bandwidth of the optical drift anchor in --anchor-mode (default 1.5)",
+  drift_rebase_above: "deg/s implied bridge rate (1.5*drift/duration) above which a burst's optical drift is carried forward as a constant orientation offset instead of being bridged inside the burst (0 = always bridge in-burst). A constant offset is invisible to stabilization; do not enable with Gyroflow horizon lock ON",
+  drift_decay_rate: "deg/s cap at which a carried drift offset bleeds back to identity in the following clean zone (0 = carry forever; default 1.5)",
 };
 
 // field descriptors driving the settings form
@@ -57,6 +60,8 @@ window.FIELDS = [
   ["Optical", "handback_cutoff", "Handback cutoff (Hz, blank = optical)", "num_opt"],
   ["Optical", "fast_handback", "Fast handback ramp (°/s lo/hi)", "pair"],
   ["Optical", "gyro_trust_noise", "Gyro-trust noise ramp (°/s lo/hi)", "pair"],
+  ["Optical", "drift_rebase_above", "Drift rebase above (°/s implied, 0 = off)", "num"],
+  ["Optical", "drift_decay_rate", "Drift decay rate (°/s)", "num"],
   ["Optical", "patch_pad", "Patch padding (s)", "num"],
   ["Optical", "patch_merge", "Patch merge gap (s)", "num"],
   ["Optical", "optical_noise", "Optical threshold (°/s lo/hi, blank = noise)", "pair_opt"],

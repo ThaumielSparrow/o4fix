@@ -17,8 +17,16 @@ fn splice_matches_python() {
         .map(|i| (sev[[i, 0]], sev[[i, 1]]))
         .collect();
 
-    let ramp = o4core::config::Config::default().ramp;
-    let (q_out, stats) = o4core::patch::splice_orientation(&t, &q, &omega, &intervals, ramp);
+    let cfg = o4core::config::Config::default();
+    let (q_out, stats) = o4core::patch::splice_orientation(
+        &t,
+        &q,
+        &omega,
+        &intervals,
+        cfg.ramp,
+        cfg.drift_rebase_above,
+        cfg.drift_decay_rate,
+    );
 
     let mut zs = gt::npz("splice.npz");
     let qg: Array2<f64> = zs.by_name("q_out").unwrap();

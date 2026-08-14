@@ -25,6 +25,8 @@ pub struct Config {
     pub fast_wide_accel: f64,
     pub anchor_mode: bool,
     pub anchor_cutoff: f64,
+    pub drift_rebase_above: f64,
+    pub drift_decay_rate: f64,
 }
 
 impl Default for Config {
@@ -54,6 +56,8 @@ impl Default for Config {
             fast_wide_accel: 1500.0,
             anchor_mode: false,
             anchor_cutoff: 1.5,
+            drift_rebase_above: 0.0,
+            drift_decay_rate: 1.5,
         }
     }
 }
@@ -79,5 +83,7 @@ mod tests {
         assert_eq!(c.fast_wide_cutoff, 0.0);
         assert_eq!(Config::m4().fast_wide_cutoff, 16.0);
         assert!(c.handback_cutoff.is_none() && c.optical_noise.is_none());
+        assert_eq!(c.drift_rebase_above, 0.0);
+        assert_eq!(c.drift_decay_rate, 1.5);
     }
 }

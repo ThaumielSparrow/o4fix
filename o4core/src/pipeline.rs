@@ -196,14 +196,25 @@ pub fn process(
     )?;
 
     check()?;
-    let (q_out, bursts) = patch::splice_orientation(&tel.t, &tel.q, &patched, &intervals, cfg.ramp);
+    let (q_out, bursts) = patch::splice_orientation(
+        &tel.t,
+        &tel.q,
+        &patched,
+        &intervals,
+        cfg.ramp,
+        cfg.drift_rebase_above,
+        cfg.drift_decay_rate,
+    );
     for b in &bursts {
         say(
             Stage::Splice,
             0.87,
             format!(
-                "     [{:7.2}, {:7.2}] optical drift over burst: {:5.2} deg",
-                b.start, b.end, b.drift_deg
+                "     [{:7.2}, {:7.2}] optical drift over burst: {:5.2} deg{}",
+                b.start,
+                b.end,
+                b.drift_deg,
+                if b.rebased { "  REBASED" } else { "" }
             ),
         );
     }
