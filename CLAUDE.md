@@ -246,6 +246,67 @@ GUI.** Known benign leftovers: clip-end landing impacts (0057 @315.9 s,
 sub-threshold real-fast maneuvers; monster-burst drift bridges on these
 clips run 26-175° (same slow-judder floor as 0027).
 
+## IN PROGRESS: drift rebase (branch `drift-rebase`, paused 2026-08-14)
+
+Goal: kill the monster-burst drift-bridge judder (the smoothstep spreads
+26-175° of drift inside each burst = up to ~150 °/s sub-2 Hz fake rotation).
+Design: land bursts on the optical endpoint; carry drift forward as a
+constant orientation offset decaying ≤1.5 °/s (constant offsets are
+INVISIBLE to Gyroflow — kill-test measured max 0.01662° correction change
+under a whole-clip 30° offset). Spec
+`docs/superpowers/specs/2026-08-13-drift-rebase-design.md`, plan
+`docs/superpowers/plans/2026-08-13-drift-rebase.md`, SDD ledger
+`.superpowers/sdd/progress.md` (Plan 3 section) has per-task detail.
+
+State: Tasks 1-4 DONE on branch (kill-test; Python `splice_orientation`
+rebase + 5 unit tests in `python/tests/`; CLI flags `--drift-rebase-above`
+(default 0 = off) / `--drift-decay-rate` (1.5); Rust+GUI port — Python and
+Rust outputs SHA-256 identical on 0060). Flags-off output byte-identical
+to pre-change pipeline (cmp-proven). Task 5 validation at gate 30 °/s:
+0021 byte-identical (max implied bridge rate 22.47 < 30, 0 REBASED);
+0027 all 4 rebased bursts improve (-2.4..-55%, flick guard passes);
+0060 MIXED — 106s -50%, 225s -38%, 100s -6%, but **248s +7.2% and
+308s +11.2% WORSE** (reproduced on 0.3-2 Hz; controls/post-burst clean).
+Full tables: `.superpowers/sdd/task-5-report.md`.
+
+Mechanism read (controller): the regressing bursts have the fastest real
+motion; their "drift" is partly OUR patch path's own LF error (optical
+blur/RS + handed-back LP8 gyro phantom), which the old bridge's endpoint
+pinning was inadvertently correcting. Rebase must not discard that
+correction where the patch path itself is untrustworthy.
+
+USER DECISION (2026-08-14): add a **fast-motion guard** — skip rebase
+(keep bridge) for bursts with fast in-burst motion — then revalidate;
+default-on only if every window improves-or-holds. NEXT SESSION: 1) guard
+in Python `splice_orientation` callers (the per-burst rate info already
+exists inside `optical_patch` — e.g. segment mean/p95 of the handback
+estimate `min(rate_mag, rate_opt)` or `wseg`; threshold ~100 °/s, sweep
+it); needs plumbing burst→rate-summary into `process_mp4`/pipeline;
+2) mirror in Rust (keep quat parity); 3) re-render/eval 0060 REBASE
+(expect 248/308 revert to bridge numbers, others keep wins), spot-check
+0027 unchanged; 4) then plan Task 6 (defaults flip, goldens
+`python/tools/dump_goldens.py`, docs+horizon-lock note, rebuild
+target\release, user-gated v0.1.2).
+
+Harness notes for this work: store Gyroflow exe is now UNUSABLE from the
+harness (MSIX activation mangles CLI args → silent GUI hang; sandboxed
+shells can't activate it at all). Use the portable 1.6.3 at
+`tools/gyroflow-portable/Gyroflow.exe` (gitignored; re-download:
+`gh release download v1.6.3 --repo gyroflow/gyroflow --pattern
+Gyroflow-windows64.zip`) — direct spawn, stdout works, renders identical.
+`--export-metadata "3:<ABSOLUTE path to EXISTING file>"` dumps per-frame
+org/stab quats WITHOUT rendering (fast; schema: list of {org_quat,
+stab_quat} wxyz). Committed helpers: `python/analysis/eval_windows.py`
+(banded window metrics from eval caches; series npz schema = single
+`series` array, cols [t,wx,wy,wroll,dlogscale,quality]),
+`python/analysis/make_project.py` (project JSON retargeting),
+`python/tools/offset_killtest.py`. A/B renders for eyeballing kept in
+`sample_vids/`: `eval60_BRIDGE.mp4` vs `eval60_REBASE.mp4` (watch 1:46,
+4:09, 5:08), `eval27_REBASE.mp4`. Eval caches in `python/analysis/cache/`
+(`eval_eval60_*`, `eval_eval27_REBASE`, 0060 rates cache). 0057-0059 have
+21 more bursts ≥30 °/s implied — rendered validation still only on
+0021/0027/0060.
+
 ## Possible follow-ups (nothing blocking)
 
 - DONE (Plan 2, 2026-07-19): Rust port shipped as o4fix-app GUI + CLI, portable zip on GitHub Releases (v0.1.0), CI on GitHub Actions. Multi-clip validation still open (deferred post-release).
