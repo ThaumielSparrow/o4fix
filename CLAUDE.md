@@ -375,15 +375,16 @@ zoom-correct pair — watch 1:46, 3:45, 4:09, 5:08; the un-suffixed
 
 ## Possible follow-ups (nothing blocking)
 
-- **Release v0.1.2 is NOT cut yet.** Code is merged to main at 0.1.2 and
-  the local release-checklist gates 1-3 + 5 are green on that commit
-  (`docs/release-checklist.md`). Still open: item 4 full GUI smoke
-  (only boot + settings migration were verified; no clip repaired
-  through the GUI on this build, no cancel/batch/error re-test), item 6
-  CI green on main, item 7 `git tag v0.1.2 && git push origin v0.1.2`
-  (fires the release workflow — outward-facing, ask first), items 8-9
-  clean-PATH zip smoke + README link. Nothing blocks day-to-day use:
-  `target\release` binaries are already at 0.1.2.
+- **v0.1.2 RELEASED 2026-08-15** (tag v0.1.2, run 31855958943,
+  `o4fix-v0.1.2-windows-x64.zip`). Checklist (`docs/release-checklist.md`)
+  items 1-3, 5, 6, 7, 9 green; item 8 green for the CLI: the published
+  zip was downloaded and run with PATH stripped to System32, repairing
+  0060 end-to-end (exit 0, 5 bursts REBASED, round-trip exact) with quats
+  **bit-identical to the local release build** (382658/382658 rows,
+  max diff 0) — bundled OpenCV DLLs resolve correctly. STILL OPEN: the
+  GUI half of item 8 + item 4 (launch o4fix-app.exe from the unzipped
+  folder on a clean PATH, repair a clip through it, re-test
+  cancel/batch/error). Needs a human at the keyboard.
 - DONE (Plan 2, 2026-07-19): Rust port shipped as o4fix-app GUI + CLI, portable zip on GitHub Releases (v0.1.0), CI on GitHub Actions. Multi-clip validation still open (deferred post-release).
 - Validate on more clips from the same unit (only one test clip so far);
   o4fix prints per-burst optical drift — watch for calibration R² < 0.8
