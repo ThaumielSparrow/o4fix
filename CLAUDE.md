@@ -1,4 +1,9 @@
-# DJI O4 Pro gyro noise fix — STATUS AFTER SESSION 3: MISSION ACCOMPLISHED
+# DJI O4 Pro gyro noise fix — SHIPPED v0.1.2, work paused 2026-08-14
+
+Status: solved and shipping. v0.1.2 (drift rebase default-on) is the
+current behavior; the user accepted the remaining artifacts ("small
+judders and a tiny bit of panning") and stopped tuning — see "Accepted
+residual" under the drift-rebase section before reopening anything.
 
 ## Problem
 
@@ -296,6 +301,47 @@ on those two bursts.
 (up to 18.7° apparent diff in clean zones here) without changing the
 rendered output at all.
 
+### Accepted residual (user verdict 2026-08-14, work PAUSED here)
+
+On the four regenerated Aug-08 `_fixed.MP4`: "they look better. i can
+still see small judders and a tiny bit of panning." User called it good
+enough and stopped the effort — **this is a deliberate stopping point,
+not an unfinished task.** Anyone picking it back up should know:
+
+- The eval tracker cannot referee what is left. Its coupling noise on
+  0060 is 1.3-2.6 °/s in windows where the applied corrections are
+  provably identical, which is the same size as the remaining
+  burst-to-burst differences. Perceptual A/B is the only instrument that
+  still resolves anything here, and it disagreed with the tracker at
+  1:46 twice (user prefers bridge; tracker says rebase halves the
+  wobble). Do not tune against the tracker at this scale.
+- Sources are the binding constraint. Both remaining artifacts trace to
+  the patch path's own LF error — optical blur/rolling-shutter plus
+  handed-back LP8 gyro phantom — not to how the drift is distributed.
+  The 2026-07-14 fast-motion analysis reached the same wall: even the
+  healthy-gyro reference A only reaches 13.5/23.3 °/s in the fast-patched
+  cell.
+
+Ideas NOT tried (in rough order of expected value):
+1. Better optical LF: rolling-shutter-aware or deblurred feature
+   tracking inside monster bursts, to cut the drift that must be carried
+   at all (currently 26-175° per burst).
+2. Blackbox gyro as an LF reference — user-rejected on hardware/workflow
+   grounds (32 MB flash), still the only clean fix for phantom-vs-real
+   ambiguity.
+3. EKF-style fusion of optical + gyro instead of the current hard
+   handback switch (spec §7 explicitly deferred it).
+4. Fast-motion guard on the rebase gate — designed, then dropped with
+   evidence (see above). Revive ONLY with a better referee than the
+   tracker; the per-burst rate summary it needs already exists inside
+   `optical_patch` (segment mean/p95 of `min(rate_mag, rate_opt)`).
+
+Measured dead ends for THIS problem (do not redo): rate-weighted drift
+spreading (worse on both clips, 2026-07-21); instantaneous-noise gating
+of the handback trust (recovers only 115/165 °/s vs 24 for segment-peak);
+pure ungated `min(gyro, optical)` handback (regresses 0021 flicks);
+Gyroflow's own glitch filter (2026-07-12 entry above).
+
 EVAL-HARNESS TRAP (cost a full A/B re-do): a retargeted .gyroflow keeps
 the template's `video_info`, and Gyroflow sizes its per-frame adaptive-zoom
 array from that WITHOUT re-probing the video. A 0021-derived template
@@ -329,6 +375,15 @@ zoom-correct pair — watch 1:46, 3:45, 4:09, 5:08; the un-suffixed
 
 ## Possible follow-ups (nothing blocking)
 
+- **Release v0.1.2 is NOT cut yet.** Code is merged to main at 0.1.2 and
+  the local release-checklist gates 1-3 + 5 are green on that commit
+  (`docs/release-checklist.md`). Still open: item 4 full GUI smoke
+  (only boot + settings migration were verified; no clip repaired
+  through the GUI on this build, no cancel/batch/error re-test), item 6
+  CI green on main, item 7 `git tag v0.1.2 && git push origin v0.1.2`
+  (fires the release workflow — outward-facing, ask first), items 8-9
+  clean-PATH zip smoke + README link. Nothing blocks day-to-day use:
+  `target\release` binaries are already at 0.1.2.
 - DONE (Plan 2, 2026-07-19): Rust port shipped as o4fix-app GUI + CLI, portable zip on GitHub Releases (v0.1.0), CI on GitHub Actions. Multi-clip validation still open (deferred post-release).
 - Validate on more clips from the same unit (only one test clip so far);
   o4fix prints per-burst optical drift — watch for calibration R² < 0.8
