@@ -7,10 +7,14 @@ the integral of the B-style optical patch rates (LP8 optical + rate-aware
 handback), pinned to the raw path at burst edges:
   - the accumulated optical drift over each burst is spread across the whole
     burst as a slow rotation-vector correction (smoothstep), so both endpoints
-    match raw exactly with no fast fake motion, and
+    match raw exactly with no fast fake motion -- unless the implied bridge
+    rate exceeds --drift-rebase-above (default 30 deg/s), in which case the
+    burst lands on the optical endpoint and the drift is carried forward as a
+    decaying constant offset instead, and
   - a ~0.3 s slerp cross-fade at each edge blends the rate content smoothly.
-Mild zones stay bit-exact raw (measured best; optical injects fake pan/tilt
-there).
+Mild zones keep raw motion (measured best; optical injects fake pan/tilt
+there) -- bit-exact raw with rebase off, otherwise raw rotated by whatever
+carried offset is still decaying.
 
 Output: .npz with t (s) and q (Nx4 wxyz, telemetry-parser output frame),
 one row per deduped 1 kHz sample - feed to `mp4patch.py inject`.
@@ -63,9 +67,12 @@ def main():
           f"{len(intervals)} covering {tot:.1f} s")
 
     q_out, stats = splice_orientation(t, q_raw, patched, intervals,
-                                      args_local.ramp)
-    for a, b, drift, _rebased in stats:
-        print(f"     [{a:7.2f}, {b:7.2f}] optical drift over burst: {drift:5.2f} deg")
+                                      args_local.ramp,
+                                      rebase_above=o4args.drift_rebase_above,
+                                      decay_rate=o4args.drift_decay_rate)
+    for a, b, drift, rebased in stats:
+        print(f"     [{a:7.2f}, {b:7.2f}] optical drift over burst: "
+              f"{drift:5.2f} deg{'  REBASED' if rebased else ''}")
 
     changed = np.any(q_out != q_raw, axis=1).mean()
     np.savez(args_local.output, t=t, q=q_out)

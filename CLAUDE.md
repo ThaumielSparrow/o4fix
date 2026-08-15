@@ -246,62 +246,65 @@ GUI.** Known benign leftovers: clip-end landing impacts (0057 @315.9 s,
 sub-threshold real-fast maneuvers; monster-burst drift bridges on these
 clips run 26-175° (same slow-judder floor as 0027).
 
-## IN PROGRESS: drift rebase (branch `drift-rebase`, paused 2026-08-14)
+## Drift rebase — DEFAULT-ON since v0.1.2 (2026-08-14)
 
-Goal: kill the monster-burst drift-bridge judder (the smoothstep spreads
-26-175° of drift inside each burst = up to ~150 °/s sub-2 Hz fake rotation).
-Design: land bursts on the optical endpoint; carry drift forward as a
-constant orientation offset decaying ≤1.5 °/s (constant offsets are
-INVISIBLE to Gyroflow — kill-test measured max 0.01662° correction change
-under a whole-clip 30° offset). Spec
+Kills the monster-burst drift-bridge judder (the old smoothstep spread
+26-175° of drift inside each burst = up to ~150 °/s sub-2 Hz fake
+rotation). Bursts now land on the optical endpoint and the leftover drift
+is carried forward as a constant orientation offset decaying ≤1.5 °/s.
+Constant offsets are INVISIBLE to Gyroflow — kill-test measured max
+0.01662° correction change under a whole-clip 30° offset.
+
+`--drift-rebase-above 30` (deg/s implied bridge rate = 1.5*drift/duration;
+0 = old always-bridge behavior) / `--drift-decay-rate 1.5`. Spec
 `docs/superpowers/specs/2026-08-13-drift-rebase-design.md`, plan
-`docs/superpowers/plans/2026-08-13-drift-rebase.md`, SDD ledger
-`.superpowers/sdd/progress.md` (Plan 3 section) has per-task detail.
+`docs/superpowers/plans/2026-08-13-drift-rebase.md`, per-task detail in
+`.superpowers/sdd/progress.md` (Plan 3), tables in
+`.superpowers/sdd/task-5-report.md`.
 
-State: Tasks 1-4 DONE on branch (kill-test; Python `splice_orientation`
-rebase + 5 unit tests in `python/tests/`; CLI flags `--drift-rebase-above`
-(default 0 = off) / `--drift-decay-rate` (1.5); Rust+GUI port — Python and
-Rust outputs SHA-256 identical on 0060). Flags-off output byte-identical
-to pre-change pipeline (cmp-proven). Task 5 validation at gate 30 °/s:
-0021 byte-identical (max implied bridge rate 22.47 < 30, 0 REBASED);
-0027 all 4 rebased bursts improve (-2.4..-55%, flick guard passes);
-0060 MIXED — 106s -50%, 225s -38%, 100s -6%, but **248s +7.2% and
-308s +11.2% WORSE** (reproduced on 0.3-2 Hz; controls/post-burst clean).
-Full tables: `.superpowers/sdd/task-5-report.md`.
+**Horizon lock:** carried offsets would fight the horizon reference — set
+the gate to 0 when stabilizing with horizon lock ON (documented in README
++ GUI help; no code interlock).
 
-Mechanism read (controller): the regressing bursts have the fastest real
-motion; their "drift" is partly OUR patch path's own LF error (optical
-blur/RS + handed-back LP8 gyro phantom), which the old bridge's endpoint
-pinning was inadvertently correcting. Rebase must not discard that
-correction where the patch path itself is untrustworthy.
+**Clean zones are no longer bit-exact by default.** A carried offset of
+100-175° takes 60-115 s to bleed off at 1.5 °/s, so most of a
+monster-burst clip gets rewritten: 0060 keeps only 104342/382658 samples
+(27.3%) identical to raw, vs nearly everything outside bursts under the
+old bridge. The mp4patch-level gate is unchanged (samples not handed to
+the injector keep their bytes); it is the pipeline that now hands over
+more. `--drift-rebase-above 0` restores full clean-zone bit-exactness.
 
-USER EYEBALL A/B (2026-08-14, eval60_BRIDGE vs eval60_REBASE; "very
-close" / "differences are quite subtle" throughout): 1:46 bridge looks
-better; 3:45 rebase better; 4:09 rebase better; 5:08 rebase better.
-NOTE this partially CONTRADICTS the metrics — both metric-regressed
-bursts (4:09/248s +7.2%, 5:08/308s +11.2%) looked BETTER as rebase,
-while the metric's biggest win (1:46/106s, -50%) looked better as
-bridge. Confound the user spotted: lens-correction/zoom edge dips into
-frame sometimes (adaptive zoom possibly misconfigured in these eval
-projects — template inherited from the 0021 clip), which may mask or
-mimic perceived motion. Implication for next session: don't over-trust
-the +7/11% tracker regressions when tuning the guard threshold — the
-perceptual data says rebase is not clearly worse even there; consider
-re-rendering with a properly configured zoom before final judgment, and
-weigh whether the guard is still needed at all vs. shipping as-is.
+Validation at gate 30 (three clips): 0021 byte-identical (max implied
+bridge rate 22.47 < 30, 0 bursts qualify — so the goldens are unchanged
+by the flip); 0027 all 4 rebased bursts improve (-2.4..-55%); 0060
+(wobble 0.3-8 Hz °/s, bridge→rebase) 100s 43.90→39.76, 106s 25.05→12.89,
+225s 25.77→16.35, 248s 80.08→82.92, 308s 37.10→38.72.
 
-USER DECISION (2026-08-14): add a **fast-motion guard** — skip rebase
-(keep bridge) for bursts with fast in-burst motion — then revalidate;
-default-on only if every window improves-or-holds. NEXT SESSION: 1) guard
-in Python `splice_orientation` callers (the per-burst rate info already
-exists inside `optical_patch` — e.g. segment mean/p95 of the handback
-estimate `min(rate_mag, rate_opt)` or `wseg`; threshold ~100 °/s, sweep
-it); needs plumbing burst→rate-summary into `process_mp4`/pipeline;
-2) mirror in Rust (keep quat parity); 3) re-render/eval 0060 REBASE
-(expect 248/308 revert to bridge numbers, others keep wins), spot-check
-0027 unchanged; 4) then plan Task 6 (defaults flip, goldens
-`python/tools/dump_goldens.py`, docs+horizon-lock note, rebuild
-target\release, user-gated v0.1.2).
+The two apparent 0060 regressions are **inside the tracker's own noise**:
+in the same render pair the clean control moved 27.20→29.76 (+2.56 °/s)
+and the mild control 30.03→31.31, while the actually-applied corrections
+there are identical (body-frame `org⁻¹·stab` diff 0.26°/0.63° max clean,
+0.21°/0.99° mild). In-burst that diff is 4.8-9.1° median = the real design
+difference. Two independent user eyeball passes: 1:46 bridge marginally
+better ("extremely subtle"), 3:45 + 4:09 + 5:08 rebase better — i.e. both
+"regressed" bursts are perceptual wins. Guard idea (skip rebase on
+fast-motion bursts) was considered and DROPPED: it would only have fired
+on those two bursts.
+
+**Compare corrections in the body frame** (`org⁻¹·stab`), never
+`stab·org⁻¹`: a carried offset conjugates the frame-domain correction
+(up to 18.7° apparent diff in clean zones here) without changing the
+rendered output at all.
+
+EVAL-HARNESS TRAP (cost a full A/B re-do): a retargeted .gyroflow keeps
+the template's `video_info`, and Gyroflow sizes its per-frame adaptive-zoom
+array from that WITHOUT re-probing the video. A 0021-derived template
+(17639 frames/176.4 s) on 0060 (38269/382.7 s) froze zoom at fov 1.08257
+after 176 s → 11.4% of later frames showed lens edge, asymmetrically
+between variants (3:45: bridge 0.0% vs rebase 48.2%). `make_project.py`
+now rewrites video_info from the clip; verify with
+`--export-metadata-fields "{'zooming':{'minimal_fovs':true,'fovs':true}}"`
+→ applied fov must never exceed minimal_fov (0 violations).
 
 Harness notes for this work: store Gyroflow exe is now UNUSABLE from the
 harness (MSIX activation mangles CLI args → silent GUI hang; sandboxed
@@ -316,8 +319,10 @@ stab_quat} wxyz). Committed helpers: `python/analysis/eval_windows.py`
 `series` array, cols [t,wx,wy,wroll,dlogscale,quality]),
 `python/analysis/make_project.py` (project JSON retargeting),
 `python/tools/offset_killtest.py`. A/B renders for eyeballing kept in
-`sample_vids/`: `eval60_BRIDGE.mp4` vs `eval60_REBASE.mp4` (watch 1:46,
-4:09, 5:08), `eval27_REBASE.mp4`. Eval caches in `python/analysis/cache/`
+`sample_vids/`: **`eval60_BRIDGE_v2.mp4` vs `eval60_REBASE_v2.mp4`** (the
+zoom-correct pair — watch 1:46, 3:45, 4:09, 5:08; the un-suffixed
+`eval60_BRIDGE/REBASE.mp4` are the superseded frozen-zoom renders),
+`eval27_REBASE.mp4`. Eval caches in `python/analysis/cache/`
 (`eval_eval60_*`, `eval_eval27_REBASE`, 0060 rates cache). 0057-0059 have
 21 more bursts ≥30 °/s implied — rendered validation still only on
 0021/0027/0060.

@@ -8,7 +8,7 @@ window.DEFAULTS = {
   patch_pad: 0.5, patch_merge: 1.0, optical_noise: null,
   fast_wide_cutoff: 0.0, fast_wide_ramp: [150.0, 300.0],
   fast_wide_accel: 1500.0, anchor_mode: false, anchor_cutoff: 1.5,
-  drift_rebase_above: 0.0, drift_decay_rate: 1.5,
+  drift_rebase_above: 30.0, drift_decay_rate: 1.5,
 };
 window.M4 = Object.assign({}, window.DEFAULTS, { fast_wide_cutoff: 16.0 });
 
@@ -37,7 +37,7 @@ window.HELP = {
   fast_wide_accel: "deg/s^2 above which the wider handback fades back out (snap transitions corrupt the mid-band gyro; default 1500, 0 disables the gate)",
   anchor_mode: "in noise bursts keep --strong-cutoff band-limited gyro and use optical only as a low-frequency drift anchor (see --anchor-cutoff), instead of replacing the motion with optical rates",
   anchor_cutoff: "Hz, bandwidth of the optical drift anchor in --anchor-mode (default 1.5)",
-  drift_rebase_above: "deg/s implied bridge rate (1.5*drift/duration) above which a burst's optical drift is carried forward as a constant orientation offset instead of being bridged inside the burst (0 = always bridge in-burst). A constant offset is invisible to stabilization; do not enable with Gyroflow horizon lock ON",
+  drift_rebase_above: "deg/s implied bridge rate (1.5*drift/duration) above which a burst's optical drift is carried forward as a constant orientation offset instead of being bridged inside the burst (default 30; 0 = always bridge in-burst). A constant offset is invisible to stabilization; set 0 if you stabilize with Gyroflow horizon lock ON",
   drift_decay_rate: "deg/s cap at which a carried drift offset bleeds back to identity in the following clean zone (0 = carry forever; default 1.5)",
 };
 

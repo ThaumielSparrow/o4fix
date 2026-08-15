@@ -108,9 +108,17 @@ impl ConfigDto {
     }
 }
 
+/// Bumped whenever a stored settings.json needs rewriting on load. See
+/// `GuiSettings::migrate`.
+pub const CURRENT_SETTINGS_VERSION: u32 = 1;
+
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
 pub struct GuiSettings {
+    /// Field-level `default` (0), NOT the container default: a file written
+    /// before versioning existed must read back as v0 so it gets migrated.
+    #[serde(default)]
+    pub settings_version: u32,
     pub profile: String,
     pub config: ConfigDto,
     pub output_dir: Option<String>,
@@ -120,6 +128,7 @@ pub struct GuiSettings {
 impl Default for GuiSettings {
     fn default() -> Self {
         Self {
+            settings_version: CURRENT_SETTINGS_VERSION,
             profile: "m2".into(),
             config: ConfigDto::default(),
             output_dir: None,
@@ -128,12 +137,40 @@ impl Default for GuiSettings {
     }
 }
 
+impl GuiSettings {
+    /// Bring a stored settings.json up to `CURRENT_SETTINGS_VERSION`.
+    /// Returns true if anything changed (caller persists).
+    ///
+    /// v0 -> v1 (0.1.2): drift rebase became default-on. A v0 file holding
+    /// `drift_rebase_above: 0.0` recorded the *old default*, not a choice --
+    /// the flag shipped in no release before 0.1.2 -- so adopt the new
+    /// default rather than silently leaving those users on the old
+    /// in-burst bridge. Runs once; a deliberate 0 set from 0.1.2 onwards is
+    /// stored at v1 and never touched.
+    fn migrate(&mut self) -> bool {
+        if self.settings_version >= CURRENT_SETTINGS_VERSION {
+            return false;
+        }
+        if self.config.drift_rebase_above == 0.0 {
+            self.config.drift_rebase_above = Config::default().drift_rebase_above;
+        }
+        self.settings_version = CURRENT_SETTINGS_VERSION;
+        true
+    }
+}
+
 // Pure file I/O (unit-testable without an AppHandle).
 pub fn load_from(path: &Path) -> GuiSettings {
-    std::fs::read_to_string(path)
+    let mut s: GuiSettings = std::fs::read_to_string(path)
         .ok()
         .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+        .unwrap_or_default();
+    if s.migrate() {
+        // Best-effort persist so the migration is one-time and visible in
+        // the file; if the write fails it simply reruns on the next launch.
+        let _ = save_to(path, &s);
+    }
+    s
 }
 pub fn save_to(path: &Path, s: &GuiSettings) -> Result<(), String> {
     if let Some(dir) = path.parent() {
@@ -170,6 +207,7 @@ mod tests {
     #[test]
     fn settings_serde_round_trip() {
         let s = GuiSettings {
+            settings_version: CURRENT_SETTINGS_VERSION,
             profile: "m4".into(),
             config: ConfigDto::from_config(&Config::m4()),
             output_dir: Some("D:\\out".into()),
@@ -199,9 +237,102 @@ mod tests {
             // no drift_rebase_above / drift_decay_rate keys
         });
         let dto: ConfigDto = serde_json::from_value(old).unwrap();
-        assert_eq!(dto.drift_rebase_above, 0.0);
+        // v0.1.2 flipped this default on; a pre-v0.1.1 settings.json (which
+        // predates the key entirely) therefore adopts drift rebase.
+        assert_eq!(dto.drift_rebase_above, 30.0);
         assert_eq!(dto.drift_decay_rate, 1.5);
         assert_eq!(dto.to_config(), Config::default());
+    }
+
+    /// A settings.json written by a pre-0.1.2 build that DID have the key
+    /// (branch builds) stores an explicit 0.0 and no version stamp -- it is
+    /// the old default, so v0 -> v1 adopts the new one.
+    #[test]
+    fn v0_settings_migrate_drift_rebase_on() {
+        let mut s: GuiSettings = serde_json::from_value(serde_json::json!({
+            "profile": "m2",
+            "config": { "drift_rebase_above": 0.0 },
+            "output_dir": null, "concurrent_files": 1
+        }))
+        .unwrap();
+        assert_eq!(s.settings_version, 0, "unstamped file must read as v0");
+        assert_eq!(s.config.drift_rebase_above, 0.0);
+        assert!(s.migrate());
+        assert_eq!(s.config.drift_rebase_above, 30.0);
+        assert_eq!(s.settings_version, CURRENT_SETTINGS_VERSION);
+        // idempotent: a second pass is a no-op
+        assert!(!s.migrate());
+        assert_eq!(s.config.drift_rebase_above, 30.0);
+    }
+
+    /// The horizon-lock case: 0 chosen deliberately under 0.1.2+ is stamped
+    /// v1 and must survive untouched.
+    #[test]
+    fn v1_settings_keep_deliberate_zero() {
+        let mut s = GuiSettings {
+            settings_version: CURRENT_SETTINGS_VERSION,
+            ..GuiSettings::default()
+        };
+        s.config.drift_rebase_above = 0.0;
+        assert!(!s.migrate());
+        assert_eq!(s.config.drift_rebase_above, 0.0);
+    }
+
+    /// Migration must not clobber other customized values.
+    #[test]
+    fn v0_migration_preserves_other_settings() {
+        let mut s: GuiSettings = serde_json::from_value(serde_json::json!({
+            "profile": "m4",
+            "config": { "drift_rebase_above": 0.0, "fast_wide_cutoff": 16.0,
+                        "severe": 6.5 },
+            "output_dir": "D:\\out", "concurrent_files": 3
+        }))
+        .unwrap();
+        assert!(s.migrate());
+        assert_eq!(s.config.drift_rebase_above, 30.0);
+        assert_eq!(s.config.fast_wide_cutoff, 16.0);
+        assert_eq!(s.config.severe, 6.5);
+        assert_eq!(s.profile, "m4");
+        assert_eq!(s.output_dir.as_deref(), Some("D:\\out"));
+        assert_eq!(s.concurrent_files, 3);
+    }
+
+    /// load_from persists the migration so it runs exactly once.
+    #[test]
+    fn load_from_persists_migration() {
+        let dir = std::env::temp_dir().join("o4fix_migrate_test");
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("settings.json");
+        std::fs::write(
+            &path,
+            r#"{"profile":"m2","config":{"drift_rebase_above":0.0},
+                "output_dir":null,"concurrent_files":1}"#,
+        )
+        .unwrap();
+
+        let loaded = load_from(&path);
+        assert_eq!(loaded.config.drift_rebase_above, 30.0);
+
+        let on_disk: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+        assert_eq!(on_disk["settings_version"], CURRENT_SETTINGS_VERSION);
+        assert_eq!(on_disk["config"]["drift_rebase_above"], 30.0);
+
+        // second load is a plain read: a deliberate 0 now sticks
+        std::fs::write(
+            &path,
+            serde_json::to_string(&GuiSettings {
+                config: ConfigDto {
+                    drift_rebase_above: 0.0,
+                    ..ConfigDto::default()
+                },
+                ..GuiSettings::default()
+            })
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(load_from(&path).config.drift_rebase_above, 0.0);
+        std::fs::remove_file(&path).ok();
     }
 
     #[test]

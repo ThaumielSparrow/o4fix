@@ -775,15 +775,15 @@ def main():
     m.add_argument("--ramp", type=float, default=0.3,
                    help="s, slerp cross-fade to the raw path at burst edges "
                         "(default 0.3)")
-    m.add_argument("--drift-rebase-above", type=float, default=0.0,
+    m.add_argument("--drift-rebase-above", type=float, default=30.0,
                    metavar="DEG_S",
                    help="deg/s implied bridge rate (1.5*drift/duration) "
                         "above which a burst's optical drift is carried "
                         "forward as a constant orientation offset instead "
-                        "of being bridged inside the burst (0 = always "
-                        "bridge in-burst). A constant offset is invisible "
-                        "to stabilization; do not enable with Gyroflow "
-                        "horizon lock ON")
+                        "of being bridged inside the burst (default 30; "
+                        "0 = always bridge in-burst). A constant offset is "
+                        "invisible to stabilization; set 0 if you stabilize "
+                        "with Gyroflow horizon lock ON")
     m.add_argument("--drift-decay-rate", type=float, default=1.5,
                    metavar="DEG_S",
                    help="deg/s cap at which a carried drift offset bleeds "

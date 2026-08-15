@@ -23,6 +23,11 @@ Notes
   calm flight sections to calibrate against; the file is left
   unrepaired rather than risk making it worse.
 - o4fix.exe is the command-line version (run: o4fix.exe VIDEO.MP4).
+- If you stabilize with Gyroflow's horizon lock ON, set "Drift rebase
+  above" to 0 in Advanced settings first. By default o4fix carries a
+  repaired burst's leftover drift forward as a constant orientation
+  offset, which normal stabilization ignores but horizon lock would
+  fight.
 - Keep all files from this zip in one folder (the .dll files are
   required).
 - If the app does not start: it needs Microsoft WebView2 (included in

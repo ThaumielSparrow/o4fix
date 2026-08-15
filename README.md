@@ -2,7 +2,9 @@
 
 Early-2026 DJI O4 Pro air units record noisy or corrupted gyro data during high-throttle flight which causes shaking in Gyroflow-stabilized footage.
 o4fix repairs the MP4's embedded orientation telemetry in place. Severe noise bursts are replaced with motion measured optically from the video frames and writes `VIDEO_fixed.MP4`, which loads in Gyroflow like a stock recording.
-Clean sections keep their original bytes.
+Clean sections keep their original motion, offset by a constant that
+stabilization ignores (see the horizon-lock note below); with
+`--drift-rebase-above 0` they keep their original bytes exactly.
 
 ## Download (Windows)
 
@@ -14,6 +16,10 @@ needed (Windows 10 may prompt once for Microsoft WebView2).
 - "healthy — nothing to repair": the clip's telemetry is fine, use the original.
 - "Couldn't calibrate motion from this clip": no calm flight sections to calibrate against; the file is left untouched.
 - Advanced settings: Default (M2) suits most flying; Sharp-turn (M4) recovers flip/roll crispness at the cost of slight extra high-frequency shake.
+- **Horizon lock:** if you stabilize with Gyroflow's horizon lock ON, set
+  "Drift rebase above" to 0 first. Above the default gate o4fix carries a
+  burst's leftover orientation drift forward as a constant offset — invisible
+  to normal stabilization, but it would fight the horizon reference.
 
 ## CLI
 

@@ -39,7 +39,8 @@ def build_args(fast_wide_cutoff=0.0):
         optical_noise=None, handback_cutoff=None,
         fast_wide_cutoff=fast_wide_cutoff,
         fast_wide_ramp=[150.0, 300.0], fast_wide_accel=1500.0,
-        anchor_mode=False, anchor_cutoff=1.5)
+        anchor_mode=False, anchor_cutoff=1.5,
+        drift_rebase_above=30.0, drift_decay_rate=1.5)
 
 
 def seeded_video_rates(video_path, intervals, meta):
@@ -139,7 +140,10 @@ def main():
         patched = o4fix.optical_patch(VIDEO, tm, clean, diag, fs, args, meta)
         np.savez(GOLD / "patched.npz", rates=patched)
 
-        q_out, stats = o4fix.splice_orientation(t, q, patched, severe, args.ramp)
+        q_out, stats = o4fix.splice_orientation(
+            t, q, patched, severe, args.ramp,
+            rebase_above=args.drift_rebase_above,
+            decay_rate=args.drift_decay_rate)
         np.savez(GOLD / "splice.npz", q_out=q_out,
                  drifts=np.array([(a, b, d) for a, b, d, _ in stats]))
 
@@ -155,7 +159,10 @@ def main():
     # SEEDED M4 reference (Plan 2 Task 3): same clip, fast_wide_cutoff=16
     args_m4 = build_args(fast_wide_cutoff=16.0)
     patched_m4 = o4fix.optical_patch(VIDEO, tm, clean, diag, fs, args_m4, meta)
-    q_out_m4, _ = o4fix.splice_orientation(t, q, patched_m4, severe, args_m4.ramp)
+    q_out_m4, _ = o4fix.splice_orientation(
+        t, q, patched_m4, severe, args_m4.ramp,
+        rebase_above=args_m4.drift_rebase_above,
+        decay_rate=args_m4.drift_decay_rate)
     ok = mp4patch.inject_and_check(str(VIDEO), q_out_m4,
                                    str(GOLD / "ref_fixed_m4.MP4"))
     assert ok, "python M4 reference round-trip failed"

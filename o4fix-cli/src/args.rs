@@ -74,10 +74,10 @@ pub struct Cli {
     pub anchor_cutoff: f64,
     /// deg/s implied bridge rate (1.5*drift/duration) above which a burst's
     /// optical drift is carried forward as a constant orientation offset
-    /// instead of being bridged inside the burst (0 = always bridge
-    /// in-burst). A constant offset is invisible to stabilization; do not
-    /// enable with Gyroflow horizon lock ON
-    #[arg(long, default_value_t = 0.0, value_name = "DEG_S")]
+    /// instead of being bridged inside the burst (default 30; 0 = always
+    /// bridge in-burst). A constant offset is invisible to stabilization;
+    /// set 0 if you stabilize with Gyroflow horizon lock ON
+    #[arg(long, default_value_t = 30.0, value_name = "DEG_S")]
     pub drift_rebase_above: f64,
     /// deg/s cap at which a carried drift offset bleeds back to identity in
     /// the following clean zone (0 = carry forever; default 1.5)
