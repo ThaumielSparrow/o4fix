@@ -1,11 +1,65 @@
-{"out": "target/experiments/release-v013/review-release.html",
- "title": "o4fix v0.1.3 candidate: release build check",
- "intro": "The RIGHT side is always the new release build of o4fix.exe (refinement on by default, edge-offset splice fix). For 0073 and 0060 the LEFT side is the research wp1c render you already reviewed: these should look identical (measured applied-correction difference under 0.7 deg in these windows). For 0021 the LEFT side is the shipped v0.1.2 repair, rendered with the identical Gyroflow project: refined bursts should look the same or calmer on the right; the powerloop bursts were not refined (over the 4 deg cap) so any difference there comes from the splice fix alone.",
- "left": "reference (0073/0060: research wp1c; 0021: shipped v0.1.2)", "right": "release v0.1.3 candidate",
+{
+ "out": "target/experiments/release-v013/review-release-v2.html",
+ "title": "o4fix v0.1.3 candidate: release build check (v2, union-gate fix)",
+ "intro": "v2: rebuilt after the final review fix (overlapping burst gates are now combined with max, as in research, instead of summed). Only telemetry near bursts less than 0.5 s apart changed (0073 10.7-10.9 s, 135.5-135.6 s, 328.1-328.3 s; 0021 47.4-47.7 s); the 0021 windows below are unchanged from the first page. The last three sections compare the first release build (LEFT) with v2 (RIGHT) exactly where it changed. The RIGHT side is always the new release build of o4fix.exe (refinement on by default, edge-offset splice fix). For 0073 and 0060 the LEFT side is the research wp1c render you already reviewed: these should look identical (measured applied-correction difference under 0.7 deg in these windows). For 0021 the LEFT side is the shipped v0.1.2 repair, rendered with the identical Gyroflow project: refined bursts should look the same or calmer on the right; the powerloop bursts were not refined (over the 4 deg cap) so any difference there comes from the splice fix alone.",
+ "left": "reference (0073/0060: research wp1c; 0021: shipped v0.1.2; last three: first release build)",
+ "right": "release v0.1.3 candidate (v2)",
  "items": [
-  {"clip": "0073", "name": "Late event (LEFT wp1c, RIGHT release)", "window": "source 132-146 s (bursts 134.7-135.4, 135.8-136.6, 137.8-139.3, 141.3-144.5 s = 2.7-3.4, 3.8-4.6, 5.8-7.3, 9.3-12.5 s in)", "look": "Should look identical. Applied corrections differ by median 0.10 deg, max 0.66 deg.", "base": "compare_0073_wp1c_vs_release_late"},
-  {"clip": "0060", "name": "4:09 (LEFT wp1c, RIGHT release)", "window": "source 245-253 s (burst 248.3-249.3 s = 3.3-4.3 s in)", "look": "Should look identical. Applied corrections differ by median 0.05 deg, max 0.16 deg.", "base": "compare_0060_wp1c_vs_release_249"},
-  {"clip": "0021", "name": "Early refined bursts (LEFT v0.1.2, RIGHT release)", "window": "source 4-12 s (bursts 5.0-6.7 and 7.2-9.9 s = 1.0-2.7 and 3.2-5.9 s in; both refined, 1.5 and 3.8 deg)", "look": "Right should be the same or calmer inside the two bursts; identical outside them.", "base": "compare_0021_v012_vs_release_early"},
-  {"clip": "0021", "name": "Powerloop, not refined (LEFT v0.1.2, RIGHT release)", "window": "source 20-35 s (bursts 21.7-26.1 and 26.4-34.0 s = 1.7-6.1 and 6.4-14.0 s in; both skipped for exceeding the 4 deg cap)", "look": "Refinement did nothing here; the only change is the edge-offset splice fix (up to 3.9 deg applied-correction change in the first burst). Should look like v0.1.2; tell me if either side is worse.", "base": "compare_0021_v012_vs_release_powerloop"},
-  {"clip": "0021", "name": "Late refined bursts (LEFT v0.1.2, RIGHT release)", "window": "source 150-163 s (bursts 152.6-153.1, 153.8-155.0, 155.8-159.0, 161.1-162.5 s = 2.6-3.1, 3.8-5.0, 5.8-9.0, 11.1-12.5 s in; all refined)", "look": "Right should be the same or calmer inside the bursts. Burst 148.2-150.0 (just before the clip starts) was skipped.", "base": "compare_0021_v012_vs_release_late"}
- ]}
+  {
+   "clip": "0073",
+   "name": "Late event (LEFT wp1c, RIGHT release)",
+   "window": "source 132-146 s (bursts 134.7-135.4, 135.8-136.6, 137.8-139.3, 141.3-144.5 s = 2.7-3.4, 3.8-4.6, 5.8-7.3, 9.3-12.5 s in)",
+   "look": "Should look identical. Applied corrections differ by median 0.10 deg, max 0.66 deg.",
+   "base": "compare_0073_wp1c_vs_release_late_v2"
+  },
+  {
+   "clip": "0060",
+   "name": "4:09 (LEFT wp1c, RIGHT release)",
+   "window": "source 245-253 s (burst 248.3-249.3 s = 3.3-4.3 s in)",
+   "look": "Should look identical. Applied corrections differ by median 0.05 deg, max 0.16 deg. (Unchanged in v2: no 0060 bursts are close enough for their gates to overlap.)",
+   "base": "compare_0060_wp1c_vs_release_249"
+  },
+  {
+   "clip": "0021",
+   "name": "Early refined bursts (LEFT v0.1.2, RIGHT release)",
+   "window": "source 4-12 s (bursts 5.0-6.7 and 7.2-9.9 s = 1.0-2.7 and 3.2-5.9 s in; both refined, 1.5 and 3.8 deg)",
+   "look": "Right should be the same or calmer inside the two bursts; identical outside them.",
+   "base": "compare_0021_v012_vs_release_early_v2"
+  },
+  {
+   "clip": "0021",
+   "name": "Powerloop, not refined (LEFT v0.1.2, RIGHT release)",
+   "window": "source 20-35 s (bursts 21.7-26.1 and 26.4-34.0 s = 1.7-6.1 and 6.4-14.0 s in; both skipped for exceeding the 4 deg cap)",
+   "look": "Refinement did nothing here; the only change is the edge-offset splice fix (up to 3.9 deg applied-correction change in the first burst). Should look like v0.1.2; tell me if either side is worse.",
+   "base": "compare_0021_v012_vs_release_powerloop_v2"
+  },
+  {
+   "clip": "0021",
+   "name": "Late refined bursts (LEFT v0.1.2, RIGHT release)",
+   "window": "source 150-163 s (bursts 152.6-153.1, 153.8-155.0, 155.8-159.0, 161.1-162.5 s = 2.6-3.1, 3.8-5.0, 5.8-9.0, 11.1-12.5 s in; all refined)",
+   "look": "Right should be the same or calmer inside the bursts. Burst 148.2-150.0 (just before the clip starts) was skipped.",
+   "base": "compare_0021_v012_vs_release_late_v2"
+  },
+  {
+   "clip": "0073",
+   "name": "Overlap fix, early (LEFT first release build, RIGHT v2)",
+   "window": "source 8-14 s (bursts 9.73-10.71 and 10.96-12.00 s = 1.7-2.7 and 3.0-4.0 s in; gates overlap between them)",
+   "look": "Only 1.7-3.0 s in can differ (body-rate change up to 5.2 deg/s at 10.7-10.9 s source). Right should be the same or calmer there.",
+   "base": "compare_0073_v1_vs_v2_early"
+  },
+  {
+   "clip": "0073",
+   "name": "Overlap fix, 325-331 s (LEFT first release build, RIGHT v2)",
+   "window": "source 325-331 s (bursts 325.9-326.5, 327.3-328.1, 328.3-329.3, 329.9-330.4 s = 0.9-1.5, 2.3-3.1, 3.3-4.3, 4.9-5.4 s in)",
+   "look": "Only around 3.0-3.3 s in can differ (up to 1.6 deg/s). Should look the same or calmer on the right.",
+   "base": "compare_0073_v1_vs_v2_325"
+  },
+  {
+   "clip": "0021",
+   "name": "Overlap fix, 45-50 s (LEFT first release build, RIGHT v2)",
+   "window": "source 45-50 s (bursts 46.8-47.4 and 47.6-49.0 s = 1.8-2.4 and 2.6-4.0 s in)",
+   "look": "Only 2.4-2.7 s in can differ (up to 4.2 deg/s). Should look the same or calmer on the right.",
+   "base": "compare_0021_v1_vs_v2_46"
+  }
+ ]
+}

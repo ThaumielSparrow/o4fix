@@ -105,18 +105,18 @@ Findings:
 
 ## Production promotion: v0.1.3 candidate (branch `refine-v013`, 2026-09-24)
 
-This is a candidate, not a release. `o4core/src/refine/` ports the wp1c probe and correction into the repair pipeline. It is on by default; `--no-refine` or the GUI toggle turns it off. The edge-offset splice fix and the 0.19 s ramp are now the defaults. A burst is skipped when its correction exceeds 4°, when it lies within 0.5 s of the clip start, or when its window cannot be measured. The geometry check `max_motion_ratio` is 0.94.
+This is a candidate, not a release. `o4core/src/refine/` ports the wp1c probe and correction into the repair pipeline. It is on by default; `--no-refine` or the GUI toggle turns it off. The edge-offset splice fix and the 0.19 s ramp are now the defaults. A burst is skipped when its correction exceeds 4°, when it lies within 0.5 s of the clip start or end (judged on the frames actually measured), or when its window cannot be measured. The geometry check `max_motion_ratio` is 0.94.
 
-**Parity (Task 1 and Task 5).** `rebased_clip`: with refine off, the release splice reproduces `gyro-trace-v1/edgeoffset.MP4` with max error 0.0 (tolerance 1e-6). `refine_research_parity` compares the worst in-burst applied angle against wp1c-adjust (tolerance 0.15°): 0073 0.024°, 0060 0.046°, 0071 0.010°. The geometry motion ratio (median |residual| / telemetry rate on non-burst pairs above 30°/s) is 0.139, 0.474 and 0.144 with the correct mount, and 1.864 with the wrong mount on 0073. The threshold is the geometric midpoint, 0.94.
+**Parity (Task 1 and Task 5).** `rebased_clip`: with refine off, the release splice reproduces `gyro-trace-v1/edgeoffset.MP4` with max error 0.0 (tolerance 1e-6). `refine_research_parity` compares the worst in-burst applied angle against wp1c-adjust (tolerance 0.15°): 0073 0.017°, 0060 0.046°, 0071 0.010° (0073 was 0.024° before the union-gate fix below). The geometry motion ratio (median |residual| / telemetry rate on non-burst pairs above 30°/s) is 0.139, 0.474 and 0.144 with the correct mount, and 1.864 with the wrong mount on 0073. The threshold is the geometric midpoint, 0.94.
 
 **Release CLI runs (Task 8; `target/experiments/release-v013/`).** All four clips exit 0 with an exact round-trip and no clip-level "refinement skipped":
 
 | clip | wall time (refine on) | bursts refined | not refined |
 |---|---|---|---|
-| 0073 | 253 s | 30/31 | 375.6 s: window not measurable (burst runs past video end) |
+| 0073 | 253 s (v2 260 s) | 30/31 | 375.6 s: too close to clip edge (burst runs past video end; v1 said "window not measurable") |
 | 0060 | 231 s (`--no-refine` 112 s) | 24/27 | 0.21 s: too close to clip edge; 48.7 s: 5.0° over cap; 191.7 s: 4.8° over cap |
 | 0071 | 138 s | 7/7 | none |
-| 0021 | 353 s (`--no-refine` 125 s) | 26/31 | 21.7–26.1 s: 27.2° over cap; 26.4–34.0 s: 5.3°; 109.6–110.5 s: 8.6°; 148.2–150.0 s: 4.8°; 175.9 s: unmeasurable |
+| 0021 | 353 s (`--no-refine` 125 s; v2 353 s) | 26/31 | 21.7–26.1 s: 27.2° over cap; 26.4–34.0 s: 5.3°; 109.6–110.5 s: 8.6°; 148.2–150.0 s: 4.8°; 175.9 s: too close to clip edge (v1: unmeasurable) |
 
 Refinement roughly doubles repair time, and the extra time scales with total burst duration.
 
@@ -138,3 +138,9 @@ Refinement roughly doubles repair time, and the extra time scales with total bur
 - The only real change in the skipped bursts is the edge-offset splice fix: up to 3.9° applied-correction change at 21.7–26.1 s relative to v0.1.2.
 
 **Review page:** `target/experiments/release-v013/review-release.html` (spec `docs/experiments/feedback-v1/review-release-vs-wp1c.json`). It shows 0073 late and 0060 4:09, with LEFT wp1c and RIGHT release; these should look identical. It also shows 0021 at 4–12, 20–35 (powerloop, not refined) and 150–163 s, with LEFT v0.1.2 and RIGHT release. User verdict pending.
+
+**Final-review fix, v2 (2026-09-25).** The first release build summed per-burst correction tracks, so where two bursts' gates overlap (bursts less than 0.5 s apart) the weight reached about 2. Production now integrates once per window with one max-combined gate, as research `correct_from_warp` does. Per-burst tracks still decide the 4° cap. Effect on release outputs (`v2diff.py`, body-rate difference v1→v2): 0073 changes only at 10.7–10.9 s (up to 5.2°/s), 135.5–135.6 s (0.8), 268.2 s (0.26), 274.8 s (0.10) and 328.1–328.3 s (1.6). 0021 changes only at 47.4–47.7 s (up to 4.2°/s). 0060 has no overlapping gates and is unchanged. Burst counts and max angles are identical; the end-of-clip skips now read "too close to clip edge". The Gyroflow-applied correction on 0021 (`camdiff_v2.py`) is identical to v1 everywhere except 44–52 s (max 0.19°).
+
+Tracker caution: the 0021 v2 render scores 2.91/4.87, 7.16/7.17, 14.64/20.09, 21.34/21.90 (clean/mild/severe/flicks). The v1 row above is 3.01/4.84, 6.29/7.41, 13.22/20.56, 16.76/22.69. The applied corrections are identical outside 44–52 s, for example flick 22.1 wobble goes 17.7 → 25.7 on a 0.0000° applied difference. The renders differ at about 41 dB PSNR in unchanged windows. So on this clip the eval tracker's render-to-render noise is several °/s in the mild, severe and flick masks. Read the v0.1.2-vs-release differences in the table above with that in mind.
+
+**Review page v2:** `target/experiments/release-v013/review-release-v2.html` (same spec file, now pointing at `_v2` renders and exports). The 0073 and 0021 sections use the v2 renders. The 0060 section is unchanged. Three new sections compare v1 (LEFT) with v2 (RIGHT) exactly where the fix changed the telemetry: 0073 8–14 s, 0073 325–331 s, 0021 45–50 s.
