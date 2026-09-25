@@ -51,8 +51,10 @@ fn invalid_numeric_flags_are_usage_errors() {
 #[test]
 fn refine_on_by_default_and_flag_disables() {
     assert!(Cli::parse_from(["o4fix", "a.MP4"]).to_config().refine);
-    assert!(!Cli::parse_from(["o4fix", "a.MP4", "--no-refine"])
-        .to_config()
-        .refine);
+    assert!(
+        !Cli::parse_from(["o4fix", "a.MP4", "--no-refine"])
+            .to_config()
+            .refine
+    );
     assert_eq!(Cli::parse_from(["o4fix", "a.MP4"]).to_config().ramp, 0.19);
 }

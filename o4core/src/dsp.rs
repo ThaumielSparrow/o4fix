@@ -297,7 +297,9 @@ pub fn searchsorted_right(a: &[f64], v: f64) -> usize {
 mod high_tests {
     use super::*;
     fn sine(f: f64, n: usize) -> Vec<f64> {
-        (0..n).map(|i| (2.0 * std::f64::consts::PI * f * i as f64 / 100.0).sin()).collect()
+        (0..n)
+            .map(|i| (2.0 * std::f64::consts::PI * f * i as f64 / 100.0).sin())
+            .collect()
     }
     fn rms(x: &[f64]) -> f64 {
         (x.iter().map(|v| v * v).sum::<f64>() / x.len() as f64).sqrt()
