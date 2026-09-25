@@ -756,4 +756,51 @@ mod splice_rebase_tests {
         // pre-burst samples keep original bits
         assert!(out[..1900].iter().zip(&q[..1900]).all(|(a, b)| a == b));
     }
+
+    #[test]
+    fn short_rebased_burst_falls_back_to_whole_burst_interpolation() {
+        // burst (2.0, 2.3) is 0.3 s; ramp 0.19 s => dur (0.3) <= 2*ramp
+        // (0.38), so the edge-offset fix's `dur > 2.0 * ramp_s` guard must
+        // be false and splice_orientation falls back to the pre-fix
+        // `smoothstep((tt - t[i0]) / dur)` whole-burst interpolation
+        // (same formula used for non-rebased bursts). That fallback branch
+        // is deliberately NOT fixed by this change (short/overlapping
+        // ramps), so this test only checks it stays numerically sane
+        // rather than asserting near-zero edge rate.
+        let t: Vec<f64> = (0..5001).map(|i| i as f64 / 1000.).collect();
+        let q: Vec<[f64; 4]> = t
+            .iter()
+            .map(|&s| {
+                qexp([
+                    0.,
+                    0.,
+                    60_f64.to_radians() * ((s - 2.0) / 0.1).clamp(0., 1.),
+                ])
+            })
+            .collect();
+        let rates = vec![[0.; 3]; t.len() - 1];
+        let (out, st) = splice_orientation(&t, &q, &rates, &[(2.0, 2.3)], 0.19, 30., 0.);
+        assert!(
+            st[0].rebased,
+            "burst must rebase to exercise the fallback branch"
+        );
+        for qq in &out {
+            assert!(qq.iter().all(|v| v.is_finite()), "non-finite output quat");
+            let norm = (qq[0] * qq[0] + qq[1] * qq[1] + qq[2] * qq[2] + qq[3] * qq[3]).sqrt();
+            assert!(
+                (norm - 1.0).abs() < 1e-6,
+                "output quat not unit-norm: {norm}"
+            );
+        }
+        let (_, r) = quats_to_rates(&t, &out);
+        let peak = r.iter().map(|v| v[2].abs().to_degrees()).fold(0., f64::max);
+        // Bound justification: smoothstep's max slope is 1.5, so the
+        // offset-blend contribution to the rate is bounded on the order of
+        // (1.5 / dur) * drift_deg = (1.5 / 0.3) * 60 = 300 deg/s; 5000 deg/s
+        // leaves an order of magnitude of headroom for quaternion
+        // cross-terms without masking an actual blow-up (NaN/inf from a
+        // near-zero `dur`, which is guarded upstream but not by this
+        // formula itself).
+        assert!(peak < 5000.0, "fallback branch rate blew up: {peak} deg/s");
+    }
 }
