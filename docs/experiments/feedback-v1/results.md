@@ -1,6 +1,6 @@
 # Render-feedback telemetry refinement (feedback-v1) — 2026-09-24
 
-Research only. Production, shipping binaries and all prior candidates unchanged. Clip 0073.
+Research only. Production, shipping binaries and all prior candidates unchanged. Clip 0073. (Later promoted to a v0.1.3 candidate; see the production section at the end.)
 
 ## Idea
 
@@ -102,3 +102,39 @@ Findings:
 ## User verdict — fbn vs wp1c (0073)
 
 "looking closer, the late fbn clip on 0073 has a slightly stronger judder ~8 seconds into the clip (where the fast turn happens)" — i.e. source ~140–141 s, favouring the Gyroflow-free wp1c there. Exported corrections: in 140.75–141.75 s (fast turn into the 141.25 s burst entry) fbn deviates from base by up to 1.2°, wp1c by ≤0.3°. Render-measurement corrections are least reliable in fast motion (few inliers, blur), matching the 0060 5:08 edge observation. No issue reported at 135.8 s, the burst where the probe and render measurement disagreed most.
+
+## Production promotion: v0.1.3 candidate (branch `refine-v013`, 2026-09-24)
+
+This is a candidate, not a release. `o4core/src/refine/` ports the wp1c probe and correction into the repair pipeline. It is on by default; `--no-refine` or the GUI toggle turns it off. The edge-offset splice fix and the 0.19 s ramp are now the defaults. A burst is skipped when its correction exceeds 4°, when it lies within 0.5 s of the clip start, or when its window cannot be measured. The geometry check `max_motion_ratio` is 0.94.
+
+**Parity (Task 1 and Task 5).** `rebased_clip`: with refine off, the release splice reproduces `gyro-trace-v1/edgeoffset.MP4` with max error 0.0 (tolerance 1e-6). `refine_research_parity` compares the worst in-burst applied angle against wp1c-adjust (tolerance 0.15°): 0073 0.024°, 0060 0.046°, 0071 0.010°. The geometry motion ratio (median |residual| / telemetry rate on non-burst pairs above 30°/s) is 0.139, 0.474 and 0.144 with the correct mount, and 1.864 with the wrong mount on 0073. The threshold is the geometric midpoint, 0.94.
+
+**Release CLI runs (Task 8; `target/experiments/release-v013/`).** All four clips exit 0 with an exact round-trip and no clip-level "refinement skipped":
+
+| clip | wall time (refine on) | bursts refined | not refined |
+|---|---|---|---|
+| 0073 | 253 s | 30/31 | 375.6 s: window not measurable (burst runs past video end) |
+| 0060 | 231 s (`--no-refine` 112 s) | 24/27 | 0.21 s: too close to clip edge; 48.7 s: 5.0° over cap; 191.7 s: 4.8° over cap |
+| 0071 | 138 s | 7/7 | none |
+| 0021 | 353 s (`--no-refine` 125 s) | 26/31 | 21.7–26.1 s: 27.2° over cap; 26.4–34.0 s: 5.3°; 109.6–110.5 s: 8.6°; 148.2–150.0 s: 4.8°; 175.9 s: unmeasurable |
+
+Refinement roughly doubles repair time, and the extra time scales with total burst duration.
+
+**Applied correction vs the reviewed research renders.** Gyroflow `--export-metadata` body-frame `org⁻¹·stab`, release vs wp1c. 0073 132–146 s: median 0.10°, max 0.66°. 0060 245–253 s: median 0.05°, max 0.16°. The clean controls are at most 0.03°. Whole-clip maxima are 3.2° (0073) and 0.9° (0060). These come from bursts that the research runs did not refine.
+
+**0021 regression (Gyroflow portable 1.6.3, `eval_M2_tight` project via `make_project.py`, `eval_render.py` + `rank_renders.py`; wobble 2–8 / shake 8–30 °/s).** v0.1.2 is the shipped `_fixed.MP4`, rendered with the identical project:
+
+| render | clean | mild | severe | flicks |
+|---|---|---|---|---|
+| eval_M2_tight (historical) | 3.31/4.84 | 6.68/7.45 | 12.49/16.97 | 17.84/20.29 |
+| v0.1.2 shipped | 3.28/4.83 | 6.69/7.47 | 12.91/16.97 | 17.84/20.29 |
+| release `--no-refine` | 2.79/5.16 | 6.91/7.77 | 13.51/19.85 | 17.57/22.32 |
+| release (refine on) | 3.01/4.84 | 6.29/7.41 | 13.22/20.56 | 16.76/22.69 |
+| severe, t < 175.5 s: v0.1.2 / release | | | 10.11/12.93 → 9.75/13.13 | |
+
+- Clean and mild are within ±0.4°/s of v0.1.2. Refined bursts (26 of them, time-weighted in-burst) go from 7.03/7.95 (v0.1.2) to 6.57/7.65 (release); `--no-refine` gives 7.21/7.38.
+- The severe-shake increase comes entirely from the clip-end landing (175.9–176.6 s, ground impact, not refinable). Without it, severe shake is flat and severe wobble improves.
+- The flicks-shake increase sits in the cap-skipped bursts: flick 22.1 lies in 21.7–26.1 s and flick 109.8 in 109.6–110.5 s. There, the Gyroflow-applied correction of release and `--no-refine` is identical (max 0.000°), yet the tracker scores flick 22.1 shake at 13.3 and 21.0. So that difference is tracker/encoder noise (PSNR 34 dB between the two renders there). It is not refinement.
+- The only real change in the skipped bursts is the edge-offset splice fix: up to 3.9° applied-correction change at 21.7–26.1 s relative to v0.1.2.
+
+**Review page:** `target/experiments/release-v013/review-release.html` (spec `docs/experiments/feedback-v1/review-release-vs-wp1c.json`). It shows 0073 late and 0060 4:09, with LEFT wp1c and RIGHT release; these should look identical. It also shows 0021 at 4–12, 20–35 (powerloop, not refined) and 150–163 s, with LEFT v0.1.2 and RIGHT release. User verdict pending.

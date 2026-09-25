@@ -13,6 +13,16 @@
   - `optical.rs` — video-based motion estimation (video_rates, fit_video_alignment)
   - `patch.rs` — quaternion rewriting (optical_patch, splice_orientation)
   - `pipeline.rs` — main processing pipeline (process)
+  - `refine/` — residual refinement stage (default on; runs after the
+    splice, before MP4 write-back). It is the productized research `wp1c`
+    probe. `geometry.rs` covers fisheye bearings, rolling-shutter row
+    times, the O4P camera mount and small-rotation fits. `signal.rs`
+    covers conditioning, the 1 Hz high-pass, gating, and the geometry and
+    motion-ratio checks. `measure.rs` handles OpenCV frame reads, GFTT with
+    forward/backward LK, and per-pair residual rates. `mod.rs` holds
+    `RefineConfig`, window planning, `refine()` and the body-rate-preserving
+    orientation update, which leaves a constant world-frame offset after
+    each burst.
 - `o4fix-cli/` — command-line interface (`o4fix.exe` binary; `src/args.rs`
   is a clap-derive `Cli` mirroring `o4fix.py`'s argparse block field-for-field,
   `src/main.rs` drives `o4core::pipeline::process` over each video)
@@ -34,9 +44,21 @@ cargo build --release -p o4fix-app  # Build the GUI in release
 
 Review regression checks: `node tools/test_queue_ui.cjs` checks queue startup
 without a browser. `cargo test -p o4core --release --test rebased_clip -- --ignored`
-compares 0060 against its preserved v0.1.2 `_fixed.MP4`; it requires both
-private clips and does not regenerate the reference. See
+runs 0060 with `refine: false` and compares it against the reviewed
+edge-offset research repair `target/experiments/gyro-trace-v1/edgeoffset.MP4`
+(tolerance 1e-6; measured 0.0). It needs both files and does not
+regenerate the reference. See
 `docs/code-review-2026-09-09.md` for findings and validation limits.
+
+Refinement parity against the reviewed research output (wp1c): run
+`cargo test --release --offline -p o4core --test refine_research_parity -- --ignored --nocapture --test-threads 1`.
+It needs the edgeoffset.MP4 inputs (`generalization-v1/{0073,0071}/`,
+`gyro-trace-v1/`), their stages/metrics JSON, and the feedback-v1
+`wp1c-adjust.json` files under `target/experiments/`. It
+runs for about 1 min per clip, and the tolerance is 0.15 deg in-burst. Result at a1e551e:
+0073 0.024 deg, 0071 0.010 deg, 0060 0.046 deg.
+`rebased_clip` (above) also checks that the release splice reproduces the
+research edgeoffset.MP4. Together the two tests establish end-to-end parity.
 
 ### Formatting
 
