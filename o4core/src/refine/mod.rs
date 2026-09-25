@@ -79,20 +79,36 @@ pub struct RefineResult {
 
 impl RefineConfig {
     pub fn validate(&self) -> Result<(), O4Error> {
-        let pos = [self.margin_s, self.readout_ms, self.crop.0, self.crop.1, self.hp_hz, self.gate_fade_s,
-                   self.max_correction_deg, self.max_floor_rms_deg, self.max_motion_ratio];
+        let pos = [
+            self.margin_s,
+            self.readout_ms,
+            self.crop.0,
+            self.crop.1,
+            self.hp_hz,
+            self.gate_fade_s,
+            self.max_correction_deg,
+            self.max_floor_rms_deg,
+            self.max_motion_ratio,
+        ];
         let nonneg = [self.min_edge_margin_s, self.gate_pad_s];
-        if pos.iter().any(|v| !v.is_finite() || *v <= 0.0) || nonneg.iter().any(|v| !v.is_finite() || *v < 0.0)
-            || self.max_features < 40 || self.min_inliers < 3
+        if pos.iter().any(|v| !v.is_finite() || *v <= 0.0)
+            || nonneg.iter().any(|v| !v.is_finite() || *v < 0.0)
+            || self.max_features < 40
+            || self.min_inliers < 3
         {
-            return Err(O4Error::InvalidConfig("refine settings must be finite and positive".into()));
+            return Err(O4Error::InvalidConfig(
+                "refine settings must be finite and positive".into(),
+            ));
         }
         Ok(())
     }
 }
 
 fn plan_windows(intervals: &[(f64, f64)], margin: f64, duration: f64) -> Vec<(f64, f64)> {
-    let mut w: Vec<(f64, f64)> = intervals.iter().map(|&(a, b)| ((a - margin).max(0.0), (b + margin).min(duration))).collect();
+    let mut w: Vec<(f64, f64)> = intervals
+        .iter()
+        .map(|&(a, b)| ((a - margin).max(0.0), (b + margin).min(duration)))
+        .collect();
     w.sort_by(|x, y| x.0.total_cmp(&y.0));
     let mut out: Vec<(f64, f64)> = vec![];
     for (a, b) in w {
@@ -105,9 +121,24 @@ fn plan_windows(intervals: &[(f64, f64)], margin: f64, duration: f64) -> Vec<(f6
 }
 
 #[allow(clippy::too_many_arguments)]
-pub fn refine(video: &Path, t: &[f64], q: &[[f64; 4]], intervals: &[(f64, f64)], meta: &Meta,
-              cfg: &RefineConfig, log: &(dyn Fn(&str) + Sync), cancel: &AtomicBool) -> Result<RefineResult, O4Error> {
-    let unchanged = |reason: String| RefineResult { q: q.to_vec(), bursts: vec![], skipped_reason: Some(reason), stats: None, angle_t: vec![], angle: vec![] };
+pub fn refine(
+    video: &Path,
+    t: &[f64],
+    q: &[[f64; 4]],
+    intervals: &[(f64, f64)],
+    meta: &Meta,
+    cfg: &RefineConfig,
+    log: &(dyn Fn(&str) + Sync),
+    cancel: &AtomicBool,
+) -> Result<RefineResult, O4Error> {
+    let unchanged = |reason: String| RefineResult {
+        q: q.to_vec(),
+        bursts: vec![],
+        skipped_reason: Some(reason),
+        stats: None,
+        angle_t: vec![],
+        angle: vec![],
+    };
     if meta.camera_matrix.is_none() || meta.distortion.is_none() {
         return Ok(unchanged("no lens metadata in telemetry".into()));
     }
@@ -120,12 +151,16 @@ pub fn refine(video: &Path, t: &[f64], q: &[[f64; 4]], intervals: &[(f64, f64)],
     let orient = geometry::Orientation { t, q };
     let measured: Vec<Result<Option<signal::Conditioned>, O4Error>> = windows
         .par_iter()
-        .map(|&(a, b)| match measure::measure_window(video, a, b, &info, meta, cfg, &orient, cancel) {
-            Ok(s) => Ok(signal::condition(&s, info.fps, cfg.hp_hz)),
-            Err(O4Error::Cancelled) => Err(O4Error::Cancelled),
-            Err(e) => {
-                log(&format!("     refine: window {a:.2}-{b:.2}s unreadable ({e})"));
-                Ok(None)
+        .map(|&(a, b)| {
+            match measure::measure_window(video, a, b, &info, meta, cfg, &orient, cancel) {
+                Ok(s) => Ok(signal::condition(&s, info.fps, cfg.hp_hz)),
+                Err(O4Error::Cancelled) => Err(O4Error::Cancelled),
+                Err(e) => {
+                    log(&format!(
+                        "     refine: window {a:.2}-{b:.2}s unreadable ({e})"
+                    ));
+                    Ok(None)
+                }
             }
         })
         .collect();
@@ -135,9 +170,18 @@ pub fn refine(video: &Path, t: &[f64], q: &[[f64; 4]], intervals: &[(f64, f64)],
             conds.push((*w, c));
         }
     }
-    let stats = signal::geometry_stats(&conds.iter().map(|x| &x.1).cloned().collect::<Vec<_>>(), intervals, cfg.gate_pad_s, cfg.gate_fade_s);
-    if stats.pairs < 100 || stats.hp_rms_deg.is_nan() || stats.hp_rms_deg >= cfg.max_floor_rms_deg
-        || stats.motion_ratio.is_some_and(|r| r >= cfg.max_motion_ratio)
+    let stats = signal::geometry_stats(
+        &conds.iter().map(|x| &x.1).cloned().collect::<Vec<_>>(),
+        intervals,
+        cfg.gate_pad_s,
+        cfg.gate_fade_s,
+    );
+    if stats.pairs < 100
+        || stats.hp_rms_deg.is_nan()
+        || stats.hp_rms_deg >= cfg.max_floor_rms_deg
+        || stats
+            .motion_ratio
+            .is_some_and(|r| r >= cfg.max_motion_ratio)
     {
         let mut r = unchanged(format!(
             "geometry check failed (floor {:.1} deg/s, motion ratio {:?}, {} pairs) - camera/lens conventions not recognised",
@@ -150,36 +194,76 @@ pub fn refine(video: &Path, t: &[f64], q: &[[f64; 4]], intervals: &[(f64, f64)],
     let mut per_window: Vec<(Vec<f64>, Vec<geometry::V3>)> = vec![];
     for &(a, b) in intervals {
         if !conds.iter().any(|(w, _)| a >= w.0 && b <= w.1) {
-            bursts.push(RefineBurst { start: a, end: b, max_deg: 0.0, applied: false, note: Some("window not measurable".into()) });
+            bursts.push(RefineBurst {
+                start: a,
+                end: b,
+                max_deg: 0.0,
+                applied: false,
+                note: Some("window not measurable".into()),
+            });
         }
     }
     for ((wa, wb), c) in &conds {
         let mut total = vec![[0.0; 3]; c.t.len()];
         for &(a, b) in intervals.iter().filter(|(a, b)| *a >= *wa && *b <= *wb) {
             if a - wa < cfg.min_edge_margin_s || wb - b < cfg.min_edge_margin_s {
-                bursts.push(RefineBurst { start: a, end: b, max_deg: 0.0, applied: false, note: Some("too close to clip edge".into()) });
+                bursts.push(RefineBurst {
+                    start: a,
+                    end: b,
+                    max_deg: 0.0,
+                    applied: false,
+                    note: Some("too close to clip edge".into()),
+                });
                 continue;
             }
             let ang = signal::burst_correction(c, (a, b), cfg.gate_pad_s, cfg.gate_fade_s, dt);
             let m = signal::max_angle_deg(&ang);
             if m > cfg.max_correction_deg {
-                bursts.push(RefineBurst { start: a, end: b, max_deg: m, applied: false, note: Some(format!("correction {m:.2} deg over cap")) });
+                bursts.push(RefineBurst {
+                    start: a,
+                    end: b,
+                    max_deg: m,
+                    applied: false,
+                    note: Some(format!("correction {m:.2} deg over cap")),
+                });
                 continue;
             }
             for (tot, v) in total.iter_mut().zip(&ang) {
-                for k in 0..3 { tot[k] += v[k]; }
+                for k in 0..3 {
+                    tot[k] += v[k];
+                }
             }
-            bursts.push(RefineBurst { start: a, end: b, max_deg: m, applied: true, note: None });
+            bursts.push(RefineBurst {
+                start: a,
+                end: b,
+                max_deg: m,
+                applied: true,
+                note: None,
+            });
         }
         per_window.push((c.t.clone(), total));
     }
     bursts.sort_by(|x, y| x.start.total_cmp(&y.start));
     if !bursts.iter().any(|b| b.applied) {
-        return Ok(RefineResult { q: q.to_vec(), bursts, skipped_reason: None, stats: Some(stats), angle_t: vec![], angle: vec![] });
+        return Ok(RefineResult {
+            q: q.to_vec(),
+            bursts,
+            skipped_reason: None,
+            stats: Some(stats),
+            angle_t: vec![],
+            angle: vec![],
+        });
     }
     let (ta, aa) = signal::chain_windows(per_window);
     let q2 = signal::apply_increments(t, q, &ta, &aa);
-    Ok(RefineResult { q: q2, bursts, skipped_reason: None, stats: Some(stats), angle_t: ta, angle: aa })
+    Ok(RefineResult {
+        q: q2,
+        bursts,
+        skipped_reason: None,
+        stats: Some(stats),
+        angle_t: ta,
+        angle: aa,
+    })
 }
 
 #[cfg(test)]
@@ -193,6 +277,11 @@ mod tests {
     #[test]
     fn default_refine_config_is_valid() {
         assert!(RefineConfig::default().validate().is_ok());
-        assert!(RefineConfig { max_correction_deg: f64::NAN, ..Default::default() }.validate().is_err());
+        assert!(RefineConfig {
+            max_correction_deg: f64::NAN,
+            ..Default::default()
+        }
+        .validate()
+        .is_err());
     }
 }

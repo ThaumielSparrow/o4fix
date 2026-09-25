@@ -6,7 +6,11 @@ use std::sync::atomic::AtomicBool;
 
 /// Settings the committed Python goldens were produced with.
 fn legacy(c: Config) -> Config {
-    Config { ramp: 0.3, refine: false, ..c }
+    Config {
+        ramp: 0.3,
+        refine: false,
+        ..c
+    }
 }
 
 fn run(cfg: &Config, out: &std::path::Path) -> Result<Outcome, o4core::error::O4Error> {
@@ -106,7 +110,14 @@ fn refine_off_is_bit_identical_to_splice() {
     for p in [&off, &on] {
         let _ = std::fs::remove_file(p);
     }
-    run(&Config { refine: false, ..Config::default() }, &off).unwrap();
+    run(
+        &Config {
+            refine: false,
+            ..Config::default()
+        },
+        &off,
+    )
+    .unwrap();
     let r = run(&Config::default(), &on).unwrap();
     assert!(matches!(r, Outcome::Repaired { .. }));
     let (t0, q0) = stream(&off);
@@ -116,7 +127,11 @@ fn refine_off_is_bit_identical_to_splice() {
     let sev: ndarray::Array2<f64> = zi.by_name("severe").unwrap();
     let first = sev[[0, 0]] - 1.5; // before the first refinement window
     let n_before = t0.iter().filter(|&&x| x / 1000.0 < first).count();
-    assert_eq!(&q0[..n_before], &q1[..n_before], "samples before the first gate must be identical");
+    assert_eq!(
+        &q0[..n_before],
+        &q1[..n_before],
+        "samples before the first gate must be identical"
+    );
     assert!(q0 != q1, "refinement changed nothing on 0021");
     std::fs::remove_file(&off).ok();
     std::fs::remove_file(&on).ok();

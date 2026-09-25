@@ -45,15 +45,36 @@ pub fn condition(s: &PairSeries, fps: f64, hp_hz: f64) -> Option<Conditioned> {
     let cols: Vec<Vec<f64>> = (0..3)
         .map(|k| dsp::filtfilt_padlen(&ba, &raw.iter().map(|r| r[k]).collect::<Vec<_>>(), pad))
         .collect();
-    let hp: Vec<V3> = (0..n).map(|i| [cols[0][i], cols[1][i], cols[2][i]]).collect();
+    let hp: Vec<V3> = (0..n)
+        .map(|i| [cols[0][i], cols[1][i], cols[2][i]])
+        .collect();
     let c0: Vec<f64> = (0..n)
-        .map(|i| if valid[i] { ((s.inliers[i] as f64 - 60.0) / 140.0).clamp(0.0, 1.0) } else { 0.0 })
+        .map(|i| {
+            if valid[i] {
+                ((s.inliers[i] as f64 - 60.0) / 140.0).clamp(0.0, 1.0)
+            } else {
+                0.0
+            }
+        })
         .collect();
     // numpy convolve(c0, ones(9)/9, 'same')
     let conf: Vec<f64> = (0..n)
-        .map(|i| (i.saturating_sub(4)..(i + 5).min(n)).map(|j| c0[j]).sum::<f64>() / 9.0)
+        .map(|i| {
+            (i.saturating_sub(4)..(i + 5).min(n))
+                .map(|j| c0[j])
+                .sum::<f64>()
+                / 9.0
+        })
         .collect();
-    Some(Conditioned { t: s.t.clone(), hp, raw, conf, inliers: s.inliers.clone(), tel_rate: s.tel_rate.clone(), valid })
+    Some(Conditioned {
+        t: s.t.clone(),
+        hp,
+        raw,
+        conf,
+        inliers: s.inliers.clone(),
+        tel_rate: s.tel_rate.clone(),
+        valid,
+    })
 }
 
 fn env(t: f64, a: f64, b: f64, fade: f64) -> f64 {
@@ -62,12 +83,23 @@ fn env(t: f64, a: f64, b: f64, fade: f64) -> f64 {
 
 pub fn gate(t: &[f64], bursts: &[(f64, f64)], pad: f64, fade: f64) -> Vec<f64> {
     t.iter()
-        .map(|&x| bursts.iter().map(|&(a, b)| env(x, a - pad, b + pad, fade)).fold(0.0, f64::max))
+        .map(|&x| {
+            bursts
+                .iter()
+                .map(|&(a, b)| env(x, a - pad, b + pad, fade))
+                .fold(0.0, f64::max)
+        })
         .collect()
 }
 
 /// Cumulative correction angle (rad) for one burst: integral of −gate·conf·hp.
-pub fn burst_correction(c: &Conditioned, burst: (f64, f64), pad: f64, fade: f64, dt: f64) -> Vec<V3> {
+pub fn burst_correction(
+    c: &Conditioned,
+    burst: (f64, f64),
+    pad: f64,
+    fade: f64,
+    dt: f64,
+) -> Vec<V3> {
     let g = gate(&c.t, &[burst], pad, fade);
     let mut acc = [0.0; 3];
     (0..c.t.len())
@@ -82,7 +114,10 @@ pub fn burst_correction(c: &Conditioned, burst: (f64, f64), pad: f64, fade: f64,
 }
 
 pub fn max_angle_deg(ang: &[V3]) -> f64 {
-    ang.iter().map(|v| (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt()).fold(0.0, f64::max).to_degrees()
+    ang.iter()
+        .map(|v| (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt())
+        .fold(0.0, f64::max)
+        .to_degrees()
 }
 
 #[derive(Debug)]
@@ -93,7 +128,12 @@ pub struct GeometryStats {
 }
 
 /// Non-burst (gate < 0.01, ≥ 300 inliers) residual statistics across windows.
-pub fn geometry_stats(ws: &[Conditioned], bursts: &[(f64, f64)], pad: f64, fade: f64) -> GeometryStats {
+pub fn geometry_stats(
+    ws: &[Conditioned],
+    bursts: &[(f64, f64)],
+    pad: f64,
+    fade: f64,
+) -> GeometryStats {
     let (mut ss, mut n) = (0.0, 0usize);
     let (mut res_mag, mut tel_mag) = (vec![], vec![]);
     for c in ws {
@@ -110,9 +150,16 @@ pub fn geometry_stats(ws: &[Conditioned], bursts: &[(f64, f64)], pad: f64, fade:
             }
         }
     }
-    let med = |mut v: Vec<f64>| { v.sort_by(f64::total_cmp); v[v.len() / 2] };
+    let med = |mut v: Vec<f64>| {
+        v.sort_by(f64::total_cmp);
+        v[v.len() / 2]
+    };
     GeometryStats {
-        hp_rms_deg: if n > 0 { (ss / n as f64).sqrt().to_degrees() } else { f64::NAN },
+        hp_rms_deg: if n > 0 {
+            (ss / n as f64).sqrt().to_degrees()
+        } else {
+            f64::NAN
+        },
         motion_ratio: (res_mag.len() >= 50).then(|| med(res_mag) / med(tel_mag)),
         pairs: n,
     }
@@ -143,13 +190,23 @@ pub fn apply_increments(t_tel: &[f64], q: &[[f64; 4]], t_ang: &[f64], ang: &[V3]
             let a: Vec<f64> = ang.iter().map(|v| v[k]).collect();
             t_tel
                 .iter()
-                .map(|&x| if x < t_ang[0] { 0.0 } else { dsp::interp(&[x], t_ang, &a)[0] })
+                .map(|&x| {
+                    if x < t_ang[0] {
+                        0.0
+                    } else {
+                        dsp::interp(&[x], t_ang, &a)[0]
+                    }
+                })
                 .collect()
         })
         .collect();
     let mut out = q.to_vec();
     for i in 0..q.len() - 1 {
-        let inc = [cols[0][i + 1] - cols[0][i], cols[1][i + 1] - cols[1][i], cols[2][i + 1] - cols[2][i]];
+        let inc = [
+            cols[0][i + 1] - cols[0][i],
+            cols[1][i + 1] - cols[1][i],
+            cols[2][i + 1] - cols[2][i],
+        ];
         if inc == [0.0; 3] && out[i] == q[i] {
             continue;
         }
@@ -176,7 +233,13 @@ mod tests {
 
     #[test]
     fn condition_fills_gaps_and_highpasses() {
-        let mut s = series(10.0, 1000, |x| [0.02 * (2.0 * std::f64::consts::PI * 5.0 * x).sin() + 0.3, 0., 0.]);
+        let mut s = series(10.0, 1000, |x| {
+            [
+                0.02 * (2.0 * std::f64::consts::PI * 5.0 * x).sin() + 0.3,
+                0.,
+                0.,
+            ]
+        });
         s.resid[400] = None;
         s.inliers[400] = 0;
         let c = condition(&s, 100.0, 1.0).unwrap();
@@ -208,10 +271,18 @@ mod tests {
 
     #[test]
     fn burst_correction_opposes_residual_and_is_flat_outside() {
-        let s = series(0.0, 600, |x| [0.05 * (2.0 * std::f64::consts::PI * 4.0 * x).sin(), 0., 0.]);
+        let s = series(0.0, 600, |x| {
+            [0.05 * (2.0 * std::f64::consts::PI * 4.0 * x).sin(), 0., 0.]
+        });
         let c = condition(&s, 100.0, 1.0).unwrap();
         let ang = burst_correction(&c, (2.0, 4.0), 0.25, 0.15, 0.01);
-        assert_eq!(ang[..150].iter().map(|v| v[0]).fold(0., |a: f64, b| a.max(b.abs())), 0.0);
+        assert_eq!(
+            ang[..150]
+                .iter()
+                .map(|v| v[0])
+                .fold(0., |a: f64, b| a.max(b.abs())),
+            0.0
+        );
         // derivative of the angle inside the burst is -residual
         let i = 300;
         let d = (ang[i + 1][0] - ang[i][0]) / 0.01;
@@ -231,18 +302,29 @@ mod tests {
     #[test]
     fn increments_keep_rates_outside_and_leave_world_offset() {
         let t: Vec<f64> = (0..3001).map(|i| i as f64 * 0.001).collect();
-        let q: Vec<[f64; 4]> = t.iter().map(|&x| qexp([0.4 * x, 0.1 * (3.0 * x).sin(), 0.2])).collect();
+        let q: Vec<[f64; 4]> = t
+            .iter()
+            .map(|&x| qexp([0.4 * x, 0.1 * (3.0 * x).sin(), 0.2]))
+            .collect();
         let t_ang: Vec<f64> = (0..301).map(|i| i as f64 * 0.01).collect();
         let ang: Vec<V3> = t_ang
             .iter()
-            .map(|&x| { let s = ((x - 1.0) / 1.0).clamp(0.0, 1.0); [0.01 * s, -0.02 * s, 0.005 * s] })
+            .map(|&x| {
+                let s = ((x - 1.0) / 1.0).clamp(0.0, 1.0);
+                [0.01 * s, -0.02 * s, 0.005 * s]
+            })
             .collect();
         let out = apply_increments(&t, &q, &t_ang, &ang);
-        assert!(out[..1000].iter().zip(&q[..1000]).all(|(a, b)| a == b), "pre-gate bits");
+        assert!(
+            out[..1000].iter().zip(&q[..1000]).all(|(a, b)| a == b),
+            "pre-gate bits"
+        );
         let (_, r0) = quats_to_rates(&t[2100..], &q[2100..]);
         let (_, r1) = quats_to_rates(&t[2100..], &out[2100..]);
         for (a, b) in r0.iter().zip(&r1) {
-            for k in 0..3 { assert!((a[k] - b[k]).abs() < 1e-9); }
+            for k in 0..3 {
+                assert!((a[k] - b[k]).abs() < 1e-9);
+            }
         }
         // after the gate, out = W * q with a constant world rotation W
         let w = |i: usize| qmul(out[i], qconj(q[i]));
@@ -264,7 +346,9 @@ mod tests {
 
     #[test]
     fn geometry_stats_floor_rms() {
-        let s = series(0.0, 800, |x| [0.02 * (2.0 * std::f64::consts::PI * 6.0 * x).sin(), 0., 0.]);
+        let s = series(0.0, 800, |x| {
+            [0.02 * (2.0 * std::f64::consts::PI * 6.0 * x).sin(), 0., 0.]
+        });
         let c = condition(&s, 100.0, 1.0).unwrap();
         let g = geometry_stats(&[c], &[(3.0, 4.0)], 0.25, 0.15);
         assert!(g.pairs > 300);

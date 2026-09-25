@@ -19,11 +19,16 @@ pub fn rotate(q: [f64; 4], v: V3) -> V3 {
 }
 
 fn cross(a: V3, b: V3) -> V3 {
-    [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+    [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    ]
 }
 
 fn det3(m: &M3) -> f64 {
-    m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+    m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+        - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
         + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
 }
 
@@ -44,7 +49,12 @@ fn solve3(a: M3, b: V3) -> Option<V3> {
 /// Small rotation `d` (rad) with `b ≈ a + d × a`, by linear least squares with
 /// four trimming rounds (keep residual < max(3·median, floor)).
 /// Returns None when fewer than `min_inliers` points survive.
-pub fn fit_small_rotation(a: &[V3], b: &[V3], min_inliers: usize, floor: f64) -> Option<(V3, usize)> {
+pub fn fit_small_rotation(
+    a: &[V3],
+    b: &[V3],
+    min_inliers: usize,
+    floor: f64,
+) -> Option<(V3, usize)> {
     let mut keep = vec![true; a.len()];
     let mut d = [0.0; 3];
     let mut n = 0;
@@ -54,7 +64,11 @@ pub fn fit_small_rotation(a: &[V3], b: &[V3], min_inliers: usize, floor: f64) ->
         n = 0;
         for i in (0..a.len()).filter(|&i| keep[i]) {
             n += 1;
-            let ax = [[0.0, -a[i][2], a[i][1]], [a[i][2], 0.0, -a[i][0]], [-a[i][1], a[i][0], 0.0]];
+            let ax = [
+                [0.0, -a[i][2], a[i][1]],
+                [a[i][2], 0.0, -a[i][0]],
+                [-a[i][1], a[i][0], 0.0],
+            ];
             let r0: V3 = std::array::from_fn(|k| b[i][k] - a[i][k]);
             for p in 0..3 {
                 for q in 0..3 {
@@ -70,7 +84,10 @@ pub fn fit_small_rotation(a: &[V3], b: &[V3], min_inliers: usize, floor: f64) ->
         let res: Vec<f64> = (0..a.len())
             .map(|i| {
                 let c = cross(d, a[i]);
-                (0..3).map(|k| (b[i][k] - a[i][k] - c[k]).powi(2)).sum::<f64>().sqrt()
+                (0..3)
+                    .map(|k| (b[i][k] - a[i][k] - c[k]).powi(2))
+                    .sum::<f64>()
+                    .sqrt()
             })
             .collect();
         let mut s: Vec<f64> = (0..a.len()).filter(|&i| keep[i]).map(|i| res[i]).collect();
@@ -91,7 +108,10 @@ pub struct Orientation<'a> {
 
 impl Orientation<'_> {
     pub fn at(&self, t: f64) -> [f64; 4] {
-        let i = self.t.partition_point(|&x| x <= t).clamp(1, self.t.len() - 1);
+        let i = self
+            .t
+            .partition_point(|&x| x <= t)
+            .clamp(1, self.t.len() - 1);
         let f = ((t - self.t[i - 1]) / (self.t[i] - self.t[i - 1])).clamp(0.0, 1.0);
         quat::slerp(self.q[i - 1], self.q[i], f)
     }
@@ -102,7 +122,9 @@ mod tests {
     use super::*;
     use crate::quat::qexp;
     fn lcg(seed: &mut u64) -> f64 {
-        *seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        *seed = seed
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         ((*seed >> 11) as f64) / ((1u64 << 53) as f64)
     }
     fn bearings(n: usize, seed: &mut u64) -> Vec<V3> {

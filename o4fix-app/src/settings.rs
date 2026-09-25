@@ -296,7 +296,10 @@ mod tests {
         assert!(s.config.refine, "missing key adopts default-on");
         assert!(s.migrate());
         assert_eq!(s.config.ramp, 0.19);
-        assert_eq!(s.config.drift_rebase_above, 0.0, "v1 deliberate 0 untouched");
+        assert_eq!(
+            s.config.drift_rebase_above, 0.0,
+            "v1 deliberate 0 untouched"
+        );
         assert_eq!(s.settings_version, CURRENT_SETTINGS_VERSION);
         assert!(!s.migrate());
     }

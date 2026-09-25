@@ -241,17 +241,41 @@ pub fn process(
 
     let q_out = if cfg.refine {
         check()?;
-        say(Stage::Refine, 0.88, format!("   refining residual judder in {} bursts", intervals.len()));
+        say(
+            Stage::Refine,
+            0.88,
+            format!("   refining residual judder in {} bursts", intervals.len()),
+        );
         let rlog = |s: &str| say(Stage::Refine, 0.89, s.to_string());
-        let r = crate::refine::refine(video, &tel.t, &q_out, &intervals, &tel.meta, &cfg.refine_cfg, &rlog, cancel)?;
+        let r = crate::refine::refine(
+            video,
+            &tel.t,
+            &q_out,
+            &intervals,
+            &tel.meta,
+            &cfg.refine_cfg,
+            &rlog,
+            cancel,
+        )?;
         if let Some(reason) = &r.skipped_reason {
-            say(Stage::Refine, 0.91, format!("   refinement skipped: {reason}"));
+            say(
+                Stage::Refine,
+                0.91,
+                format!("   refinement skipped: {reason}"),
+            );
         }
         for b in &r.bursts {
-            say(Stage::Refine, 0.91, match &b.note {
-                None => format!("     [{:7.2}, {:7.2}] residual correction {:4.2} deg", b.start, b.end, b.max_deg),
-                Some(n) => format!("     [{:7.2}, {:7.2}] not refined: {n}", b.start, b.end),
-            });
+            say(
+                Stage::Refine,
+                0.91,
+                match &b.note {
+                    None => format!(
+                        "     [{:7.2}, {:7.2}] residual correction {:4.2} deg",
+                        b.start, b.end, b.max_deg
+                    ),
+                    Some(n) => format!("     [{:7.2}, {:7.2}] not refined: {n}", b.start, b.end),
+                },
+            );
         }
         r.q
     } else {
