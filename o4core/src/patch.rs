@@ -744,7 +744,7 @@ mod splice_rebase_tests {
     }
 
     #[test]
-    fn non_rebased_burst_path_unchanged_by_edge_fix() {
+    fn non_rebased_burst_keeps_pre_burst_bits() {
         let t: Vec<f64> = (0..5001).map(|i| i as f64 / 1000.).collect();
         let q: Vec<[f64; 4]> = t
             .iter()
