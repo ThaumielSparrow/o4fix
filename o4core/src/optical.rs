@@ -16,7 +16,7 @@ pub struct OpticalRates {
     pub quality: Vec<f64>,
 }
 
-fn k_d(meta: &Meta, w: i32, h: i32) -> (Mat, Mat) {
+pub(crate) fn k_d(meta: &Meta, w: i32, h: i32) -> (Mat, Mat) {
     let km = meta.camera_matrix.unwrap_or([
         [546.4027, 0.0, w as f64 / 2.0],
         [0.0, 546.4027, h as f64 / 2.0],
