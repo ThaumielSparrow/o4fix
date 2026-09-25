@@ -49,6 +49,7 @@ fn case(base_mp4: &str, stages: &str, adjust: &str) {
         &tel.meta,
         &RefineConfig::default(),
         &|s| println!("{s}"),
+        &|_| {},
         &AtomicBool::new(false),
     )
     .unwrap();
@@ -144,6 +145,7 @@ fn refine_honours_cancel() {
         &[(141.25, 144.45)],
         &tel.meta,
         &RefineConfig::default(),
+        &|_| {},
         &|_| {},
         &cancel,
     );
