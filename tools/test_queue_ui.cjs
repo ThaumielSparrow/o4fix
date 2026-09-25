@@ -4,24 +4,46 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
+// Minimal stand-in for the DOM app.js touches: any element, any child
+// looked up by selector, created on first use.
+function fakeEl() {
+  const kids = {};
+  return {
+    textContent: '', hidden: false, disabled: false, className: '', title: '',
+    innerHTML: '', dataset: {}, children: [], parent: null,
+    style: { setProperty() {} },
+    classList: { add() {}, remove() {}, toggle() {}, contains: () => false },
+    querySelector(s) { return (kids[s] ??= fakeEl()); },
+    querySelectorAll: () => [],
+    appendChild(c) { this.children.push(c); c.parent = this; return c; },
+    remove() { if (this.parent) this.parent.children.splice(this.parent.children.indexOf(this), 1); },
+    setAttribute() {}, focus() {},
+  };
+}
+
 function harness() {
   let resolve, reject, calls = 0;
-  const refs = Object.fromEntries(['.cancel', '.chip', 'progress', '.msg', '.fname']
-    .map(k => [k, { textContent: '', hidden: false }]));
-  const li = { dataset: {}, querySelector: k => refs[k] };
-  const elements = Object.fromEntries(['start', 'clear', 'log', 'queue']
-    .map(k => [k, { textContent: '', querySelectorAll: () => [li] }]));
+  const elements = {};
   const context = vm.createContext({
-    window: { __TAURI__: {
-      core: { invoke: () => { calls++; return new Promise((a, b) => { resolve = a; reject = b; }); } },
-      event: { listen: () => {} },
-    } },
-    document: { getElementById: k => elements[k] },
+    window: {
+      __TAURI__: {
+        core: { invoke: () => { calls++; return new Promise((a, b) => { resolve = a; reject = b; }); } },
+        event: { listen: () => {} },
+      },
+      o4trace: { hero() {}, ClipTrace: class { setBefore() {} setAfter() {} } },
+    },
+    document: {
+      getElementById: k => (elements[k] ??= fakeEl()),
+      createElement: () => fakeEl(),
+      querySelector: () => fakeEl(),
+      querySelectorAll: () => [],
+      addEventListener() {},
+    },
   });
   const source = fs.readFileSync(path.join(__dirname, '../o4fix-app/ui/app.js'), 'utf8');
   vm.runInContext(source.replace(/init\(\);\s*$/, ''), context);
   const run = s => vm.runInContext(s, context);
-  run('pending = ["clip.MP4"]; settings = {};');
+  run('addFiles(["clip.MP4"]); settings = {};');
   return { run, elements, resolve: x => resolve(x), reject: x => reject(x), calls: () => calls };
 }
 
@@ -46,6 +68,13 @@ function harness() {
   await attempt;
   assert.equal(failed.run('pending.length'), 1, 'failed startup keeps retryable inputs');
   assert.equal(failed.elements.start.disabled, false);
-  assert.match(failed.elements.log.textContent, /IPC failure/);
+  assert.match(failed.run('pending[0].clip.msg.textContent'), /IPC failure/,
+    'failed startup is reported on the clip row');
+
+  // a retry that succeeds clears the stale failure message
+  const retry = failed.run('start()');
+  failed.resolve([3]);
+  await retry;
+  assert.equal(failed.run('rows.get(3).msg.textContent'), '', 'retry clears the old error');
   console.log('Queue startup race and failure recovery: PASS');
 })().catch(e => { console.error(e); process.exitCode = 1; });

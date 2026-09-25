@@ -130,6 +130,7 @@ async function start() {
     ids.forEach((id, i) => {
       const clip = batch[i].clip;
       clip.id = id;
+      clip.msg.textContent = ""; // a previous failed start may have left a message
       setState(clip, "waiting");
       clip.act.textContent = "Cancel";
       clip.act.onclick = () => {
