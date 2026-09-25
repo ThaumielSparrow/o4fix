@@ -144,3 +144,8 @@ Refinement roughly doubles repair time, and the extra time scales with total bur
 Tracker caution: the 0021 v2 render scores 2.91/4.87, 7.16/7.17, 14.64/20.09, 21.34/21.90 (clean/mild/severe/flicks). The v1 row above is 3.01/4.84, 6.29/7.41, 13.22/20.56, 16.76/22.69. The applied corrections are identical outside 44–52 s, for example flick 22.1 wobble goes 17.7 → 25.7 on a 0.0000° applied difference. The renders differ at about 41 dB PSNR in unchanged windows. So on this clip the eval tracker's render-to-render noise is several °/s in the mild, severe and flick masks. Read the v0.1.2-vs-release differences in the table above with that in mind.
 
 **Review page v2:** `target/experiments/release-v013/review-release-v2.html` (same spec file, now pointing at `_v2` renders and exports). The 0073 and 0021 sections use the v2 renders. The 0060 section is unchanged. Three new sections compare v1 (LEFT) with v2 (RIGHT) exactly where the fix changed the telemetry: 0073 8–14 s, 0073 325–331 s, 0021 45–50 s.
+
+
+## User verdict — release build (v0.1.3 candidate)
+
+User verdict (2026-09-25, release-v2 review page): "these all look slightly better or at least the same, except the 0021 unrefined powerloop - i think it looks a tiny bit worse now, but might just be perceptual, its extremely close." The 0021 powerloop (cap-skipped, not refined) differs from v0.1.2 only by the 0.19 s ramp default; keep 0.19 (approved on 0060/0071/0073); `--ramp 0.3` restores the old edge blend per run.
