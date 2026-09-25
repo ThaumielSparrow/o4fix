@@ -57,6 +57,21 @@ pub fn butter_low(order: usize, wn: f64) -> Ba {
     }
 }
 
+/// scipy.signal.butter(order, wn, 'high') (zpk -> lp2hp -> bilinear).
+pub fn butter_high(order: usize, wn: f64) -> Ba {
+    let warped = 4.0 * (std::f64::consts::PI * wn / 2.0).tan();
+    // lp2hp_zpk: z = zeros at 0 (order), p = warped / p_proto, k = 1 * real(prod(-z)/prod(-p)) with no proto zeros
+    let proto = buttap(order);
+    let p: Vec<C> = proto.iter().map(|&x| C::new(warped, 0.0) / x).collect();
+    let z = vec![C::new(0.0, 0.0); order];
+    let k = (C::new(1.0, 0.0) / proto.iter().fold(C::new(1.0, 0.0), |acc, &x| acc * (-x))).re;
+    let (zd, pd, kd) = bilinear_zpk(&z, &p, k);
+    Ba {
+        b: poly(&zd).iter().map(|c| c * kd).collect(),
+        a: poly(&pd),
+    }
+}
+
 pub fn butter_band(order: usize, wn_lo: f64, wn_hi: f64) -> Ba {
     let w1 = 4.0 * (std::f64::consts::PI * wn_lo / 2.0).tan();
     let w2 = 4.0 * (std::f64::consts::PI * wn_hi / 2.0).tan();
@@ -276,4 +291,28 @@ pub fn searchsorted_left(a: &[f64], v: f64) -> usize {
 }
 pub fn searchsorted_right(a: &[f64], v: f64) -> usize {
     a.partition_point(|&e| e <= v)
+}
+
+#[cfg(test)]
+mod high_tests {
+    use super::*;
+    fn sine(f: f64, n: usize) -> Vec<f64> {
+        (0..n).map(|i| (2.0 * std::f64::consts::PI * f * i as f64 / 100.0).sin()).collect()
+    }
+    fn rms(x: &[f64]) -> f64 {
+        (x.iter().map(|v| v * v).sum::<f64>() / x.len() as f64).sqrt()
+    }
+    #[test]
+    fn butter_high_passes_high_blocks_low_and_dc() {
+        let ba = butter_high(2, 1.0 / 50.0); // 1 Hz at fs=100
+        assert_eq!(ba.b.len(), 3);
+        let dc = filtfilt_padlen(&ba, &vec![5.0; 2000], 150);
+        assert!(dc[300..1700].iter().all(|v| v.abs() < 1e-6));
+        let hi = filtfilt_padlen(&ba, &sine(10.0, 2000), 150);
+        assert!((rms(&hi[300..1700]) / rms(&sine(10.0, 2000)[300..1700]) - 1.0).abs() < 0.01);
+        let lo = filtfilt_padlen(&ba, &sine(0.1, 4000), 150);
+        assert!(rms(&lo[500..3500]) < 0.01);
+        // coefficient sanity: high-pass b sums to 0
+        assert!(ba.b.iter().sum::<f64>().abs() < 1e-12);
+    }
 }
