@@ -83,6 +83,11 @@ pub struct Cli {
     /// the following clean zone (0 = carry forever; default 1.5)
     #[arg(long, default_value_t = 1.5, value_name = "DEG_S")]
     pub drift_decay_rate: f64,
+    /// skip the source-frame residual refinement inside repaired bursts
+    /// (default: on). It removes most remaining judder; turn it off only to
+    /// save processing time or to reproduce pre-0.1.3 output
+    #[arg(long)]
+    pub no_refine: bool,
 }
 
 impl Cli {
@@ -127,6 +132,8 @@ impl Cli {
             anchor_cutoff: self.anchor_cutoff,
             drift_rebase_above: self.drift_rebase_above,
             drift_decay_rate: self.drift_decay_rate,
+            refine: !self.no_refine,
+            refine_cfg: o4core::refine::RefineConfig::default(),
         }
     }
 }

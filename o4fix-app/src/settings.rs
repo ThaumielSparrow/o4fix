@@ -34,6 +34,7 @@ pub struct ConfigDto {
     pub anchor_cutoff: f64,
     pub drift_rebase_above: f64,
     pub drift_decay_rate: f64,
+    pub refine: bool,
 }
 
 impl Default for ConfigDto {
@@ -71,6 +72,7 @@ impl ConfigDto {
             anchor_cutoff: c.anchor_cutoff,
             drift_rebase_above: c.drift_rebase_above,
             drift_decay_rate: c.drift_decay_rate,
+            refine: c.refine,
         }
     }
 
@@ -104,13 +106,15 @@ impl ConfigDto {
             anchor_cutoff: self.anchor_cutoff,
             drift_rebase_above: self.drift_rebase_above,
             drift_decay_rate: self.drift_decay_rate,
+            refine: self.refine,
+            refine_cfg: o4core::refine::RefineConfig::default(),
         }
     }
 }
 
 /// Bumped whenever a stored settings.json needs rewriting on load. See
 /// `GuiSettings::migrate`.
-pub const CURRENT_SETTINGS_VERSION: u32 = 1;
+pub const CURRENT_SETTINGS_VERSION: u32 = 2;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(default)]
@@ -147,12 +151,18 @@ impl GuiSettings {
     /// default rather than silently leaving those users on the old
     /// in-burst bridge. Runs once; a deliberate 0 set from 0.1.2 onwards is
     /// stored at v1 and never touched.
+    /// v1 -> v2 (0.1.3): edge ramp default 0.3 -> 0.19. A stored 0.3 recorded
+    /// the old default, so adopt the new one; other values are deliberate.
+    /// `refine` needs no step: files without the key read as default-on.
     fn migrate(&mut self) -> bool {
         if self.settings_version >= CURRENT_SETTINGS_VERSION {
             return false;
         }
-        if self.config.drift_rebase_above == 0.0 {
+        if self.settings_version < 1 && self.config.drift_rebase_above == 0.0 {
             self.config.drift_rebase_above = Config::default().drift_rebase_above;
+        }
+        if self.settings_version < 2 && self.config.ramp == 0.3 {
+            self.config.ramp = Config::default().ramp;
         }
         self.settings_version = CURRENT_SETTINGS_VERSION;
         true
@@ -273,6 +283,46 @@ mod tests {
         // idempotent: a second pass is a no-op
         assert!(!s.migrate());
         assert_eq!(s.config.drift_rebase_above, 30.0);
+    }
+
+    #[test]
+    fn v1_settings_migrate_ramp_and_refine() {
+        let mut s: GuiSettings = serde_json::from_value(serde_json::json!({
+            "settings_version": 1, "profile": "m2",
+            "config": { "ramp": 0.3, "drift_rebase_above": 0.0 },
+            "output_dir": null, "concurrent_files": 1
+        }))
+        .unwrap();
+        assert!(s.config.refine, "missing key adopts default-on");
+        assert!(s.migrate());
+        assert_eq!(s.config.ramp, 0.19);
+        assert_eq!(s.config.drift_rebase_above, 0.0, "v1 deliberate 0 untouched");
+        assert_eq!(s.settings_version, CURRENT_SETTINGS_VERSION);
+        assert!(!s.migrate());
+    }
+
+    #[test]
+    fn v1_custom_ramp_kept() {
+        let mut s: GuiSettings = serde_json::from_value(serde_json::json!({
+            "settings_version": 1, "profile": "m2", "config": { "ramp": 0.25 },
+            "output_dir": null, "concurrent_files": 1
+        }))
+        .unwrap();
+        assert!(s.migrate());
+        assert_eq!(s.config.ramp, 0.25);
+    }
+
+    #[test]
+    fn v2_deliberate_legacy_values_kept() {
+        let mut s = GuiSettings {
+            settings_version: CURRENT_SETTINGS_VERSION,
+            ..GuiSettings::default()
+        };
+        s.config.ramp = 0.3;
+        s.config.refine = false;
+        assert!(!s.migrate());
+        assert_eq!(s.config.ramp, 0.3);
+        assert!(!s.config.refine);
     }
 
     /// The horizon-lock case: 0 chosen deliberately under 0.1.2+ is stamped

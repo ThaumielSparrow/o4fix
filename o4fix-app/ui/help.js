@@ -9,6 +9,7 @@ window.DEFAULTS = {
   fast_wide_cutoff: 0.0, fast_wide_ramp: [150.0, 300.0],
   fast_wide_accel: 1500.0, anchor_mode: false, anchor_cutoff: 1.5,
   drift_rebase_above: 30.0, drift_decay_rate: 1.5,
+  refine: true,
 };
 window.M4 = Object.assign({}, window.DEFAULTS, { fast_wide_cutoff: 16.0 });
 
@@ -39,11 +40,13 @@ window.HELP = {
   anchor_cutoff: "Hz, bandwidth of the optical drift anchor in --anchor-mode (default 1.5)",
   drift_rebase_above: "deg/s implied bridge rate (1.5*drift/duration) above which a burst's optical drift is carried forward as a constant orientation offset instead of being bridged inside the burst (default 30; 0 = always bridge in-burst). A constant offset is invisible to stabilization; set 0 if you stabilize with Gyroflow horizon lock ON",
   drift_decay_rate: "deg/s cap at which a carried drift offset bleeds back to identity in the following clean zone (0 = carry forever; default 1.5)",
+  refine: "re-measure the leftover judder inside each repaired burst from the video frames and correct it (recommended; adds processing time proportional to burst length). The corrected file still loads in Gyroflow like a stock recording",
 };
 
 // field descriptors driving the settings form
 window.FIELDS = [
   // group, key, label, kind: "num" | "pair" | "pair_opt" | "num_opt" | "bool"
+  ["Refinement", "refine", "Refine residual judder (recommended)", "bool"],
   ["Repair thresholds", "severe", "Severe threshold (°/s)", "num"],
   ["Repair thresholds", "severe_pad", "Burst padding (s)", "num"],
   ["Repair thresholds", "severe_merge", "Burst merge gap (s)", "num"],
