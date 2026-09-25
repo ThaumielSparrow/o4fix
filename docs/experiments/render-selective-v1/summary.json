@@ -1,0 +1,321 @@
+{
+  "video_checks": {
+    "target\\experiments\\render-rotation-v1\\compare_late_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    },
+    "target\\experiments\\render-rotation-v1\\compare_late.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    },
+    "target\\experiments\\render-rotation-v1\\compare_control_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    },
+    "target\\experiments\\render-rotation-v1\\compare_control.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    },
+    "target\\experiments\\render-rotation-v1\\compare_additional_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    },
+    "target\\experiments\\render-rotation-v1\\compare_additional.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    },
+    "target\\experiments\\render-regional-v1\\compare_late_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    },
+    "target\\experiments\\render-regional-v1\\compare_late.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    },
+    "target\\experiments\\render-regional-v1\\compare_control_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    },
+    "target\\experiments\\render-regional-v1\\compare_control.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    },
+    "target\\experiments\\render-regional-v1\\compare_additional_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    },
+    "target\\experiments\\render-regional-v1\\compare_additional.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    },
+    "target\\experiments\\render-bounce-v1\\compare_late_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    },
+    "target\\experiments\\render-bounce-v1\\compare_late.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    },
+    "target\\experiments\\render-bounce-v1\\compare_control_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    },
+    "target\\experiments\\render-bounce-v1\\compare_control.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    },
+    "target\\experiments\\render-bounce-v1\\compare_additional_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    },
+    "target\\experiments\\render-bounce-v1\\compare_additional.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    },
+    "target\\experiments\\render-selective-v1\\compare_late_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    },
+    "target\\experiments\\render-selective-v1\\compare_late.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    },
+    "target\\experiments\\render-selective-v1\\compare_control_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    },
+    "target\\experiments\\render-selective-v1\\compare_control.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    },
+    "target\\experiments\\render-selective-v1\\compare_additional_full.mp4": {
+      "width": 2880,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    },
+    "target\\experiments\\render-selective-v1\\compare_additional.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    },
+    "target\\experiments\\render-selective-v1\\compare_focus.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "500"
+    },
+    "target\\experiments\\render-selective-v1\\compare_detail.mp4": {
+      "width": 1280,
+      "height": 360,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "500"
+    }
+  },
+  "windows": {
+    "late": {
+      "events": [
+        {
+          "interval": [
+            134.71447032204986,
+            135.39350314647947
+          ],
+          "blocks": 2,
+          "samples": 68,
+          "bootstrap_interval": [
+            -0.022514158545288248,
+            0.042208379280783616
+          ],
+          "accepted": false
+        },
+        {
+          "interval": [
+            135.7655290435361,
+            136.62750802954375
+          ],
+          "blocks": 2,
+          "samples": 86,
+          "bootstrap_interval": [
+            -0.09255149335892165,
+            0.24381393112333938
+          ],
+          "accepted": false
+        },
+        {
+          "interval": [
+            137.78981040359497,
+            139.2717351244333
+          ],
+          "blocks": 3,
+          "samples": 149,
+          "bootstrap_interval": [
+            0.049037956022460236,
+            0.3138485705699843
+          ],
+          "accepted": false
+        },
+        {
+          "interval": [
+            141.25308539291927,
+            144.45123214950837
+          ],
+          "blocks": 7,
+          "samples": 320,
+          "bootstrap_interval": [
+            0.11258715306845173,
+            0.26757782131955915
+          ],
+          "accepted": true
+        }
+      ],
+      "max_angle_deg": 0.4417886663572453,
+      "source_margin_px": 12.957229665182751,
+      "nonzero_frames": 320,
+      "band_changes": [
+        {
+          "translation_rms_half_px_s": -11.251616675185383,
+          "roll_rms_deg_s": -7.483172321535858
+        },
+        {
+          "translation_rms_half_px_s": 8.617466619104563,
+          "roll_rms_deg_s": -27.19183940469927
+        }
+      ]
+    },
+    "control": {
+      "events": [],
+      "max_angle_deg": 0.0,
+      "source_margin_px": 22.523857284923253,
+      "nonzero_frames": 0,
+      "band_changes": [
+        {
+          "translation_rms_half_px_s": 8.018493737232092,
+          "roll_rms_deg_s": 1.5123391245938533
+        },
+        {
+          "translation_rms_half_px_s": 5.754177860959286,
+          "roll_rms_deg_s": -0.05645260835352994
+        }
+      ]
+    },
+    "additional": {
+      "events": [
+        {
+          "interval": [
+            264.4312372815247,
+            264.93225711318206
+          ],
+          "blocks": 1,
+          "samples": 50,
+          "bootstrap_interval": [
+            0.029045961926812497,
+            0.029045961926812497
+          ],
+          "accepted": false
+        },
+        {
+          "interval": [
+            267.05964362674985,
+            267.9806301964493
+          ],
+          "blocks": 2,
+          "samples": 93,
+          "bootstrap_interval": [
+            0.006981490555906886,
+            0.021179298463010438
+          ],
+          "accepted": false
+        },
+        {
+          "interval": [
+            268.4335895053384,
+            269.46559198835536
+          ],
+          "blocks": 3,
+          "samples": 103,
+          "bootstrap_interval": [
+            -0.05544054975593888,
+            0.13363603422268547
+          ],
+          "accepted": false
+        }
+      ],
+      "max_angle_deg": 0.0,
+      "source_margin_px": 20.000298028554937,
+      "nonzero_frames": 0,
+      "band_changes": [
+        {
+          "translation_rms_half_px_s": -18.276891014507356,
+          "roll_rms_deg_s": 0.46977928879505804
+        },
+        {
+          "translation_rms_half_px_s": 9.867450602409523,
+          "roll_rms_deg_s": 13.44817907173046
+        }
+      ]
+    }
+  },
+  "selected_burst_changes": [
+    {
+      "hz": [
+        2.0,
+        8.0
+      ],
+      "xy": 1.273291949256783,
+      "roll": -46.12871591473133
+    },
+    {
+      "hz": [
+        8.0,
+        30.0
+      ],
+      "xy": -0.8484026928200383,
+      "roll": -88.52777884414388
+    }
+  ]
+}

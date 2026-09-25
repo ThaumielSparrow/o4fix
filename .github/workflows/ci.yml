@@ -23,3 +23,5 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Unit tests
         run: cargo test -p o4core -p o4fix-cli -p o4fix-app
+      - name: Queue startup regression
+        run: node tools/test_queue_ui.cjs

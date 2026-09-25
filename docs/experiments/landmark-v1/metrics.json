@@ -1,0 +1,162 @@
+{
+  "default": {
+    "pairs": 399,
+    "finite_iterates": 390,
+    "converged": 322,
+    "longest_converged_run_pairs": 48,
+    "rank_histogram": {
+      "29": 378,
+      "28": 6,
+      "26": 1,
+      "25": 1,
+      "24": 3,
+      "22": 1
+    },
+    "median_second_eigenvalue_ratio": 0.0012142087191495629,
+    "max_preprojection_scale_residual_ratio": 9.806866351480948e-06,
+    "median_objective_ratio": 0.15765851322795188,
+    "scores": {
+      "folds": [
+        {
+          "interval": [
+            18.94379865733612,
+            22.94379865733612
+          ],
+          "pairs": 399,
+          "checks": [
+            {
+              "reference_index": 1,
+              "require_convergence": false,
+              "common_pairs": 390,
+              "reference": {
+                "rms_deg_s": 3.741460206852636,
+                "samples": 318,
+                "runs": 2
+              },
+              "candidate": {
+                "rms_deg_s": 7.544447162825604,
+                "samples": 318,
+                "runs": 2
+              }
+            },
+            {
+              "reference_index": 3,
+              "require_convergence": false,
+              "common_pairs": 373,
+              "reference": {
+                "rms_deg_s": 2.9032784814316366,
+                "samples": 313,
+                "runs": 2
+              },
+              "candidate": {
+                "rms_deg_s": 7.569494091730506,
+                "samples": 313,
+                "runs": 2
+              }
+            },
+            {
+              "reference_index": 1,
+              "require_convergence": true,
+              "common_pairs": 322,
+              "reference": null,
+              "candidate": null
+            },
+            {
+              "reference_index": 3,
+              "require_convergence": true,
+              "common_pairs": 310,
+              "reference": null,
+              "candidate": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "perturbed": {
+    "pairs": 399,
+    "finite_iterates": 390,
+    "converged": 317,
+    "longest_converged_run_pairs": 45,
+    "rank_histogram": {
+      "29": 382,
+      "28": 5,
+      "25": 1,
+      "24": 2
+    },
+    "median_second_eigenvalue_ratio": 0.0012192857180885414,
+    "max_preprojection_scale_residual_ratio": 3.363787016467139e-05,
+    "median_objective_ratio": 0.07077075120934481,
+    "scores": {
+      "folds": [
+        {
+          "interval": [
+            18.94379865733612,
+            22.94379865733612
+          ],
+          "pairs": 399,
+          "checks": [
+            {
+              "reference_index": 1,
+              "require_convergence": false,
+              "common_pairs": 390,
+              "reference": {
+                "rms_deg_s": 3.741460206852636,
+                "samples": 318,
+                "runs": 2
+              },
+              "candidate": {
+                "rms_deg_s": 6.960823199537145,
+                "samples": 318,
+                "runs": 2
+              }
+            },
+            {
+              "reference_index": 3,
+              "require_convergence": false,
+              "common_pairs": 373,
+              "reference": {
+                "rms_deg_s": 2.9032784814316366,
+                "samples": 313,
+                "runs": 2
+              },
+              "candidate": {
+                "rms_deg_s": 6.977841909848967,
+                "samples": 313,
+                "runs": 2
+              }
+            },
+            {
+              "reference_index": 1,
+              "require_convergence": true,
+              "common_pairs": 317,
+              "reference": null,
+              "candidate": null
+            },
+            {
+              "reference_index": 3,
+              "require_convergence": true,
+              "common_pairs": 307,
+              "reference": null,
+              "candidate": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "initialization_sensitivity": {
+    "both_finite": {
+      "pairs": 390,
+      "median_deg_s": 0.0013463426271825615,
+      "p90_deg_s": 2.1655235217261204,
+      "max_deg_s": 64.78765098590708
+    },
+    "both_converged": {
+      "pairs": 305,
+      "median_deg_s": 0.00013267060746000175,
+      "p90_deg_s": 0.8048496563862092,
+      "max_deg_s": 6.835807833961166
+    }
+  }
+}

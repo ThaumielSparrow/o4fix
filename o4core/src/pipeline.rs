@@ -104,6 +104,10 @@ pub fn process(
     };
 
     check()?;
+    cfg.validate()?;
+    if let Some(out) = out {
+        mp4::validate_output(video, out)?;
+    }
     let tel = telemetry::extract_quats(video)?;
     // rate-domain filtering needs > filtfilt padlen (15) samples; 100 = 0.1 s
     // at 1 kHz, far below any real clip - turns degenerate-input panics
@@ -115,6 +119,15 @@ pub fn process(
         )));
     }
     let fs = fs(&tel.t);
+    cfg.validate_sample_rate(fs)?;
+    if tel.t.iter().any(|t| !t.is_finite())
+        || tel.t.windows(2).any(|w| w[1] <= w[0])
+        || tel.q.iter().flatten().any(|q| !q.is_finite())
+    {
+        return Err(O4Error::Telemetry(
+            "non-finite orientation or non-increasing timestamps".into(),
+        ));
+    }
     say(
         Stage::Extract,
         0.05,
@@ -196,10 +209,11 @@ pub fn process(
     )?;
 
     check()?;
+    patched.require_coverage(&tel.t, &intervals)?;
     let (q_out, bursts) = patch::splice_orientation(
         &tel.t,
         &tel.q,
-        &patched,
+        &patched.rates,
         &intervals,
         cfg.ramp,
         cfg.drift_rebase_above,
@@ -252,14 +266,8 @@ pub fn process(
                 bursts,
             })
         }
-        Ok(false) => {
-            let _ = std::fs::remove_file(&out_path);
-            Err(O4Error::VerifyFailed)
-        }
-        Err(e) => {
-            let _ = std::fs::remove_file(&out_path); // partial copy possible
-            Err(e)
-        }
+        Ok(false) => Err(O4Error::VerifyFailed),
+        Err(e) => Err(e),
     }
 }
 

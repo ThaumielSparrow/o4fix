@@ -1,0 +1,12 @@
+{
+  "files": {
+    "target/experiments/spatial-v1/106.json": "ae17bfad13723a9660cabc8f8d8efd8bb84e0fcbbb86258603dc25901c8cc693",
+    "target/experiments/spatial-v1/225.json": "756f48a5c27c32d05c4988c76ad7a746652e1ef2cb20cdc40bd06ada30562f25",
+    "target/experiments/spatial-v1/249.json": "b32240ae6ea77ec192ef28942cd3d744f798c13772e7613cef07c98bec55bde4",
+    "target/experiments/spatial-v1/308.json": "fa29a38c79130fe9af0387e93b2250ef495a601bfd5ee0afb304acb062e982cb",
+    "o4core/examples/spatial_motion_probe.rs": "e6393068e28f6ac12aedbce8bf4f3288c9526f1c352520be0e6dd4ce0a1bf865",
+    "target/release/examples/spatial_motion_probe.exe": "e97d9e13dbacfacb54cd676b5e09d0e1b149737dd14352549ff3a8893a86b94c",
+    "target/experiments/rs-v1/rs_off.gyroflow": "931571df3da6e1017a56c09ea333884739557c39dbb7f04379c0f34be13c3c43"
+  },
+  "status": "spatial diagnostics complete; rolling-shutter ablation reviewed with weak/uncertain benefit; next perspective-aware estimation"
+}

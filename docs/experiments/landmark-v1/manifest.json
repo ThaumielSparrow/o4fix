@@ -1,0 +1,18 @@
+{
+  "files": {
+    "target/experiments/landmark-v1/default-scores.json": "22e212d78ee6ee893dcbbd03fff84288064c25b98c43d5357327b89ffe4671c2",
+    "target/experiments/landmark-v1/default.json": "4d8950e8f4a2e466f04c3502b7f872c2b30f83f706c57f06be2a638f573c7924",
+    "target/experiments/landmark-v1/perturbed-scores.json": "560119eaf454f876e5e5366ca19cf7d8c3e651484a7622311d573b5f796e8ae0",
+    "target/experiments/landmark-v1/perturbed.json": "2ccc4dc655dd868897c172240834d4a0161b8a1a278db9a52d4963cc381f845e",
+    "target/experiments/landmark-v1/pre_gauge_projection.rs": "7eb5d47ba736cb6f6d0afb22d3b9bde580b807e6ce056ec21d3a38f5f3c28023",
+    "target/experiments/source-pose-v1/0060.json": "9e74d5f17374af7232c1199a82e52faa703b34163df692017f5a2a2f2ced081d",
+    "o4core/examples/landmark_bundle_probe.rs": "5c5a410b0878ee70340b0900de64a52109d9ae9fb65c3b0f8d96b87c10429fdb",
+    "o4core/examples/multiframe_score.rs": "d8faea4536a4a281872e37b426e2402ccb03c18473c524043844317e1b27ba5d",
+    "docs/experiments/calibration-v1/0060.json": "8237b1990852423931103c657e15b92121bed1b04b45c93d2fe76f4f3e136fba",
+    "target/release/examples/landmark_bundle_probe.exe": "a4ec2216814621db38487bb570121c3c9679ecc996b422494796a63624881c73",
+    "target/release/examples/multiframe_score.exe": "6161bc754420c62ccb9836f6ad0684787e5c7f4bf1feb9a7900733e1c20d3b26",
+    "docs/experiments/landmark-v1/summarize.py": "8e8a48f763ba981d5cc99b462fc2cc8dd0342b3834fe73415d598d7487b01225",
+    "docs/experiments/landmark-v1/metrics.json": "cb4ac65156f614248b8a628ebc2292b47277b587eff35de525de07f4d8102a6e"
+  },
+  "source_video": "Inherited verified input fingerprint in source-pose-v1/manifest.json."
+}

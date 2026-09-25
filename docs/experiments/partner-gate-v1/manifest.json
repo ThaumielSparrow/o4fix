@@ -1,0 +1,82 @@
+{
+  "o4core\\examples\\partner_gate_repair.rs": {
+    "bytes": 7136,
+    "sha256": "153c4d96dc23c23ae190a1b3b6cf74a3c5c576148d6ba01ecb1e838af714f732"
+  },
+  "o4core\\examples\\support\\partner_gate.rs": {
+    "bytes": 3206,
+    "sha256": "d69c01a0671a6127a27d2e50cb2c349ab72292a3e9394dc437e2ed9a98c4a960"
+  },
+  "o4core\\examples\\support\\edge_offset_patch.rs": {
+    "bytes": 6520,
+    "sha256": "caa06ecd2023a477fa9c73aedad5f1849702c1fa145dc70a86f803ec59fc1d12"
+  },
+  "target\\release\\examples\\partner_gate_repair.exe": {
+    "bytes": 3445760,
+    "sha256": "19420a38cb12f9cd4d821bb5e2e50f0be938947cb78964973aa0b70a9bcd99ba"
+  },
+  "target\\experiments\\residual-stage-v1\\0073\\trace.json": {
+    "bytes": 69286256,
+    "sha256": "5ecc5a0ea1aa50698401e537b3ec1de7d8674f084bc7f2328547e821b5659dbb"
+  },
+  "target\\experiments\\generalization-v1\\0073\\edgeoffset.MP4": {
+    "bytes": 3695514531,
+    "sha256": "801f0f47f69058cdb7e620cfa094900b3e995713a14b12c96a8485b423f148ef"
+  },
+  "sample_vids\\DJI_20260829141435_0073_D.MP4": {
+    "bytes": 3695514531,
+    "sha256": "0218dc37e175fb611aa8385b331b87919c02c16f59e941f39a2efc4019c9e157"
+  },
+  "docs\\experiments\\partner-gate-v1\\export_reviews.py": {
+    "bytes": 1854,
+    "sha256": "7a33cca54944bf2ac42621cf677c0552ae0051ecbfa7cc8e9200822f99908867"
+  },
+  "docs\\experiments\\partner-gate-v1\\prepare.py": {
+    "bytes": 1009,
+    "sha256": "5f7c1cf047690d272b576b9b9a62bd4584092af15627c9ad4eb932bed565aed2"
+  },
+  "docs\\experiments\\partner-gate-v1\\summarize.py": {
+    "bytes": 1899,
+    "sha256": "bce6af0d0e823fba49016b2f96f9b434f56553a496367a7d95f20269fa84c422"
+  },
+  "target\\experiments\\partner-gate-v1\\partnergate.MP4": {
+    "bytes": 3695514531,
+    "sha256": "f7dbf08a626854a565b875beddae1cafb449a340a488024f86e749cb149d9f00"
+  },
+  "target\\experiments\\partner-gate-v1\\partnergate.gyroflow": {
+    "bytes": 5499,
+    "sha256": "8f75fec0fa28b6c25e754c35157f99a69a6b1d5eba43e2e506f18b1f3d604275"
+  },
+  "target\\experiments\\partner-gate-v1\\candidate.json": {
+    "bytes": 489838,
+    "sha256": "aa333693ac446dc00f85760306895d467ace8dceb44df7ea6d32c7064fc38985"
+  },
+  "target\\experiments\\partner-gate-v1\\partnergate-render.mp4": {
+    "bytes": 1480280047,
+    "sha256": "c3d192ffdfe56ac6b39491dae1e865050d7e21d1e176bf5ea74b8cfe15e13f3c"
+  },
+  "target\\experiments\\partner-gate-v1\\compare_early.mp4": {
+    "bytes": 20531385,
+    "sha256": "7ed79f4ddbc98c7d051299de7fe89b5de8ca72c84ad92f78f1ea35e60c9a0e53"
+  },
+  "target\\experiments\\partner-gate-v1\\compare_late.mp4": {
+    "bytes": 20768321,
+    "sha256": "46a713b99008b17bcf2bb1ed14c65c9b3bbfcbf7f6cdb165f9ccf17af5b84fda"
+  },
+  "target\\experiments\\partner-gate-v1\\compare_control.mp4": {
+    "bytes": 1696248,
+    "sha256": "b171edcf1a5d9cc5d308deb45075037082229ae58abeda50df479d0647f3315f"
+  },
+  "target\\experiments\\partner-gate-v1\\compare_additional.mp4": {
+    "bytes": 10563408,
+    "sha256": "7716c4ebaba94900604a9d7472c5b2d479aab623f3198b1fac2769b8f66290d1"
+  },
+  "target\\experiments\\partner-gate-v1\\repair.log": {
+    "bytes": 237,
+    "sha256": "197a6e325760e687023247da83314f56255d364d73ef8816cbce523c7013dbf2"
+  },
+  "target\\experiments\\partner-gate-v1\\render.log": {
+    "bytes": 2558578,
+    "sha256": "14c5cc881d151d93cba5c8bb7e026852ab6454796ec228e90f49c677e34b633b"
+  }
+}

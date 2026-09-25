@@ -1,0 +1,68 @@
+{
+  "full": {
+    "target\\experiments\\bounce-localize-v1\\gap2edge-render.mp4": {
+      "width": 1440,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "duration": "375.940000",
+      "nb_frames": "37594"
+    },
+    "target\\experiments\\subset-ensemble-v1\\ensemble-render.mp4": {
+      "width": 1440,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "duration": "375.940000",
+      "nb_frames": "37594"
+    }
+  },
+  "reviews": [
+    {
+      "label": "early",
+      "start": 14,
+      "duration": 16,
+      "video": {
+        "width": 1440,
+        "height": 406,
+        "r_frame_rate": "100/1",
+        "duration": "16.000000",
+        "nb_frames": "1600"
+      }
+    },
+    {
+      "label": "late",
+      "start": 132,
+      "duration": 14,
+      "video": {
+        "width": 1440,
+        "height": 406,
+        "r_frame_rate": "100/1",
+        "duration": "14.000000",
+        "nb_frames": "1400"
+      }
+    },
+    {
+      "label": "control",
+      "start": 55.9,
+      "duration": 3,
+      "video": {
+        "width": 1440,
+        "height": 406,
+        "r_frame_rate": "100/1",
+        "duration": "3.000000",
+        "nb_frames": "300"
+      }
+    },
+    {
+      "label": "additional",
+      "start": 264,
+      "duration": 8,
+      "video": {
+        "width": 1440,
+        "height": 406,
+        "r_frame_rate": "100/1",
+        "duration": "8.000000",
+        "nb_frames": "800"
+      }
+    }
+  ]
+}

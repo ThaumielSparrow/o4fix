@@ -1,0 +1,75 @@
+{
+  "bands_hz": [
+    [
+      2,
+      8
+    ],
+    [
+      8,
+      30
+    ]
+  ],
+  "note": "Stored gyro motion magnitudes, not physical motion error or render-quality scores. Full-clip filtering context. Raw detector is 30-180 Hz band RMS.",
+  "windows": [
+    {
+      "window": [
+        14.0,
+        30.0
+      ],
+      "noise_peak_deg_s": 347.5599160575436,
+      "fraction_noise_above_severe": 0.2818301143821489,
+      "max_baseline_to_candidate_orientation_deg": 8.819018692123596,
+      "rate_rms_change_deg_s": 3.362532549948005,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          7.77486273775815,
+          7.599219235705709
+        ],
+        [
+          1.7335857006014919,
+          1.6982520294647474
+        ]
+      ]
+    },
+    {
+      "window": [
+        132.0,
+        146.0
+      ],
+      "noise_peak_deg_s": 392.13949052332424,
+      "fraction_noise_above_severe": 0.2260875776841203,
+      "max_baseline_to_candidate_orientation_deg": 7.020674397091225,
+      "rate_rms_change_deg_s": 2.403515517074288,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          15.943201334771974,
+          15.933367268888528
+        ],
+        [
+          3.277124361247975,
+          3.2523407581084642
+        ]
+      ]
+    },
+    {
+      "window": [
+        55.9,
+        58.9
+      ],
+      "noise_peak_deg_s": 1.0458531406190419,
+      "fraction_noise_above_severe": 0.0,
+      "max_baseline_to_candidate_orientation_deg": 8.021433615360682,
+      "rate_rms_change_deg_s": 0.11408145779345868,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          1.6010844564885418,
+          1.601087693063191
+        ],
+        [
+          0.9954565962005283,
+          0.9954569228979344
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1106 @@
+{
+  "0021": {
+    "metadata": "Meta { camera: \"DJI\", model: \"O4P\", camera_matrix: Some([[546.4027099609375, 0.0, 720.0], [0.0, 546.4027099609375, 540.0], [0.0, 0.0, 1.0]]), distortion: Some([0.15513110160827637, 0.1371408998966217, -0.0938614010810852, 0.0041704000905156136]), calib_w: Some(1440.0), calib_h: Some(1080.0) }",
+    "pairs": 1583,
+    "folds": [
+      {
+        "interval": [
+          66.16989395210267,
+          70.16989395210267
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          85,
+          401,
+          401,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 85
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 2.217270765959457,
+              "samples": 371,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.217270765959457,
+              "samples": 371,
+              "runs": 1
+            },
+            "common_pairs": 401
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.217270765959457,
+              "samples": 371,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.602460072604222,
+              "samples": 371,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          81.9353158547162,
+          85.72458915700805
+        ],
+        "pairs": 380,
+        "valid_counts": [
+          62,
+          380,
+          380,
+          380
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 62
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 2.570701413757074,
+              "samples": 350,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.570701413757074,
+              "samples": 350,
+              "runs": 1
+            },
+            "common_pairs": 380
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.570701413757074,
+              "samples": 350,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.5213216299596106,
+              "samples": 350,
+              "runs": 1
+            },
+            "common_pairs": 380
+          }
+        ]
+      },
+      {
+        "interval": [
+          94.02828085929384,
+          98.02828085929384
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          369,
+          401,
+          79,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 2.257039491502264,
+              "samples": 294,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 3.192285960596876,
+              "samples": 294,
+              "runs": 1
+            },
+            "common_pairs": 369
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 1.161369752314526,
+              "samples": 44,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 1.161369752314526,
+              "samples": 44,
+              "runs": 1
+            },
+            "common_pairs": 79
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.1277567477545585,
+              "samples": 371,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.139789227780081,
+              "samples": 371,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          118.9393437615738,
+          122.9393437615738
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          148,
+          401,
+          383,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 148
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 1.8514381549369696,
+              "samples": 291,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 1.8514381549369696,
+              "samples": 291,
+              "runs": 1
+            },
+            "common_pairs": 383
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 1.7404667107730192,
+              "samples": 371,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.1211787692786617,
+              "samples": 371,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "candidate": "rotation_only",
+        "reference": {
+          "rms_deg_s": 2.257039491502264,
+          "samples": 294,
+          "scored_folds": 1
+        },
+        "candidate_score": {
+          "rms_deg_s": 3.192285960596876,
+          "samples": 294,
+          "scored_folds": 1
+        },
+        "relative_change_percent": 41.436867747144326,
+        "common_pairs": 664
+      },
+      {
+        "candidate": "essential_cheirality",
+        "reference": {
+          "rms_deg_s": 2.217732288083673,
+          "samples": 1056,
+          "scored_folds": 4
+        },
+        "candidate_score": {
+          "rms_deg_s": 2.217732288083673,
+          "samples": 1056,
+          "scored_folds": 4
+        },
+        "relative_change_percent": 0.0,
+        "common_pairs": 1243
+      },
+      {
+        "candidate": "cached_production",
+        "reference": {
+          "rms_deg_s": 2.17806267485016,
+          "samples": 1463,
+          "scored_folds": 4
+        },
+        "candidate_score": {
+          "rms_deg_s": 2.3538125566226924,
+          "samples": 1463,
+          "scored_folds": 4
+        },
+        "relative_change_percent": 8.069092033112547,
+        "common_pairs": 1583
+      }
+    ],
+    "models": [
+      {
+        "name": "rotation_only",
+        "valid_pairs": 664,
+        "missing_pairs": 919,
+        "split_valid_pairs": 374,
+        "median_split_deg_s": 1.4163895992464548
+      },
+      {
+        "name": "essential_small_angle",
+        "valid_pairs": 1583,
+        "missing_pairs": 0,
+        "split_valid_pairs": 1583,
+        "median_split_deg_s": 5.850257937785248
+      },
+      {
+        "name": "essential_cheirality",
+        "valid_pairs": 1243,
+        "missing_pairs": 340,
+        "split_valid_pairs": 1151,
+        "median_split_deg_s": 5.861980229921243
+      },
+      {
+        "name": "cached_production",
+        "valid_pairs": 1583,
+        "missing_pairs": 0,
+        "split_valid_pairs": 0,
+        "median_split_deg_s": null
+      }
+    ],
+    "depth_check": {
+      "original_valid": 1243,
+      "relaxed_valid": 1583,
+      "rotation_disagreements_over_1e_5_rad": 0
+    }
+  },
+  "0027": {
+    "metadata": "Meta { camera: \"DJI\", model: \"O4P\", camera_matrix: Some([[546.4027099609375, 0.0, 720.0], [0.0, 546.4027099609375, 540.0], [0.0, 0.0, 1.0]]), distortion: Some([0.15513110160827637, 0.1371408998966217, -0.0938614010810852, 0.0041704000905156136]), calib_w: Some(1440.0), calib_h: Some(1080.0) }",
+    "pairs": 2318,
+    "folds": [
+      {
+        "interval": [
+          181.94345979382817,
+          185.94345979382817
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          401,
+          401,
+          0,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 1.7284670521714438,
+              "samples": 369,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 4.712751864654728,
+              "samples": 369,
+              "runs": 1
+            },
+            "common_pairs": 401
+          },
+          {
+            "candidate_index": 2,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 0
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 1.7284670521714438,
+              "samples": 369,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 1.8430509204801124,
+              "samples": 369,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          12.77357315890503,
+          16.77357315890503
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          373,
+          401,
+          36,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 2.9811999831876763,
+              "samples": 337,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 4.326887472937586,
+              "samples": 337,
+              "runs": 1
+            },
+            "common_pairs": 373
+          },
+          {
+            "candidate_index": 2,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 36
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.9201396224477123,
+              "samples": 369,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.6638233456098415,
+              "samples": 369,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          89.88695855565477,
+          93.88695855565476
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          401,
+          401,
+          0,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 5.469299988648333,
+              "samples": 371,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 7.711347650929762,
+              "samples": 371,
+              "runs": 1
+            },
+            "common_pairs": 401
+          },
+          {
+            "candidate_index": 2,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 0
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 5.469299988648333,
+              "samples": 371,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 4.805760327080034,
+              "samples": 371,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          194.14569587815856,
+          198.14569587815856
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          172,
+          401,
+          401,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 2.0033219672148874,
+              "samples": 62,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 14.866043092660698,
+              "samples": 62,
+              "runs": 1
+            },
+            "common_pairs": 172
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 2.6574845286323536,
+              "samples": 369,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.6574845286323536,
+              "samples": 369,
+              "runs": 1
+            },
+            "common_pairs": 401
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.6574845286323536,
+              "samples": 369,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.149675623771647,
+              "samples": 369,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          33.81824925212098,
+          37.260529647417286
+        ],
+        "pairs": 346,
+        "valid_counts": [
+          346,
+          346,
+          0,
+          346
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 2.304694694432827,
+              "samples": 314,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 6.007145868304798,
+              "samples": 314,
+              "runs": 1
+            },
+            "common_pairs": 346
+          },
+          {
+            "candidate_index": 2,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 0
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.304694694432827,
+              "samples": 314,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 1.949402456538907,
+              "samples": 314,
+              "runs": 1
+            },
+            "common_pairs": 346
+          }
+        ]
+      },
+      {
+        "interval": [
+          213.9152718379898,
+          217.58859047643284
+        ],
+        "pairs": 368,
+        "valid_counts": [
+          356,
+          368,
+          89,
+          368
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 6.048079019591865,
+              "samples": 307,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 21.822637172630643,
+              "samples": 307,
+              "runs": 1
+            },
+            "common_pairs": 356
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 7.307355373242448,
+              "samples": 35,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 7.307355373242448,
+              "samples": 35,
+              "runs": 1
+            },
+            "common_pairs": 89
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 6.22781431415362,
+              "samples": 336,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 4.370076734008159,
+              "samples": 336,
+              "runs": 1
+            },
+            "common_pairs": 368
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "candidate": "rotation_only",
+        "reference": {
+          "rms_deg_s": 4.012894516204833,
+          "samples": 1760,
+          "scored_folds": 6
+        },
+        "candidate_score": {
+          "rms_deg_s": 10.86594466889023,
+          "samples": 1760,
+          "scored_folds": 6
+        },
+        "relative_change_percent": 170.77573619270265,
+        "common_pairs": 2049
+      },
+      {
+        "candidate": "essential_cheirality",
+        "reference": {
+          "rms_deg_s": 3.3281246587432665,
+          "samples": 404,
+          "scored_folds": 2
+        },
+        "candidate_score": {
+          "rms_deg_s": 3.3281246587432665,
+          "samples": 404,
+          "scored_folds": 2
+        },
+        "relative_change_percent": 0.0,
+        "common_pairs": 526
+      },
+      {
+        "candidate": "cached_production",
+        "reference": {
+          "rms_deg_s": 3.917174283750933,
+          "samples": 2128,
+          "scored_folds": 6
+        },
+        "candidate_score": {
+          "rms_deg_s": 3.1974079986980883,
+          "samples": 2128,
+          "scored_folds": 6
+        },
+        "relative_change_percent": -18.37463010105399,
+        "common_pairs": 2318
+      }
+    ],
+    "models": [
+      {
+        "name": "rotation_only",
+        "valid_pairs": 2049,
+        "missing_pairs": 269,
+        "split_valid_pairs": 1836,
+        "median_split_deg_s": 0.7354948245376071
+      },
+      {
+        "name": "essential_small_angle",
+        "valid_pairs": 2318,
+        "missing_pairs": 0,
+        "split_valid_pairs": 2318,
+        "median_split_deg_s": 7.018851146847709
+      },
+      {
+        "name": "essential_cheirality",
+        "valid_pairs": 526,
+        "missing_pairs": 1792,
+        "split_valid_pairs": 483,
+        "median_split_deg_s": 7.272541021677253
+      },
+      {
+        "name": "cached_production",
+        "valid_pairs": 2318,
+        "missing_pairs": 0,
+        "split_valid_pairs": 0,
+        "median_split_deg_s": null
+      }
+    ],
+    "depth_check": {
+      "original_valid": 526,
+      "relaxed_valid": 2318,
+      "rotation_disagreements_over_1e_5_rad": 0
+    }
+  },
+  "0060": {
+    "metadata": "Meta { camera: \"DJI\", model: \"O4P\", camera_matrix: Some([[546.4027099609375, 0.0, 720.0], [0.0, 546.4027099609375, 540.0], [0.0, 0.0, 1.0]]), distortion: Some([0.15513110160827637, 0.1371408998966217, -0.0938614010810852, 0.0041704000905156136]), calib_w: Some(1440.0), calib_h: Some(1080.0) }",
+    "pairs": 2294,
+    "folds": [
+      {
+        "interval": [
+          18.94379865733612,
+          22.94379865733612
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          276,
+          401,
+          146,
+          379
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 2.115009278390979,
+              "samples": 66,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 10.241686053443976,
+              "samples": 66,
+              "runs": 1
+            },
+            "common_pairs": 276
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 2.3265844033310885,
+              "samples": 51,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.3265844033310885,
+              "samples": 51,
+              "runs": 1
+            },
+            "common_pairs": 146
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 3.6219960126494053,
+              "samples": 317,
+              "runs": 2
+            },
+            "candidate": {
+              "rms_deg_s": 2.891045332170109,
+              "samples": 317,
+              "runs": 2
+            },
+            "common_pairs": 379
+          }
+        ]
+      },
+      {
+        "interval": [
+          147.06444182724,
+          150.09283081707554
+        ],
+        "pairs": 304,
+        "valid_counts": [
+          304,
+          304,
+          12,
+          304
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 5.022068554595356,
+              "samples": 272,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 9.976763879956847,
+              "samples": 272,
+              "runs": 1
+            },
+            "common_pairs": 304
+          },
+          {
+            "candidate_index": 2,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 12
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 5.022068554595356,
+              "samples": 272,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 4.032431508134484,
+              "samples": 272,
+              "runs": 1
+            },
+            "common_pairs": 304
+          }
+        ]
+      },
+      {
+        "interval": [
+          211.6560135644052,
+          215.6560135644052
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          349,
+          401,
+          92,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 5.43583059210653,
+              "samples": 303,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 15.239003648365257,
+              "samples": 303,
+              "runs": 1
+            },
+            "common_pairs": 349
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 2.301278142753286,
+              "samples": 47,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.301278142753286,
+              "samples": 47,
+              "runs": 1
+            },
+            "common_pairs": 92
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 5.025695818645489,
+              "samples": 369,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 5.185534139498825,
+              "samples": 369,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          32.86707044389129,
+          36.86707044389129
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          268,
+          401,
+          139,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 2.539189027724953,
+              "samples": 233,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 4.851260730452315,
+              "samples": 233,
+              "runs": 1
+            },
+            "common_pairs": 268
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 1.2884103280191372,
+              "samples": 107,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 1.2884103280191372,
+              "samples": 107,
+              "runs": 1
+            },
+            "common_pairs": 139
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.202092600448771,
+              "samples": 369,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.6290037603959124,
+              "samples": 369,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          0.8605974837826538,
+          4.860597483782653
+        ],
+        "pairs": 401,
+        "valid_counts": [
+          356,
+          401,
+          314,
+          401
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 2.3942374102534254,
+              "samples": 260,
+              "runs": 2
+            },
+            "candidate": {
+              "rms_deg_s": 7.5740717249320015,
+              "samples": 260,
+              "runs": 2
+            },
+            "common_pairs": 356
+          },
+          {
+            "candidate_index": 2,
+            "reference": {
+              "rms_deg_s": 2.385522880614501,
+              "samples": 188,
+              "runs": 2
+            },
+            "candidate": {
+              "rms_deg_s": 2.385522880614501,
+              "samples": 188,
+              "runs": 2
+            },
+            "common_pairs": 314
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.3288069669031355,
+              "samples": 371,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 1.6848719812546793,
+              "samples": 371,
+              "runs": 1
+            },
+            "common_pairs": 401
+          }
+        ]
+      },
+      {
+        "interval": [
+          283.04002353355196,
+          286.89518333391356
+        ],
+        "pairs": 386,
+        "valid_counts": [
+          386,
+          386,
+          36,
+          386
+        ],
+        "comparisons": [
+          {
+            "candidate_index": 0,
+            "reference": {
+              "rms_deg_s": 2.3309511530320233,
+              "samples": 354,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 8.398156893384241,
+              "samples": 354,
+              "runs": 1
+            },
+            "common_pairs": 386
+          },
+          {
+            "candidate_index": 2,
+            "reference": null,
+            "candidate": null,
+            "common_pairs": 36
+          },
+          {
+            "candidate_index": 3,
+            "reference": {
+              "rms_deg_s": 2.3309511530320233,
+              "samples": 354,
+              "runs": 1
+            },
+            "candidate": {
+              "rms_deg_s": 2.1617765785964176,
+              "samples": 354,
+              "runs": 1
+            },
+            "common_pairs": 386
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "candidate": "rotation_only",
+        "reference": {
+          "rms_deg_s": 3.7589137219692907,
+          "samples": 1488,
+          "scored_folds": 6
+        },
+        "candidate_score": {
+          "rms_deg_s": 10.031122700814498,
+          "samples": 1488,
+          "scored_folds": 6
+        },
+        "relative_change_percent": 166.86227572042287,
+        "common_pairs": 1939
+      },
+      {
+        "candidate": "essential_cheirality",
+        "reference": {
+          "rms_deg_s": 2.1236847633944955,
+          "samples": 393,
+          "scored_folds": 4
+        },
+        "candidate_score": {
+          "rms_deg_s": 2.1236847633944955,
+          "samples": 393,
+          "scored_folds": 4
+        },
+        "relative_change_percent": 0.0,
+        "common_pairs": 739
+      },
+      {
+        "candidate": "cached_production",
+        "reference": {
+          "rms_deg_s": 3.5639326711480948,
+          "samples": 2052,
+          "scored_folds": 6
+        },
+        "candidate_score": {
+          "rms_deg_s": 3.293079095983113,
+          "samples": 2052,
+          "scored_folds": 6
+        },
+        "relative_change_percent": -7.599851067829744,
+        "common_pairs": 2272
+      }
+    ],
+    "models": [
+      {
+        "name": "rotation_only",
+        "valid_pairs": 1939,
+        "missing_pairs": 355,
+        "split_valid_pairs": 1741,
+        "median_split_deg_s": 1.16950722662388
+      },
+      {
+        "name": "essential_small_angle",
+        "valid_pairs": 2294,
+        "missing_pairs": 0,
+        "split_valid_pairs": 2294,
+        "median_split_deg_s": 6.968550652476916
+      },
+      {
+        "name": "essential_cheirality",
+        "valid_pairs": 739,
+        "missing_pairs": 1555,
+        "split_valid_pairs": 435,
+        "median_split_deg_s": 7.23130495801793
+      },
+      {
+        "name": "cached_production",
+        "valid_pairs": 2272,
+        "missing_pairs": 22,
+        "split_valid_pairs": 0,
+        "median_split_deg_s": null
+      }
+    ],
+    "depth_check": {
+      "original_valid": 739,
+      "relaxed_valid": 2294,
+      "rotation_disagreements_over_1e_5_rad": 0
+    }
+  }
+}

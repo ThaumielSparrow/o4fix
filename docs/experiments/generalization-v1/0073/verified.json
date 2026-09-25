@@ -1,0 +1,5 @@
+{
+  "baseline": "target/experiments/generalization-v1/0073\\baseline.MP4",
+  "candidate": "target/experiments/generalization-v1/0073\\edgeoffset.MP4",
+  "timestamp_and_quaternion_writeback_verified": true
+}

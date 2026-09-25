@@ -1,0 +1,238 @@
+{
+  "late": {
+    "frames": 1400,
+    "valid_triplets": 1398,
+    "missing_times": [],
+    "feature_heldout_energy_reduction": 0.3410630821322904,
+    "region_heldout_energy_reduction": 0.20276754005058462,
+    "common_triplets": 1298,
+    "encoded_shared_acceleration_rms": [
+      0.3309947539051993,
+      0.14833994755220198
+    ],
+    "encoded_all_feature_acceleration_rms": [
+      0.5364720936478725,
+      0.45501818281045586
+    ],
+    "bands": {
+      "window_start": 132.0,
+      "common_active_pairs": 1299,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 24.67988494755026,
+              "roll_rms_deg_s": 5.35715713081638
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 28.23205574013751,
+              "roll_rms_deg_s": 3.558223103182836
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 23.1434258936798,
+              "roll_rms_deg_s": 5.1208137229188875
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 17.07091293395163,
+              "roll_rms_deg_s": 3.5156682904896153
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "max_correction_px": 4.983649318352036,
+    "validated_video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "1400"
+    }
+  },
+  "control": {
+    "frames": 300,
+    "valid_triplets": 298,
+    "missing_times": [],
+    "feature_heldout_energy_reduction": 0.02451566326246324,
+    "region_heldout_energy_reduction": -0.005084777408781216,
+    "common_triplets": 198,
+    "encoded_shared_acceleration_rms": [
+      0.0459920033413077,
+      0.024104631503365632
+    ],
+    "encoded_all_feature_acceleration_rms": [
+      0.2085350206014368,
+      0.20088767974042848
+    ],
+    "bands": {
+      "window_start": 55.9,
+      "common_active_pairs": 199,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 1.6765704759423805,
+              "roll_rms_deg_s": 0.13750115569309757
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 3.004339932241684,
+              "roll_rms_deg_s": 0.7815051486833615
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 1.724907099640319,
+              "roll_rms_deg_s": 0.16647863039156605
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 2.9376668471587957,
+              "roll_rms_deg_s": 0.769299588610008
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "max_correction_px": 0.2003355084817855,
+    "validated_video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "300"
+    }
+  },
+  "early": {
+    "frames": 1600,
+    "valid_triplets": 1592,
+    "missing_times": [
+      16.97,
+      16.98,
+      16.990000000000002,
+      17.0,
+      17.009999999999998,
+      17.03
+    ],
+    "feature_heldout_energy_reduction": 0.24264782431456644,
+    "region_heldout_energy_reduction": 0.06705844922964588
+  },
+  "additional": {
+    "frames": 800,
+    "valid_triplets": 798,
+    "missing_times": [],
+    "feature_heldout_energy_reduction": 0.19479821936145536,
+    "region_heldout_energy_reduction": 0.027227383907172276,
+    "common_triplets": 698,
+    "encoded_shared_acceleration_rms": [
+      0.14575661360543657,
+      0.06848514953502978
+    ],
+    "encoded_all_feature_acceleration_rms": [
+      0.31052415798528793,
+      0.2857114411660419
+    ],
+    "bands": {
+      "window_start": 264.0,
+      "common_active_pairs": 699,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 16.873778470646545,
+              "roll_rms_deg_s": 2.190629762024063
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 21.497359273468284,
+              "roll_rms_deg_s": 2.0964516065197496
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 12.02001600685592,
+              "roll_rms_deg_s": 1.3807305831415806
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 22.43349845599441,
+              "roll_rms_deg_s": 2.634701646129585
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "max_correction_px": 1.4621151366659433,
+    "validated_video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "nb_read_frames": "800"
+    }
+  }
+}

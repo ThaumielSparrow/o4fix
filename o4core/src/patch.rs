@@ -16,44 +16,35 @@ pub enum OptPhase {
     Noisy,
 }
 
-// mirrors o4fix.py's optical_patch(video, tm, cleaned_rad, diag, fs, args, meta); log/on_interval/cancel are Rust-only additions (no print()/cancellation in Python)
-#[allow(clippy::too_many_arguments)]
-pub fn optical_patch(
-    video: &Path,
+pub struct OpticalPatch {
+    pub rates: Vec<[f64; 3]>,
+    /// Rate samples actually supported by an accepted optical segment.
+    pub supported: Vec<bool>,
+}
+
+impl OpticalPatch {
+    /// Every integrated rate in a severe burst must have optical support.
+    /// Refuse the clip rather than silently rebase a filtered-gyro fallback.
+    pub fn require_coverage(&self, t: &[f64], intervals: &[(f64, f64)]) -> Result<(), O4Error> {
+        for &(a, b) in intervals {
+            let i0 = dsp::searchsorted_left(t, a);
+            let i1 = dsp::searchsorted_right(t, b)
+                .saturating_sub(1)
+                .min(t.len() - 1);
+            if i1 >= i0 + 8 && (i0..i1).any(|i| !self.supported.get(i).copied().unwrap_or(false)) {
+                return Err(O4Error::OpticalCoverage { start: a, end: b });
+            }
+        }
+        Ok(())
+    }
+}
+
+/// Original calibration-window selection, shared with experiment tooling.
+pub fn calibration_intervals(
     tm: &[f64],
     cleaned: &[[f64; 3]],
     diag: &CleanDiag,
-    fs: f64,
-    cfg: &Config,
-    meta: &Meta,
-    log: &(dyn Fn(&str) + Sync),
-    on_interval: &(dyn Fn(OptPhase, usize, usize) + Sync),
-    cancel: &AtomicBool,
-) -> Result<Vec<[f64; 3]>, O4Error> {
-    // alpha_opt: separate optical trigger if configured (o4fix.py:405-412)
-    let alpha_opt: Vec<f64> = match cfg.optical_noise {
-        Some((lo, hi)) => {
-            let a: Vec<f64> = diag
-                .noise
-                .iter()
-                .map(|&n| ((n - lo) / (hi - lo)).clamp(0.0, 1.0))
-                .collect();
-            dsp::uniform_filter1d(&a, ((0.2 * fs) as usize).max(3))
-        }
-        None => diag.alpha.clone(),
-    };
-    let noisy = find_intervals(
-        &alpha_opt.iter().map(|&a| a > 0.15).collect::<Vec<_>>(),
-        tm,
-        cfg.patch_pad,
-        cfg.patch_merge,
-        0.2,
-    );
-    if noisy.is_empty() {
-        log("   optical patch: no noisy sections detected, skipping");
-        return Ok(cleaned.to_vec());
-    }
-
+) -> Vec<(f64, f64)> {
     // calibration sections (o4fix.py:420-431)
     let calib_all = find_intervals(
         &diag.alpha.iter().map(|&a| a < 0.02).collect::<Vec<_>>(),
@@ -82,7 +73,51 @@ pub fn optical_patch(
         })
         .collect();
     scored.sort_by(|x, y| y.partial_cmp(x).unwrap()); // sort(reverse=True), tuple order
-    let calib: Vec<(f64, f64)> = scored.iter().take(6).map(|&(_, a, b)| (a, b)).collect();
+    scored.iter().take(6).map(|&(_, a, b)| (a, b)).collect()
+}
+
+// mirrors o4fix.py's optical_patch(video, tm, cleaned_rad, diag, fs, args, meta); log/on_interval/cancel are Rust-only additions (no print()/cancellation in Python)
+#[allow(clippy::too_many_arguments)]
+pub fn optical_patch(
+    video: &Path,
+    tm: &[f64],
+    cleaned: &[[f64; 3]],
+    diag: &CleanDiag,
+    fs: f64,
+    cfg: &Config,
+    meta: &Meta,
+    log: &(dyn Fn(&str) + Sync),
+    on_interval: &(dyn Fn(OptPhase, usize, usize) + Sync),
+    cancel: &AtomicBool,
+) -> Result<OpticalPatch, O4Error> {
+    // alpha_opt: separate optical trigger if configured (o4fix.py:405-412)
+    let alpha_opt: Vec<f64> = match cfg.optical_noise {
+        Some((lo, hi)) => {
+            let a: Vec<f64> = diag
+                .noise
+                .iter()
+                .map(|&n| ((n - lo) / (hi - lo)).clamp(0.0, 1.0))
+                .collect();
+            dsp::uniform_filter1d(&a, ((0.2 * fs) as usize).max(3))
+        }
+        None => diag.alpha.clone(),
+    };
+    let noisy = find_intervals(
+        &alpha_opt.iter().map(|&a| a > 0.15).collect::<Vec<_>>(),
+        tm,
+        cfg.patch_pad,
+        cfg.patch_merge,
+        0.2,
+    );
+    if noisy.is_empty() {
+        log("   optical patch: no noisy sections detected, skipping");
+        return Ok(OpticalPatch {
+            rates: cleaned.to_vec(),
+            supported: vec![false; cleaned.len()],
+        });
+    }
+
+    let calib = calibration_intervals(tm, cleaned, diag);
     if calib.is_empty() {
         log("   optical patch: no clean calibration sections");
         return Err(O4Error::CalibrationFailed { r2: None });
@@ -111,7 +146,7 @@ pub fn optical_patch(
         al.r2,
         al.shift * 1000.0
     ));
-    if al.r2 < 0.8 {
+    if !al.r2.is_finite() || al.r2 < 0.8 {
         return Err(O4Error::CalibrationFailed { r2: Some(al.r2) });
     }
 
@@ -196,6 +231,7 @@ pub fn optical_patch(
     };
     let bq = dsp::butter_low(2, cfg.optical_cutoff.min(0.45 * vfps) / (vfps / 2.0));
     let strong = &diag.strong;
+    let mut supported = vec![false; tm.len()];
     for &(a, b) in &noisy {
         let midx: Vec<usize> = (0..tv.len())
             .filter(|&i| tv[i] >= a - 0.3 && tv[i] <= b + 0.3)
@@ -208,8 +244,10 @@ pub fn optical_patch(
         let seg_q: Vec<f64> = midx.iter().map(|&i| opt_n.quality[i]).collect();
         let frac_bad = seg_q.iter().filter(|&&q| q < 0.3).count() as f64 / seg_q.len() as f64;
         if frac_bad > 0.3 {
-            log(&format!("   optical patch: {a:.1}-{b:.1}s skipped ({:.0}% low-quality flow), keeping filtered gyro",
-                         frac_bad * 100.0));
+            log(&format!(
+                "   optical patch: {a:.1}-{b:.1}s rejected ({:.0}% low-quality flow)",
+                frac_bad * 100.0
+            ));
             continue;
         }
         let bad: Vec<bool> = seg_q.iter().map(|&q| q < 0.3).collect();
@@ -321,6 +359,13 @@ pub fn optical_patch(
         };
         // steep ramp + partner blend (o4fix.py:528-534)
         for (i, &g) in gm.iter().enumerate() {
+            // Rate timestamps sit between frames. O4 telemetry can extend
+            // one final frame plus half a frame beyond the last frame pair;
+            // also account for the fitted clock shift. Longer decoder gaps
+            // must not be extrapolated across the rest of a severe burst.
+            let edge_slack = 1.5 / vfps + al.shift.abs();
+            supported[g] =
+                tm[g] >= seg_t[0] - edge_slack && tm[g] <= seg_t[seg_t.len() - 1] + edge_slack;
             let w = (alpha_opt[g] / 0.35).clamp(0.0, 1.0);
             for k in 0..3 {
                 let partner = if cfg.optical_noise.is_some() {
@@ -332,10 +377,13 @@ pub fn optical_patch(
             }
         }
     }
-    Ok(out
-        .iter()
-        .map(|r| core::array::from_fn(|k| r[k] * D2R))
-        .collect())
+    Ok(OpticalPatch {
+        rates: out
+            .iter()
+            .map(|r| core::array::from_fn(|k| r[k] * D2R))
+            .collect(),
+        supported,
+    })
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -501,6 +549,23 @@ pub fn splice_orientation(
 mod splice_rebase_tests {
     use super::*;
     use crate::quat::{qexp, quats_to_rates};
+    #[test]
+    fn rejected_optical_segment_cannot_reach_rebase() {
+        let (t, _, rates) = make_case(60.0, [0.0, 0.0, 1.0]);
+        let mut patch = OpticalPatch {
+            supported: vec![true; rates.len()],
+            rates,
+        };
+        assert!(patch.require_coverage(&t, &[(2.0, 3.0)]).is_ok());
+        // Even one unmeasured integrated rate makes the burst unsupported.
+        patch.supported[2500] = false;
+        assert!(matches!(
+            patch.require_coverage(&t, &[(2.0, 3.0)]),
+            Err(O4Error::OpticalCoverage { .. })
+        ));
+        // Rejected flow elsewhere does not prevent a supported repair.
+        assert!(patch.require_coverage(&t, &[(4.0, 5.0)]).is_ok());
+    }
 
     /// Mirrors python/tests/test_splice_rebase.py::make_case: 1 kHz
     /// still-camera clip, one 1 s burst [2, 3] whose raw endpoint is

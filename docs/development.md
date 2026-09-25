@@ -32,6 +32,12 @@ cargo run -p o4fix-app        # Run the GUI in debug (devtools via right-click â
 cargo build --release -p o4fix-app  # Build the GUI in release
 ```
 
+Review regression checks: `node tools/test_queue_ui.cjs` checks queue startup
+without a browser. `cargo test -p o4core --release --test rebased_clip -- --ignored`
+compares 0060 against its preserved v0.1.2 `_fixed.MP4`; it requires both
+private clips and does not regenerate the reference. See
+`docs/code-review-2026-09-09.md` for findings and validation limits.
+
 ### Formatting
 
 The workspace is rustfmt-clean and CI enforces `cargo fmt --check`.

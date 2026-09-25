@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 from scipy.signal import butter, filtfilt
 
-cache = Path(r"C:\Users\lzhan\Desktop\o4prostab\python\analysis\cache")
+cache = Path(__file__).resolve().parent / "cache"
 
 
 def series(stem):

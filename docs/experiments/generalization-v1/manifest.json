@@ -1,0 +1,59 @@
+{
+  "candidate_sha256": "caa06ecd2023a477fa9c73aedad5f1849702c1fa145dc70a86f803ec59fc1d12",
+  "candidate_file": "o4core\\examples\\support\\edge_offset_patch.rs",
+  "parameters": {
+    "ramp": 0.19,
+    "severe_pad": 0.2,
+    "drift_rebase_above": 30.0,
+    "drift_decay_rate": 1.5
+  },
+  "role": "additional validation, no clip-specific tuning",
+  "clips": {
+    "0071": {
+      "file": "DJI_20260829140442_0071_D.MP4",
+      "events": [
+        [
+          14,
+          17
+        ],
+        [
+          255,
+          257
+        ]
+      ],
+      "notes": [
+        "Full throttle pin",
+        "Unknown trigger"
+      ],
+      "source_sha256": "7beee99a90f9745aeadf615565cfd5013be1411771f897e3cdf39157c4136b3f",
+      "source_bytes": 3761560231,
+      "confirmed_clean_control": [
+        74,
+        77
+      ],
+      "annotation_correction": "User corrected first event from 74\u201377 to 14\u201317 seconds; 74\u201377 is clean."
+    },
+    "0073": {
+      "file": "DJI_20260829141435_0073_D.MP4",
+      "events": [
+        [
+          17,
+          27
+        ],
+        [
+          135,
+          140
+        ]
+      ],
+      "notes": [
+        "Powerloop mild shaking then high-throttle forward flight severe judder",
+        "Another shake event"
+      ],
+      "source_sha256": "0218dc37e175fb611aa8385b331b87919c02c16f59e941f39a2efc4019c9e157",
+      "source_bytes": 3695514531
+    }
+  },
+  "runner_sha256": "3e111fca00bcd498d2623961e87185be7d5196841a65ef9b2e7cc2ee9c09977c",
+  "reviews_exporter_sha256": "307ad7e347fe7651c9e2d307f394d857f9d3b3739dfb72e40c653b614d84481d",
+  "renders_and_reviews_verified": true
+}

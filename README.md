@@ -15,6 +15,7 @@ needed (Windows 10 may prompt once for Microsoft WebView2).
 
 - "healthy — nothing to repair": the clip's telemetry is fine, use the original.
 - "Couldn't calibrate motion from this clip": no calm flight sections to calibrate against; the file is left untouched.
+- "Insufficient optical motion coverage": a severe burst could not be measured reliably; no output is written. Existing input and output files are preserved on repair failure.
 - Advanced settings: Default (M2) suits most flying; Sharp-turn (M4) recovers flip/roll crispness at the cost of slight extra high-frequency shake.
 - **Horizon lock:** if you stabilize with Gyroflow's horizon lock ON, set
   "Drift rebase above" to 0 first. Above the default gate o4fix carries a
@@ -43,3 +44,7 @@ This is a Rust-first project: the Cargo workspace is the repository root.
 
 Details of the underlying problem and the verification methodology live
 in `CLAUDE.md` and `docs/superpowers/specs/`.
+
+## Development handoff
+
+Current stabilization research and session continuity: [docs/SESSION_HANDOFF.md](docs/SESSION_HANDOFF.md).

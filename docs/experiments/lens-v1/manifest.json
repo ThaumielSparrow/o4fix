@@ -1,0 +1,53 @@
+{
+  "files": {
+    "target/experiments/lens-v1/0021-residual.json": "1affa1220f612682425f1549ea81aaf89e985c8ab9c10c854c9c750a44d0e67e",
+    "target/experiments/lens-v1/0021-scores.json": "95856da56563b06c51c64937c13678f51491cc9219d942e9e176dac8d81302fd",
+    "target/experiments/lens-v1/0021-source.json": "9c6a54eac68a37bfffc4c45f7e6a7b358387a7fa9961f66bbfbc02dcf9736bb9",
+    "target/experiments/lens-v1/0021.json": "0e9ae5b38098379e06e258b059f52b03c3982344a7a5f712ca4d28eec7bef74a",
+    "target/experiments/lens-v1/0027-residual.json": "df0aff9b7a36f52b28e392b670eef5fc8a9113a75860d1198ad7e420ab617f29",
+    "target/experiments/lens-v1/0027-scores.json": "bbdf985b8f8e9e8cbefc7a7d46b29347102920dec6832b8142e86b5a455df805",
+    "target/experiments/lens-v1/0027-source.json": "0cc7d81327cd31810bff2d8c04790f4541da5f4980d07b28ac01de3ca1fbf692",
+    "target/experiments/lens-v1/0027.json": "188aa2d6ccca262adb942f1d5b31acf4e6f0a65cf041c50225ef64e4947d5cb2",
+    "target/experiments/lens-v1/0060-residual.json": "c255e4203600b83e36f7810203306c28b48cbc08d41f3546dcfb2056fefc9804",
+    "target/experiments/lens-v1/0060-scores.json": "60302777cda4934abb8aabdda7dda3753b7ffd610d95a1adb4f8124d7e0dcb44",
+    "target/experiments/lens-v1/0060-source.json": "52a3a76256d88135efdf0f475da4f32026d2df65dfe3b6490c206bf88b114bc5",
+    "target/experiments/lens-v1/0060.json": "dae41c66bfe85881d98fedbd31f1d7331daf97468722deb8547f8496f672981e",
+    "target/experiments/lens-v1/grid-audit.json": "fd84222785f8200d8ff8ca99d21edb3029f69f713adef95736860c92e4e77069",
+    "docs/experiments/lens-v1/summarize.py": "136eb471e79c7e5e56301ce2696fca64b60ff85e576c4754f4efa6d46313644f",
+    "docs/experiments/lens-v1/metrics.json": "8b0780901cf491821e263246c44f8cdefb1e8241418a49537fa6e56d52cbdb6d",
+    "o4core/examples/source_residual_probe.rs": "4cd0c7b75c0bbe217012aca3347d06901b4fc72678eca20daa36a2d1b82bd948",
+    "target/release/examples/source_residual_probe.exe": "67aae3e84ff7206ef8c4e55f21bb56270cdb174cb90cce7fbac503bf0a02768b",
+    "o4core/examples/lens_inverse_audit.rs": "e9ff238a68fa27e842b779b359f46fa96b29c2ec7f2a9a7355d69d37bcf031ee",
+    "target/release/examples/lens_inverse_audit.exe": "03fb5a2df338e5bcad1aa8ff960cbfe112c5f10eb73551842efb7a6ca8f79c6c",
+    "o4core/examples/lens_tracking_probe.rs": "d7df2dc0c11db01053ba4b21f0f4a0a9e71314e5607fa2d61c151e85552a4bef",
+    "target/release/examples/lens_tracking_probe.exe": "f6e451dc1cd247fcaa10c767d932111c2bc6e5df7a459833b5e611b812f84548",
+    "o4core/examples/source_pose_principal_probe.rs": "71e8b947a6682e63aeea9874224c034c0be3f58dc25d90329daf8a433f6ccf11",
+    "target/release/examples/source_pose_principal_probe.exe": "4f23b00b249d27aa2314d4497ef88db491559581fae3eaef7f84339a97843b8d",
+    "o4core/examples/support/lens_inverse.rs": "09ea41bad98059e165c00380a8f5b86d7c030dc6a26985b3934ed46da52e4d57",
+    "o4core/examples/support/lens_tracker.rs": "117e7c43b4bdf80339dd18d9c9d1ad34e1e8d65e848103bf79fa12d4a35236b5",
+    "o4core/examples/tracking_score.rs": "923f945fcf7fc0f940c854c904847577a8f7b7bff9364955db9554bdd3969306",
+    "target/experiments/calibration-v1/0021/observations.json": "dd9f86b686b0b22d325592a7f554605ad50616bcdc48fe160187750b09465d57",
+    "docs/experiments/calibration-v1/0021.json": "e3c8f7ef2981cd9f4320385d44f52de9fbca20a5da84ae4568ffc3606f1afa41",
+    "target/experiments/calibration-v1/0027/observations.json": "ec091d4bd7d55f3bfb3fa7234f96dd0eccaaae206bafc1adab8118c1b223d58c",
+    "docs/experiments/calibration-v1/0027.json": "ea3bf7321bc0f4b632e3c70bea3601135db75fab0548bc0d6509df084dc31bfc",
+    "target/experiments/calibration-v1/0060/observations.json": "1a4ef7792a2ac55e80bdf52c41ce96d0a3f04cfeb0d32d3cd81898820d16baf3",
+    "docs/experiments/calibration-v1/0060.json": "8237b1990852423931103c657e15b92121bed1b04b45c93d2fe76f4f3e136fba"
+  },
+  "clips": [
+    {
+      "path": "sample_vids\\DJI_20260711124046_0021_D.MP4",
+      "bytes": 1734239522,
+      "sha256": "088335902a05d268c654869b2b02a9f91ff614770ef28d5122a15498f2f55394"
+    },
+    {
+      "path": "sample_vids\\DJI_20260721141550_0027_D.MP4",
+      "bytes": 2438404957,
+      "sha256": "fe70dc1046fec05a0192bdea130fe9ea40518c5d0cae013164e455b6503f87a4"
+    },
+    {
+      "path": "sample_vids\\DJI_20260808151831_0060_D.MP4",
+      "bytes": 3761447591,
+      "sha256": "f5de3300bd7d55eed91b551f8d811696bfe49c7ff11e0c052349035288f523ed"
+    }
+  ]
+}

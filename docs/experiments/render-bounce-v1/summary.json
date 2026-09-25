@@ -1,0 +1,191 @@
+{
+  "late": {
+    "bands": {
+      "window_start": 132.0,
+      "common_active_pairs": 1299,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 23.523151310418857,
+              "roll_rms_deg_s": 5.4736963824608535
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 16.382153369470743,
+              "roll_rms_deg_s": 3.457736739500583
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 26.207407476125272,
+              "roll_rms_deg_s": 5.257759403045653
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 15.970635013206332,
+              "roll_rms_deg_s": 3.424183312259117
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "changes": [
+      {
+        "translation_rms_half_px_s": 11.411124854336618,
+        "roll_rms_deg_s": -3.9449937359901543
+      },
+      {
+        "translation_rms_half_px_s": -2.51199184248454,
+        "roll_rms_deg_s": -0.970386983432181
+      }
+    ]
+  },
+  "control": {
+    "bands": {
+      "window_start": 55.9,
+      "common_active_pairs": 199,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 1.9851210584194332,
+              "roll_rms_deg_s": 0.12715055686875726
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 3.3037153355737754,
+              "roll_rms_deg_s": 0.8506139994408115
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 2.102986602612936,
+              "roll_rms_deg_s": 0.1412230655671682
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 2.7662753395043023,
+              "roll_rms_deg_s": 0.8710699782231713
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "changes": [
+      {
+        "translation_rms_half_px_s": 5.937448685741531,
+        "roll_rms_deg_s": 11.067595018821951
+      },
+      {
+        "translation_rms_half_px_s": -16.267745295196047,
+        "roll_rms_deg_s": 2.4048485912302686
+      }
+    ]
+  },
+  "additional": {
+    "bands": {
+      "window_start": 264.0,
+      "common_active_pairs": 699,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 14.495682914704567,
+              "roll_rms_deg_s": 1.9493072299078198
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 23.326651690684372,
+              "roll_rms_deg_s": 2.4220191869014416
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 17.605607493677308,
+              "roll_rms_deg_s": 1.803025834365553
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 23.66097397216313,
+              "roll_rms_deg_s": 2.3413584431091237
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "changes": [
+      {
+        "translation_rms_half_px_s": 21.454143259563185,
+        "roll_rms_deg_s": -7.504276047300362
+      },
+      {
+        "translation_rms_half_px_s": 1.4332201891293028,
+        "roll_rms_deg_s": -3.3303098599936964
+      }
+    ]
+  }
+}

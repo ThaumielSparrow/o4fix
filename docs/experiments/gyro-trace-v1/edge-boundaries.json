@@ -1,0 +1,95 @@
+{
+  "note": "Derivatives of stored quaternions in 0.31s inner / 0.01s outer edge windows, not ground-truth error. Stored float precision affects acceleration.",
+  "bursts": [
+    {
+      "interval": [
+        105.83058353011872,
+        106.60965551024414
+      ],
+      "baseline": {
+        "edge_peak_speed_deg_s": 29.038843252429118,
+        "edge_acceleration_rms_deg_s2": 842.740305345965,
+        "edge_acceleration_p99_deg_s2": 3203.03802750673,
+        "edge_acceleration_peak_deg_s2": 5888.436855774672
+      },
+      "candidate": {
+        "edge_peak_speed_deg_s": 29.78169396962893,
+        "edge_acceleration_rms_deg_s2": 755.0272144685844,
+        "edge_acceleration_p99_deg_s2": 3132.61597283027,
+        "edge_acceleration_peak_deg_s2": 5837.898875253615
+      }
+    },
+    {
+      "interval": [
+        223.4395974038599,
+        223.95662839132203
+      ],
+      "baseline": {
+        "edge_peak_speed_deg_s": 51.04596106379419,
+        "edge_acceleration_rms_deg_s2": 676.7379286943127,
+        "edge_acceleration_p99_deg_s2": 2086.5783122431576,
+        "edge_acceleration_peak_deg_s2": 2825.012970942604
+      },
+      "candidate": {
+        "edge_peak_speed_deg_s": 51.04596106379419,
+        "edge_acceleration_rms_deg_s2": 676.7379286943127,
+        "edge_acceleration_p99_deg_s2": 2086.5783122431576,
+        "edge_acceleration_peak_deg_s2": 2825.012970942604
+      }
+    },
+    {
+      "interval": [
+        225.02774486114777,
+        226.1787379135742
+      ],
+      "baseline": {
+        "edge_peak_speed_deg_s": 68.58022183121705,
+        "edge_acceleration_rms_deg_s2": 733.4721386890642,
+        "edge_acceleration_p99_deg_s2": 2010.6438517860806,
+        "edge_acceleration_peak_deg_s2": 2878.0401433973207
+      },
+      "candidate": {
+        "edge_peak_speed_deg_s": 68.58022183121705,
+        "edge_acceleration_rms_deg_s2": 638.6198505409278,
+        "edge_acceleration_p99_deg_s2": 2039.8748895366912,
+        "edge_acceleration_peak_deg_s2": 2878.0401433973207
+      }
+    },
+    {
+      "interval": [
+        248.34548947510527,
+        249.31547928173612
+      ],
+      "baseline": {
+        "edge_peak_speed_deg_s": 375.09244409139194,
+        "edge_acceleration_rms_deg_s2": 1568.5598125735169,
+        "edge_acceleration_p99_deg_s2": 4362.185843916153,
+        "edge_acceleration_peak_deg_s2": 4751.248575153287
+      },
+      "candidate": {
+        "edge_peak_speed_deg_s": 375.09244409139194,
+        "edge_acceleration_rms_deg_s2": 1506.162172634248,
+        "edge_acceleration_p99_deg_s2": 4422.422499602607,
+        "edge_acceleration_peak_deg_s2": 4840.667484723455
+      }
+    },
+    {
+      "interval": [
+        308.01168509660886,
+        309.2785991456278
+      ],
+      "baseline": {
+        "edge_peak_speed_deg_s": 147.19895526473826,
+        "edge_acceleration_rms_deg_s2": 1492.3445968387537,
+        "edge_acceleration_p99_deg_s2": 6147.508190816173,
+        "edge_acceleration_peak_deg_s2": 10546.7215086227
+      },
+      "candidate": {
+        "edge_peak_speed_deg_s": 147.19895526473826,
+        "edge_acceleration_rms_deg_s2": 1414.1452169855836,
+        "edge_acceleration_p99_deg_s2": 6152.032215414353,
+        "edge_acceleration_peak_deg_s2": 10430.646902138307
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "files": {
+    "o4core\\examples\\splice_ramp_repair.rs": "be54c29f03a0b536117839aa6e400b76aeb0bc56e2b2bab3d085fe0e8907d27c",
+    "o4core\\examples\\splice_exposure_probe.rs": "7a9468d143f4a90fdccae8fa97bd5de078e2f8f5eb2155951d8635e29366e64a",
+    "o4core\\examples\\splice_boundary_probe.rs": "721f400247076c7f2662ff15212419f1fdef4ffad431e761cfca15510584afa9",
+    "o4core\\examples\\splice_render_measure.rs": "602fdbb99a510cee7b709075d793a3c8afdf4fcdeecc854f61ef48e2cf1b17e0",
+    "o4core\\examples\\settling_probe.rs": "5f898aa34f72e6c8c002190701c36488609f2ae2e08dae1335936e80f50aa125",
+    "target\\experiments\\splice-exposure-v1\\ramp019.gyroflow": "7927955fa513de9bd02404ca57470684741217bbdac89abba72326630ac0bfef",
+    "docs\\experiments\\splice-exposure-v1\\export_reviews.py": "691b7aeea8e695fd58fe61da7338420af331d032aa9c305d79fe40dcb8c968cd"
+  },
+  "production_modified_this_experiment": false,
+  "candidate_parameter_change": {
+    "ramp_seconds": [
+      0.3,
+      0.19
+    ]
+  },
+  "source": "sample_vids/DJI_20260808151831_0060_D.MP4",
+  "reference": "sample_vids/DJI_20260808151831_0060_D_fixed.MP4"
+}

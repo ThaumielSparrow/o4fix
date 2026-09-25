@@ -1,0 +1,9 @@
+{"out": "target/experiments/feedback-v1/review-0073-fbn-vs-wp1c.html",
+ "title": "0073: render-loop correction (fbn) vs Gyroflow-free correction (wp1c)",
+ "intro": "Both sides start from the same edge-offset repair and correct only inside the gyro-noise bursts. LEFT used two Gyroflow renders to measure the residual; RIGHT measured it directly from the source frames with no rendering (the version that could live inside o4fix). Question: is the right side about as smooth as the left?",
+ "left": "fbn (render loop, you rated near perfect)", "right": "wp1c (Gyroflow-free, single pass)",
+ "items": [
+  {"clip": "0073", "name": "Late cluster", "window": "source 132-146 s (bursts 134.7, 135.8-136.6, 137.8-139.3, 141.3-144.5 s)", "look": "Watch around 3.8-4.6 s into the clip (source 135.8-136.6 s, burst ending in a fast turn): the Gyroflow-free probe may miss judder there. The long 141-144.5 s burst (9-12.5 s in) should be at least as good on the right.", "base": "compare_fbn_vs_wp1c_late"},
+  {"clip": "0073", "name": "Early powerloop section", "window": "source 14-30 s (bursts 16.3-18.6, 19.5-22.6, 24.9-26.6 s)", "look": "19.5-22.6 s (5.5-8.6 s in) is where the right side measured weaker; 24.9-26.6 s (10.9-12.6 s in) measured better on the right.", "base": "compare_fbn_vs_wp1c_early"},
+  {"clip": "0073", "name": "Clean control", "window": "source 55.9-58.9 s", "look": "No correction on either side: should look identical.", "base": "compare_fbn_vs_wp1c_control"}
+ ]}

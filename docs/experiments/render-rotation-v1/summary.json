@@ -1,0 +1,239 @@
+{
+  "late": {
+    "heldout_reductions": {
+      "mean_region_after_ss": -0.05815833186992814,
+      "rigid_region_after_ss": 0.08412578699052442,
+      "roll_region_after_ss": 0.10077416432244057
+    },
+    "bands": {
+      "window_start": 132.0,
+      "common_active_pairs": 1248,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 1,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 16.56514044107559,
+              "roll_rms_deg_s": 4.139538875615446
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 16.26328405472845,
+              "roll_rms_deg_s": 3.3151760001380937
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 17.4866548248867,
+              "roll_rms_deg_s": 3.6756274403854285
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 16.42323811902413,
+              "roll_rms_deg_s": 1.9275942483347177
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "changes": [
+      {
+        "translation_rms_half_px_s": 5.562973565416218,
+        "roll_rms_deg_s": -11.206838470892377
+      },
+      {
+        "translation_rms_half_px_s": 0.9835286880399474,
+        "roll_rms_deg_s": -41.85544754624117
+      }
+    ],
+    "transform": {
+      "max_angle_rad": 0.007710666825928633,
+      "source_margin": 11.85193764657032,
+      "sigma_seconds": 0.04,
+      "band_hz": [
+        4,
+        30
+      ],
+      "zoom": 1.06,
+      "note": "LEFT prior v1 translation; RIGHT same translation plus rotation-only residual correction. Both from same original render in one warp. No telemetry change. First/last 0.5s not for scoring."
+    }
+  },
+  "control": {
+    "heldout_reductions": {
+      "mean_region_after_ss": -0.14697609800590827,
+      "rigid_region_after_ss": -0.19923439053669667,
+      "roll_region_after_ss": -0.061254254304727196
+    },
+    "bands": {
+      "window_start": 55.9,
+      "common_active_pairs": 199,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 1.9787991483903422,
+              "roll_rms_deg_s": 0.12157539396555585
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 2.989388494627042,
+              "roll_rms_deg_s": 0.8617413766363666
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 1.6128377333364792,
+              "roll_rms_deg_s": 0.09186142240294967
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 2.6450807651431716,
+              "roll_rms_deg_s": 0.20658456675680026
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "changes": [
+      {
+        "translation_rms_half_px_s": -18.494116259932447,
+        "roll_rms_deg_s": -24.44077752363656
+      },
+      {
+        "translation_rms_half_px_s": -11.517664234766055,
+        "roll_rms_deg_s": -76.02708047243114
+      }
+    ],
+    "transform": {
+      "max_angle_rad": 0.000334155543699796,
+      "source_margin": 22.42943068914362,
+      "sigma_seconds": 0.04,
+      "band_hz": [
+        4,
+        30
+      ],
+      "zoom": 1.06,
+      "note": "LEFT prior v1 translation; RIGHT same translation plus rotation-only residual correction. Both from same original render in one warp. No telemetry change. First/last 0.5s not for scoring."
+    }
+  },
+  "additional": {
+    "heldout_reductions": {
+      "mean_region_after_ss": -0.11969685817965692,
+      "rigid_region_after_ss": -0.11816322545156699,
+      "roll_region_after_ss": 0.012491816997578842
+    },
+    "bands": {
+      "window_start": 264.0,
+      "common_active_pairs": 699,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 14.891781564083095,
+              "roll_rms_deg_s": 1.3877626432730912
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 21.091581773983258,
+              "roll_rms_deg_s": 2.614453139857377
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 13.520635152895327,
+              "roll_rms_deg_s": 1.1743494785622386
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 24.704426715245475,
+              "roll_rms_deg_s": 2.2308376237567535
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "changes": [
+      {
+        "translation_rms_half_px_s": -9.207403461347985,
+        "roll_rms_deg_s": -15.378218007620493
+      },
+      {
+        "translation_rms_half_px_s": 17.129321925578434,
+        "roll_rms_deg_s": -14.672877866977196
+      }
+    ],
+    "transform": {
+      "max_angle_rad": 0.0014453746093773957,
+      "source_margin": 19.889710452637928,
+      "sigma_seconds": 0.04,
+      "band_hz": [
+        4,
+        30
+      ],
+      "zoom": 1.06,
+      "note": "LEFT prior v1 translation; RIGHT same translation plus rotation-only residual correction. Both from same original render in one warp. No telemetry change. First/last 0.5s not for scoring."
+    }
+  }
+}

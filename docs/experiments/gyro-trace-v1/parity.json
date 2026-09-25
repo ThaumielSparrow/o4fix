@@ -1,0 +1,84 @@
+{
+  "parity_max_component": 4.647718665484746e-8,
+  "baseline_ramp_s": 0.3,
+  "candidate_ramp_s": 0.19,
+  "same_rebase_decisions_and_drift": true,
+  "windows": [
+    {
+      "window": [
+        102.0,
+        110.0
+      ],
+      "baseline": {
+        "noisy_rate_difference_from_patch_rms": 18.812207273558414,
+        "peak_acceleration_deg_s2": 40368.73421741998
+      },
+      "candidate": {
+        "noisy_rate_difference_from_patch_rms": 8.55575886139973e-12,
+        "peak_acceleration_deg_s2": 40368.73421741998
+      },
+      "maximum_orientation_change_deg": 2.7549220263443766
+    },
+    {
+      "window": [
+        221.0,
+        229.0
+      ],
+      "baseline": {
+        "noisy_rate_difference_from_patch_rms": 10.966919309916207,
+        "peak_acceleration_deg_s2": 23719.108166261627
+      },
+      "candidate": {
+        "noisy_rate_difference_from_patch_rms": 1.0273601550510818,
+        "peak_acceleration_deg_s2": 23719.108166261627
+      },
+      "maximum_orientation_change_deg": 2.343761063290588
+    },
+    {
+      "window": [
+        245.0,
+        253.0
+      ],
+      "baseline": {
+        "noisy_rate_difference_from_patch_rms": 19.07651158763545,
+        "peak_acceleration_deg_s2": 15794.338127465053
+      },
+      "candidate": {
+        "noisy_rate_difference_from_patch_rms": 9.088886356466743e-12,
+        "peak_acceleration_deg_s2": 15794.338127465053
+      },
+      "maximum_orientation_change_deg": 3.2641285995450193
+    },
+    {
+      "window": [
+        304.0,
+        312.0
+      ],
+      "baseline": {
+        "noisy_rate_difference_from_patch_rms": 15.462817985076965,
+        "peak_acceleration_deg_s2": 26862.770985339164
+      },
+      "candidate": {
+        "noisy_rate_difference_from_patch_rms": 1.0401800578154467e-11,
+        "peak_acceleration_deg_s2": 26862.770985339164
+      },
+      "maximum_orientation_change_deg": 3.284622758991919
+    },
+    {
+      "window": [
+        19.0,
+        22.0
+      ],
+      "baseline": {
+        "noisy_rate_difference_from_patch_rms": null,
+        "peak_acceleration_deg_s2": 9854.438702032341
+      },
+      "candidate": {
+        "noisy_rate_difference_from_patch_rms": null,
+        "peak_acceleration_deg_s2": 9854.438702032341
+      },
+      "maximum_orientation_change_deg": 7.111936473907614e-15
+    }
+  ],
+  "note": "Difference from patch is a mechanism diagnostic, not ground truth; includes endpoint bridge and discretization."
+}

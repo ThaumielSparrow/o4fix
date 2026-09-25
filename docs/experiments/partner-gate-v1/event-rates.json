@@ -1,0 +1,155 @@
+{
+  "bands_hz": [
+    [
+      2,
+      8
+    ],
+    [
+      8,
+      30
+    ]
+  ],
+  "note": "Stored gyro motion magnitudes, not physical motion error or render-quality scores. Full-clip filtering context. Raw detector is 30-180 Hz band RMS.",
+  "windows": [
+    {
+      "window": [
+        14.0,
+        30.0
+      ],
+      "noise_peak_deg_s": 347.5599160575436,
+      "fraction_noise_above_severe": 0.2818301143821489,
+      "max_baseline_to_candidate_orientation_deg": 0.9689362292220473,
+      "rate_rms_change_deg_s": 0.7598775842621734,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          7.77486273775815,
+          7.849018361192034
+        ],
+        [
+          1.7335857006014919,
+          1.7058918409506834
+        ]
+      ]
+    },
+    {
+      "window": [
+        132.0,
+        146.0
+      ],
+      "noise_peak_deg_s": 392.13949052332424,
+      "fraction_noise_above_severe": 0.2260875776841203,
+      "max_baseline_to_candidate_orientation_deg": 4.843791553118831,
+      "rate_rms_change_deg_s": 2.12439734777134,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          15.943201334771974,
+          15.96621342723262
+        ],
+        [
+          3.277124361247975,
+          3.1830619828977835
+        ]
+      ]
+    },
+    {
+      "window": [
+        55.9,
+        58.9
+      ],
+      "noise_peak_deg_s": 1.0458531406190419,
+      "fraction_noise_above_severe": 0.0,
+      "max_baseline_to_candidate_orientation_deg": 0.8876219842160373,
+      "rate_rms_change_deg_s": 0.012343292050454003,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          1.6010844564885418,
+          1.6010845790161903
+        ],
+        [
+          0.9954565962005283,
+          0.9954563400507489
+        ]
+      ]
+    },
+    {
+      "window": [
+        142.5,
+        142.75
+      ],
+      "noise_peak_deg_s": 144.09216286381397,
+      "fraction_noise_above_severe": 0.116,
+      "max_baseline_to_candidate_orientation_deg": 1.16669367087381,
+      "rate_rms_change_deg_s": 8.121050196750454,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          7.099100440164273,
+          6.870165279799815
+        ],
+        [
+          5.419486593738703,
+          3.9370848051616023
+        ]
+      ]
+    },
+    {
+      "window": [
+        143.0,
+        143.25
+      ],
+      "noise_peak_deg_s": 118.8130879375013,
+      "fraction_noise_above_severe": 0.868,
+      "max_baseline_to_candidate_orientation_deg": 3.1705788736122074,
+      "rate_rms_change_deg_s": 0.002002285773522193,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          10.545787510082821,
+          10.595966963305752
+        ],
+        [
+          1.7206531734945398,
+          1.7199376580024892
+        ]
+      ]
+    },
+    {
+      "window": [
+        143.25,
+        143.5
+      ],
+      "noise_peak_deg_s": 17.16981607380023,
+      "fraction_noise_above_severe": 0.036,
+      "max_baseline_to_candidate_orientation_deg": 4.425381256111541,
+      "rate_rms_change_deg_s": 6.833868938462093,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          12.042179742214984,
+          13.405825558467967
+        ],
+        [
+          2.8354601045344805,
+          1.6820116601965984
+        ]
+      ]
+    },
+    {
+      "window": [
+        143.5,
+        143.75
+      ],
+      "noise_peak_deg_s": 116.69210643416832,
+      "fraction_noise_above_severe": 0.76,
+      "max_baseline_to_candidate_orientation_deg": 4.456256279447995,
+      "rate_rms_change_deg_s": 0.492845815547261,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          11.612880768598291,
+          12.058021525972844
+        ],
+        [
+          2.8096982657747454,
+          2.6402369600457605
+        ]
+      ]
+    }
+  ]
+}

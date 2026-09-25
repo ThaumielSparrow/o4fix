@@ -1,0 +1,38 @@
+[
+  {
+    "label": "throttle",
+    "start": 11,
+    "duration": 10,
+    "video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "10.000000",
+      "nb_frames": "1000"
+    }
+  },
+  {
+    "label": "late",
+    "start": 252,
+    "duration": 8,
+    "video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    }
+  },
+  {
+    "label": "control",
+    "start": 74,
+    "duration": 3,
+    "video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "3.000000",
+      "nb_frames": "300"
+    }
+  }
+]

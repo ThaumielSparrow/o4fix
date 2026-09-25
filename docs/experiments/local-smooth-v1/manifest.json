@@ -1,0 +1,69 @@
+{
+  "status": "user confirmed sharper shake is worse; both smoothing candidates retired",
+  "layout": [
+    "baseline",
+    "conservative 40ms",
+    "strong 80ms"
+  ],
+  "common_zoom": 1.08,
+  "input": "target/experiments/decay-v1/baseline.mp4",
+  "files": {
+    "target/experiments/local-smooth-v1/compare_106.mp4": "5dfd8340b2570e5f5f937963b42b553c879e7af10ed422564c0d1208523679fa",
+    "target/experiments/local-smooth-v1/compare_225.mp4": "63476f694cf9beae454d25b75961fcd809aa6a2276f6cfac091b3818f25a3ad9",
+    "target/experiments/local-smooth-v1/compare_249.mp4": "fd88c9f29cb0758a67acb28e2cf152f11dad79cb10a11113b11a962597448f54",
+    "target/experiments/local-smooth-v1/compare_308.mp4": "0addba80f48bdaf931ed8e73be664b31bf916f6bbce7b7c5b0b4603005a98b85",
+    "target/experiments/local-smooth-v1/bursts.json": "2858ebcaf265b32ad6140a16b3890a2d32c0781bf19ce27a0e047e526e6cac6c",
+    "target/experiments/local-smooth-v1/compare_106.json": "e300d6b598e62139768fbe3e29651a7a94640aa2b80e059c85d7cba174f5b886",
+    "target/experiments/local-smooth-v1/compare_106.tracking.json": "c3fb1edcb72d170b825a85f44108c3cd2329425abf9d52f9085da8928c0e7fc9",
+    "target/experiments/local-smooth-v1/compare_225.json": "01ed8865925d8395226c5e5f090eaa4633900be5ffdafed459701fee4794c59f",
+    "target/experiments/local-smooth-v1/compare_225.tracking.json": "49e2ae0ba4f1dee4b71f552a12b387137a2cbfd9d1cb219016a0471b461b873e",
+    "target/experiments/local-smooth-v1/compare_249.json": "cffb2ad7ba4a08926e968204d7695fbdc037f6cb478fb09031ffed11de825473",
+    "target/experiments/local-smooth-v1/compare_249.tracking.json": "c21cde629862028d3e5a49aa65025ea5436170ce01ad5b649f42f0c3e79846a6",
+    "target/experiments/local-smooth-v1/compare_308.json": "c53f9afc7029b5c19f07eb969c17252837cbe091e78b03f76af929f938fa9681",
+    "target/experiments/local-smooth-v1/compare_308.tracking.json": "678a0c54506fad18db8fb070dc032a3e8805a3f966edff37e41dad6710a3457f",
+    "target/experiments/local-smooth-v1/handback.json": "75c393f93530f22fdfde5527484c0cb888e77d8e85d256d1ad1245cbf5849ce5",
+    "target/experiments/local-smooth-v1/metrics_106.json": "edc4a9640972c869ea4c7b3c40ef37e24e6a9dbdcfa998d2b50dc762fcf68043",
+    "target/experiments/local-smooth-v1/metrics_225.json": "a90a6102ce417fb21eb397baf2fd1006bfb7b7b20e3b4589d83ddf7f3109a28b",
+    "target/experiments/local-smooth-v1/metrics_249.json": "94ecb38edc32bb88c54597daaa28e85812930bcced941eea94106571a56287e5",
+    "target/experiments/local-smooth-v1/metrics_308.json": "7f872b38ca1fecf4827795a17d4e810cd238655224839b2b0d9644e582b82107",
+    "o4core/examples/local_render_smooth.rs": "820a0f339fa6813b9a2727aca2172c32c6850f6517ac7110e9f8fc6264d263b5",
+    "o4core/examples/local_render_measure.rs": "1e0b8b1bd13b635642d4989e026d4425657f97958638c68fa11d604dd95cabc9",
+    "o4core/examples/handback_probe.rs": "5f445bbcf211834bfa0b7926027d439cdc2570198d81c6cc0a20735ab8d0ce2b",
+    "target/release/examples/local_render_smooth.exe": "724cee71ba95b6214d8040f6ffec1d60f2f5fdd1984eee8e4ee1070ec2786e9b",
+    "target/release/examples/local_render_measure.exe": "654c1981cba42bbdc28d5d93d7d9bef974585d12ecd537fbd2aeecaae580788f"
+  },
+  "video_validation": {
+    "compare_106.mp4": {
+      "width": 2160,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_225.mp4": {
+      "width": 2160,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_249.mp4": {
+      "width": 2160,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_308.mp4": {
+      "width": 2160,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    }
+  },
+  "checks": [
+    "synthetic 10Hz attenuation with linear-pan preservation passed",
+    "bounded transform crop coverage passed"
+  ]
+}

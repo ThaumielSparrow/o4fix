@@ -1,0 +1,98 @@
+{
+  "experiment": "decay-v1",
+  "baseline": {
+    "drift_decay_rate_deg_s": 1.5
+  },
+  "candidate": {
+    "drift_decay_rate_deg_s": 0
+  },
+  "review_windows": [
+    [
+      102,
+      110
+    ],
+    [
+      221,
+      229
+    ],
+    [
+      245,
+      253
+    ],
+    [
+      304,
+      312
+    ],
+    [
+      117,
+      128
+    ]
+  ],
+  "comparison_layout": "left baseline, right no-decay",
+  "full_context_render": true,
+  "files": {
+    "target/release/o4fix.exe": "ced5a9eb59c997ad9238ed4c2bdd7143f235ec141245a9407398fe2063e58a4c",
+    "o4core/examples/residual_probe.rs": "eacfb0f6e1d292d08349d6ea14952dc155c0d4899f121a404198f5ecdc809c03",
+    "target/experiments/decay-v1/baseline.gyroflow": "987bbcadbb48ac8e0c962984bf92986f3038513deb8b8f082e887b18ea920296",
+    "target/experiments/decay-v1/hold.gyroflow": "545df97bf0a5af41deea951d3bce46fdf2befd6cecd5041b417ed44b49a65e50",
+    "target/experiments/decay-v1/compare_106.mp4": "0fb464e20b9c8bcdb3f849de6db855f902ccc39bbb14576977c58a6a4c49c6fa",
+    "target/experiments/decay-v1/compare_225.mp4": "b8aaca034fbaa8bac28cb3d1d0471d0f618626462055c40244f19bf32c4d354a",
+    "target/experiments/decay-v1/compare_249.mp4": "a8988fb5aed8e32952b5a022b9df0a0767c960b92156885ec6836cc6c035ec66",
+    "target/experiments/decay-v1/compare_308.mp4": "9fabda97feb5e05d0e8cf6871751c8c0690bd4fadcd3e40c84946d240248a8f2",
+    "target/experiments/decay-v1/compare_secondary.mp4": "e5178fcfc2db744699ee73872587fc2cb468cad4f82c17e0404f71d1a97669bd"
+  },
+  "validation": {
+    "baseline": {
+      "width": 1440,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "duration": "382.690000",
+      "nb_frames": "38269"
+    },
+    "hold": {
+      "width": 1440,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "duration": "382.690000",
+      "nb_frames": "38269"
+    }
+  },
+  "comparisons": {
+    "compare_106.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_225.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_249.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_308.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_secondary.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "11.000000",
+      "nb_frames": "1100"
+    }
+  },
+  "status": "user reviewed: no meaningful visual improvement; retain default decay 1.5 deg/s"
+}

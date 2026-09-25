@@ -1,0 +1,8 @@
+{
+  "o4core\\examples\\residual_stage_probe.rs": "8781c807b2881aa776cbbca3a781b6a155e996ed2d0f889a4781e28519c7181d",
+  "o4core\\examples\\trust_rebase_repair.rs": "1adcff5f4b97b6d61c8454650c677b740cb2b4751d134d85d0cbfde4efb4d561",
+  "o4core\\examples\\trust_rebase_test.rs": "dd1a0cd52147243cddd2575d55c36afb9cf2ec179dcead20623218c34253e7a9",
+  "o4core\\examples\\support\\trust_rebase_patch.rs": "16cec1e193d490e076dfd0ecf1b792d37eab3aa591d78875abc40d37f5b5e882",
+  "o4core\\examples\\support\\trace_patch.rs": "62daff7fab1d1093eb1593260522fcbb797851fa6dada104785f5d54c1978049",
+  "docs/experiments/residual-stage-v1/export_reviews.py": "0106566b907f691430035dd055adb8ad34ce80e52b762b4a85666a892ba78530"
+}
