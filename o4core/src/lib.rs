@@ -8,4 +8,5 @@ pub mod optical; // added in Task 11 (requires local OpenCV install)
 pub mod patch; // added in Task 13
 pub mod pipeline; // added in Task 15
 pub mod quat; // added in Task 4
+pub mod refine; // added in Task 3 (residual refinement)
 pub mod telemetry; // added in Task 7
