@@ -85,7 +85,12 @@ pub struct Cli {
     pub drift_decay_rate: f64,
     /// skip the source-frame residual refinement inside repaired bursts
     /// (default: on). It removes most remaining judder; turn it off only to
-    /// save processing time or to reproduce pre-0.1.3 output
+    /// save processing time or to reproduce pre-0.1.3 output. Each refined
+    /// burst leaves a small constant world-frame orientation offset (at most
+    /// 4 deg) that never decays; the offsets add up across bursts (about
+    /// 7 deg by the end of a busy clip). Invisible to normal stabilization;
+    /// pass --no-refine (and --drift-rebase-above 0) if you stabilize with
+    /// Gyroflow horizon lock ON
     #[arg(long)]
     pub no_refine: bool,
 }

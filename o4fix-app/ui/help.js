@@ -40,7 +40,7 @@ window.HELP = {
   anchor_cutoff: "Hz, bandwidth of the optical drift anchor in --anchor-mode (default 1.5)",
   drift_rebase_above: "deg/s implied bridge rate (1.5*drift/duration) above which a burst's optical drift is carried forward as a constant orientation offset instead of being bridged inside the burst (default 30; 0 = always bridge in-burst). A constant offset is invisible to stabilization; set 0 if you stabilize with Gyroflow horizon lock ON",
   drift_decay_rate: "deg/s cap at which a carried drift offset bleeds back to identity in the following clean zone (0 = carry forever; default 1.5)",
-  refine: "re-measure the leftover judder inside each repaired burst from the video frames and correct it (recommended; adds processing time proportional to burst length). The corrected file still loads in Gyroflow like a stock recording",
+  refine: "re-measure the leftover judder inside each repaired burst from the video frames and correct it (recommended; adds processing time proportional to burst length). The corrected file still loads in Gyroflow like a stock recording. Each refined burst leaves a small constant orientation offset (at most 4 deg) that never decays, and these add up across bursts (about 7 deg by the end of a busy clip); normal stabilization ignores them, but if you stabilize with Gyroflow horizon lock ON turn refinement off and set Drift rebase above to 0",
 };
 
 // field descriptors driving the settings form

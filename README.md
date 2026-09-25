@@ -32,7 +32,7 @@ needed (Windows 10 may prompt once for Microsoft WebView2).
   loop) and corrects it. The correction is limited to the burst
   (1 Hz high-pass, 0.25 s pad, 0.15 s fade). A burst is skipped, and its
   repair is kept as is, when the correction would exceed 4 degrees, the
-  window cannot be measured, or it is within 0.5 s of the clip start. It
+  window cannot be measured, or it is within 0.5 s of the clip start or end. It
   roughly doubles processing time. Examples: 0060 (383 s) takes 231 s
   instead of 112 s, and 0021 (176 s, 20% noisy) takes 353 s instead of 125 s.
 - Splice ramps default to 0.19 s (was 0.3 s). The edges of each
