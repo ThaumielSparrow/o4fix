@@ -1,5 +1,13 @@
 # DJI O4 Pro gyro noise fix — v0.1.2 baseline, active stabilization research
 
+**v0.1.3 candidate (2026-09-24, branch `refine-v013`, not released):**
+the Gyroflow-free residual refinement (research wp1c) is now in production.
+It is on by default (`--no-refine` / GUI toggle) and sits alongside the
+edge-offset splice fix and the 0.19 s ramp default. Validation, numbers and
+the review page are in `docs/experiments/feedback-v1/results.md`
+(production section) and `docs/SESSION_HANDOFF.md`. Release only on the
+user's word.
+
 **Current session handoff (2026-09-10):** Read [docs/SESSION_HANDOFF.md](docs/SESSION_HANDOFF.md) first. It records all recent experiments, user visual verdicts, artifact locations, verification, and the next investigation. No research candidate has been promoted. The historical paused/solved status below is superseded.
 
 **2026-09-09 review:** user reopened development for a comprehensive review.

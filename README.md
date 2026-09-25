@@ -21,6 +21,22 @@ needed (Windows 10 may prompt once for Microsoft WebView2).
   "Drift rebase above" to 0 first. Above the default gate o4fix carries a
   burst's leftover orientation drift forward as a constant offset — invisible
   to normal stabilization, but it would fight the horizon reference.
+  Refinement (below) also carries a constant offset forward from each
+  refined burst. Each burst adds at most 4 degrees, and the offsets add
+  up: 7 degrees by the end of 0021. For horizon lock, turn refinement off
+  as well.
+- **Refinement (default on; CLI `--no-refine`, GUI "Refine residual
+  judder").** After the repair, o4fix re-measures the leftover judder
+  inside each repaired burst from the source video frames (feature
+  tracking with fisheye and rolling-shutter geometry, no Gyroflow in the
+  loop) and corrects it. The correction is limited to the burst
+  (1 Hz high-pass, 0.25 s pad, 0.15 s fade). A burst is skipped, and its
+  repair is kept as is, when the correction would exceed 4 degrees, the
+  window cannot be measured, or it is within 0.5 s of the clip start. It
+  roughly doubles processing time. Examples: 0060 (383 s) takes 231 s
+  instead of 112 s, and 0021 (176 s, 20% noisy) takes 353 s instead of 125 s.
+- Splice ramps default to 0.19 s (was 0.3 s). The edges of each
+  repaired burst now start from the correct orientation offset.
 
 ## CLI
 
