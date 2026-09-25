@@ -6,7 +6,7 @@ use std::sync::atomic::AtomicBool;
 
 /// Settings the committed Python goldens were produced with.
 fn legacy(c: Config) -> Config {
-    Config { ramp: 0.3, ..c }
+    Config { ramp: 0.3, refine: false, ..c }
 }
 
 fn run(cfg: &Config, out: &std::path::Path) -> Result<Outcome, o4core::error::O4Error> {
@@ -94,6 +94,32 @@ fn e2e_matches_seeded_python_reference() {
 
 fn stream(p: &std::path::Path) -> (Vec<f64>, Vec<[f64; 4]>) {
     o4core::telemetry::flat_quat_stream(p).unwrap()
+}
+
+#[test]
+#[ignore] // ~12 min
+fn refine_off_is_bit_identical_to_splice() {
+    // with refinement off, output equals the splice-only pipeline exactly;
+    // with it on, only in-burst windows change and the file still verifies
+    let off = std::env::temp_dir().join("o4fix_refine_off.MP4");
+    let on = std::env::temp_dir().join("o4fix_refine_on.MP4");
+    for p in [&off, &on] {
+        let _ = std::fs::remove_file(p);
+    }
+    run(&Config { refine: false, ..Config::default() }, &off).unwrap();
+    let r = run(&Config::default(), &on).unwrap();
+    assert!(matches!(r, Outcome::Repaired { .. }));
+    let (t0, q0) = stream(&off);
+    let (t1, q1) = stream(&on);
+    assert_eq!(t0, t1);
+    let mut zi = gt::npz("intervals.npz");
+    let sev: ndarray::Array2<f64> = zi.by_name("severe").unwrap();
+    let first = sev[[0, 0]] - 1.5; // before the first refinement window
+    let n_before = t0.iter().filter(|&&x| x / 1000.0 < first).count();
+    assert_eq!(&q0[..n_before], &q1[..n_before], "samples before the first gate must be identical");
+    assert!(q0 != q1, "refinement changed nothing on 0021");
+    std::fs::remove_file(&off).ok();
+    std::fs::remove_file(&on).ok();
 }
 
 #[test]

@@ -15,7 +15,7 @@ fn monster_bursts_match_edge_offset_research_repair() {
     let result = o4core::pipeline::process(
         &source,
         Some(&out),
-        &o4core::config::Config::default(),
+        &o4core::config::Config { refine: false, ..o4core::config::Config::default() },
         &|p| {
             if !p.message.is_empty() {
                 println!("{}", p.message);
