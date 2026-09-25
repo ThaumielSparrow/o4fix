@@ -27,6 +27,9 @@ pub struct Config {
     pub anchor_cutoff: f64,
     pub drift_rebase_above: f64,
     pub drift_decay_rate: f64,
+    /// Source-frame residual refinement inside severe bursts (spec 2026-09-24).
+    pub refine: bool,
+    pub refine_cfg: crate::refine::RefineConfig,
 }
 
 impl Default for Config {
@@ -58,6 +61,8 @@ impl Default for Config {
             anchor_cutoff: 1.5,
             drift_rebase_above: 30.0,
             drift_decay_rate: 1.5,
+            refine: true,
+            refine_cfg: crate::refine::RefineConfig::default(),
         }
     }
 }
@@ -127,6 +132,7 @@ impl Config {
                 "noise_band must be positive and hampel_window must not overflow".into(),
             ));
         }
+        self.refine_cfg.validate()?;
         Ok(())
     }
 
@@ -220,5 +226,6 @@ mod tests {
         assert!(c.handback_cutoff.is_none() && c.optical_noise.is_none());
         assert_eq!(c.drift_rebase_above, 30.0);
         assert_eq!(c.drift_decay_rate, 1.5);
+        assert!(c.refine);
     }
 }
