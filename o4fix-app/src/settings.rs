@@ -328,8 +328,8 @@ mod tests {
         assert!(!s.config.refine);
     }
 
-    /// The horizon-lock case: 0 chosen deliberately under 0.1.2+ is stamped
-    /// v1 and must survive untouched.
+    /// The horizon-lock case: 0 chosen deliberately and saved at the current
+    /// settings version must survive migration untouched.
     #[test]
     fn v1_settings_keep_deliberate_zero() {
         let mut s = GuiSettings {
