@@ -6,48 +6,112 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>o4fix <span class="sub">DJI O4 Pro gyro repair</span></h1>
-  <button id="gear" title="Advanced settings">⚙</button>
+<header class="top">
+  <div class="brand">
+    <span class="wordmark">o4fix</span>
+    <span class="tagline">Gyro repair for DJI O4 footage</span>
+  </div>
+  <div class="top-actions">
+    <button id="add" class="ghost" hidden>
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+      Add clips
+    </button>
+    <button id="gear" class="ghost" aria-controls="settings" aria-expanded="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4.5h7M12 4.5h2M2 11.5h2M7 11.5h7"/><circle cx="10.5" cy="4.5" r="1.5"/><circle cx="5.5" cy="11.5" r="1.5"/></svg>
+      Settings
+    </button>
+  </div>
 </header>
-<main>
-  <div id="dropzone" tabindex="0">
-    <p><strong>Drop DJI O4 Pro videos here</strong></p>
-    <p>or click to browse</p>
-  </div>
-  <div class="bar">
-    <button id="start" disabled>Start repair</button>
-    <button id="clear" disabled>Clear finished</button>
-    <span id="profile-badge">Profile: Default (M2)</span>
-  </div>
-  <ul id="queue"></ul>
-  <details id="logpane" open>
-    <summary>Log</summary>
-    <pre id="log"></pre>
-  </details>
+
+<main id="main">
+  <section id="empty" class="empty">
+    <svg id="hero-trace" class="hero-trace" viewBox="0 0 700 130"
+         preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="empty-text">
+      <span class="empty-title">Drop O4 clips here</span>
+      <span class="empty-note">or <button id="dropzone" class="ghost small">browse</button>
+        for .MP4 files. Repaired copies are saved as <code>…_fixed.MP4</code></span>
+    </div>
+  </section>
+
+  <ol id="queue" class="queue" hidden></ol>
 </main>
-<aside id="settings" hidden>
-  <h2>Advanced settings <button id="close-settings">✕</button></h2>
-  <fieldset id="profiles">
-    <legend>Profile</legend>
-    <label><input type="radio" name="profile" value="m2"> Default (M2)</label>
-    <label><input type="radio" name="profile" value="m4"> Sharp-turn (M4)</label>
-    <label><input type="radio" name="profile" value="custom"> Custom</label>
-    <button id="reset">Reset to defaults</button>
-  </fieldset>
-  <fieldset>
-    <legend>Output</legend>
-    <label>Output folder <input id="output-dir" type="text"
-           placeholder="next to source video">
-           <button id="browse-out">…</button>
-           <button id="clear-out" title="back to next-to-source">✕</button></label>
-    <label>Parallel files
-      <select id="concurrent"><option>1</option><option>2</option><option>3</option></select>
-    </label>
-  </fieldset>
-  <div id="fields"></div>
+
+<footer class="dock">
+  <button id="summary" class="summary" title="Open settings"></button>
+  <div class="dock-actions">
+    <button id="clear" class="ghost" disabled>Clear finished</button>
+    <button id="start" class="primary" disabled>Repair clips</button>
+  </div>
+</footer>
+
+<div id="drop-veil" class="drop-veil" hidden><span>Drop to add clips</span></div>
+
+<div id="scrim" class="scrim" hidden></div>
+<aside id="settings" class="settings" aria-label="Settings" hidden>
+  <div class="settings-head">
+    <h2>Settings</h2>
+    <button id="close-settings" class="ghost icon" aria-label="Close settings">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+    </button>
+  </div>
+  <div class="settings-body">
+    <section class="block">
+      <h3>Repair profile</h3>
+      <div class="profiles" role="radiogroup">
+        <label class="profile">
+          <input type="radio" name="profile" value="m2">
+          <span class="p-name">Standard</span>
+          <span class="p-desc">Best all-round. Steadiest through flips and snap moves.</span>
+        </label>
+        <label class="profile">
+          <input type="radio" name="profile" value="m4">
+          <span class="p-name">Sharp turns</span>
+          <span class="p-desc">Crisper long, fast turns. Slightly more shake in quick flicks.</span>
+        </label>
+        <label class="profile">
+          <input type="radio" name="profile" value="custom">
+          <span class="p-name">Custom</span>
+          <span class="p-desc">Your own values from Fine tuning below.</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3>Output</h3>
+      <div class="row">
+        <span class="row-label">Save repaired clips</span>
+        <div class="folder">
+          <span id="output-dir" class="folder-path"></span>
+          <button id="browse-out" class="ghost small">Choose…</button>
+          <button id="clear-out" class="ghost small" hidden>Reset</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="row-label">Clips at once</span>
+        <div class="seg" id="concurrent" role="radiogroup">
+          <button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h3>Refinement</h3>
+      <div id="refine-slot"></div>
+      <p class="note">Using Gyroflow's horizon lock? Turn refinement off and set
+        <i>Drift rebase above</i> to 0 under Fine tuning.</p>
+    </section>
+
+    <details class="block tuning">
+      <summary><h3>Fine tuning</h3><span>Changes here switch the profile to Custom.</span></summary>
+      <div id="fields"></div>
+      <button id="reset" class="ghost small">Reset to Standard</button>
+    </details>
+  </div>
 </aside>
+
 <script src="help.js"></script>
+<script src="trace.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

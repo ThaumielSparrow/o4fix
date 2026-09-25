@@ -28,6 +28,44 @@ pub struct Progress {
     /// Overall job fraction [0,1]. Events with an empty `message` are
     /// pct-only ticks: CLI skips them, GUI drives the bar with them.
     pub pct: f64,
+    /// Noise-level overview for the GUI's per-clip trace; always sent with
+    /// an empty `message`, so the CLI ignores it.
+    pub trace: Option<Trace>,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum TraceKind {
+    /// Detector noise of the recorded telemetry (sent after analysis).
+    Before,
+    /// Same measure on the final repaired orientation (sent before writing).
+    After,
+}
+
+/// Detector noise (30-180 Hz band-RMS, deg/s) over the whole clip, reduced
+/// to `TRACE_BUCKETS` evenly spaced bucket peaks between `t0` and `t1`.
+#[derive(Clone, Debug)]
+pub struct Trace {
+    pub kind: TraceKind,
+    pub t0: f64,
+    pub t1: f64,
+    pub values: Vec<f32>,
+    /// Severe-burst intervals (s, telemetry clock); same list for both kinds.
+    pub bursts: Vec<(f64, f64)>,
+}
+
+pub const TRACE_BUCKETS: usize = 600;
+
+/// Peak per bucket, so a short burst survives the reduction.
+fn bucket_peaks(t: &[f64], v: &[f64], t0: f64, t1: f64, n: usize) -> Vec<f32> {
+    let mut out = vec![0.0f32; n];
+    let span = (t1 - t0).max(f64::EPSILON);
+    for (ti, vi) in t.iter().zip(v) {
+        let b = (((ti - t0) / span) * n as f64)
+            .floor()
+            .clamp(0.0, (n - 1) as f64) as usize;
+        out[b] = out[b].max(*vi as f32);
+    }
+    out
 }
 
 /// Optical-stage share of overall progress: calib intervals 0.10-0.30,
@@ -99,6 +137,15 @@ pub fn process(
             stage,
             message,
             pct,
+            trace: None,
+        })
+    };
+    let send_trace = |stage: Stage, pct: f64, trace: Trace| {
+        on_progress(Progress {
+            stage,
+            message: String::new(),
+            pct,
+            trace: Some(trace),
         })
     };
     let check = || -> Result<(), O4Error> {
@@ -165,6 +212,18 @@ pub fn process(
     let severe_mask: Vec<bool> = diag.noise.iter().map(|&n| n > cfg.severe).collect();
     let intervals =
         detect::find_intervals(&severe_mask, &tm, cfg.severe_pad, cfg.severe_merge, 0.2);
+    let (tr0, tr1) = (tel.t[0], tel.t[tel.t.len() - 1]);
+    send_trace(
+        Stage::Analyze,
+        0.09,
+        Trace {
+            kind: TraceKind::Before,
+            t0: tr0,
+            t1: tr1,
+            values: bucket_peaks(&tm, &diag.noise, tr0, tr1, TRACE_BUCKETS),
+            bursts: intervals.clone(),
+        },
+    );
     if intervals.is_empty() {
         say(
             Stage::Analyze,
@@ -293,6 +352,22 @@ pub fn process(
     } else {
         q_out
     };
+
+    {
+        let (tm2, omega2) = quat::quats_to_rates(&tel.t, &q_out);
+        let after = detect::noise_level(&omega2, fs, cfg);
+        send_trace(
+            Stage::Write,
+            0.915,
+            Trace {
+                kind: TraceKind::After,
+                t0: tr0,
+                t1: tr1,
+                values: bucket_peaks(&tm2, &after, tr0, tr1, TRACE_BUCKETS),
+                bursts: intervals.clone(),
+            },
+        );
+    }
 
     check()?;
     let out_path: PathBuf = match out {

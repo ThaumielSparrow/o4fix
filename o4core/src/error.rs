@@ -6,7 +6,7 @@ pub enum O4Error {
     InvalidConfig(String),
     #[error("Insufficient optical motion coverage for severe burst {start:.2}-{end:.2}s; no output written")]
     OpticalCoverage { start: f64, end: f64 },
-    #[error("No DJI O4 telemetry found ({0}) — is this an O4 Pro recording?")]
+    #[error("No DJI O4 telemetry found ({0}) — is this a DJI O4 recording?")]
     NoTelemetry(String),
     #[error("Couldn't calibrate motion from this clip (needs some clean flight sections){}",
             .r2.map(|r| format!(" — alignment R2={r:.3} < 0.8")).unwrap_or_default())]

@@ -8,12 +8,13 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "o4fix — DJI O4 Pro gyro repair",
+        "title": "o4fix",
         "width": 920,
         "height": 680,
-        "minWidth": 720,
+        "minWidth": 640,
         "minHeight": 520,
-        "dragDropEnabled": true
+        "dragDropEnabled": true,
+        "backgroundColor": "#1d2127"
       }
     ],
     "security": { "csp": null }

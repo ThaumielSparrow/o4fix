@@ -19,23 +19,7 @@ pub fn adaptive_clean(omega: &[[f64; 3]], fs: f64, cfg: &Config) -> (Vec<[f64; 3
         .map(|r| [r[0] * R2D, r[1] * R2D, r[2] * R2D])
         .collect();
     let (x, spike_frac) = dsp::hampel(&deg, cfg.hampel_window, cfg.hampel_sigma);
-
-    // 30-180 Hz band-RMS noise estimate, max across axes (o4fix.py:222-229)
-    let ba = dsp::butter_band(
-        2,
-        cfg.noise_band.0 / (fs / 2.0),
-        (cfg.noise_band.1).min(0.95 * fs / 2.0) / (fs / 2.0),
-    );
-    let hf = dsp::filtfilt3(&ba, &x);
-    let win = ((cfg.noise_window_ms * fs / 1000.0).round() as usize).max(3);
-    let mut noise = vec![0.0f64; x.len()];
-    for ax in 0..3 {
-        let sq: Vec<f64> = hf.iter().map(|r| r[ax] * r[ax]).collect();
-        let sm = dsp::uniform_filter1d(&sq, win);
-        for i in 0..noise.len() {
-            noise[i] = noise[i].max(sm[i].sqrt());
-        }
-    }
+    let noise = band_noise(&x, fs, cfg);
 
     let mut alpha: Vec<f64> = noise
         .iter()
@@ -65,6 +49,39 @@ pub fn adaptive_clean(omega: &[[f64; 3]], fs: f64, cfg: &Config) -> (Vec<[f64; 3
 }
 
 /// Time intervals where mask is true, padded/merged/pruned (o4fix.py:253-270).
+/// 30-180 Hz band-RMS noise estimate in deg/s, max across axes
+/// (o4fix.py:222-229). `x` is Hampel-cleaned rates in deg/s.
+fn band_noise(x: &[[f64; 3]], fs: f64, cfg: &Config) -> Vec<f64> {
+    let ba = dsp::butter_band(
+        2,
+        cfg.noise_band.0 / (fs / 2.0),
+        (cfg.noise_band.1).min(0.95 * fs / 2.0) / (fs / 2.0),
+    );
+    let hf = dsp::filtfilt3(&ba, x);
+    let win = ((cfg.noise_window_ms * fs / 1000.0).round() as usize).max(3);
+    let mut noise = vec![0.0f64; x.len()];
+    for ax in 0..3 {
+        let sq: Vec<f64> = hf.iter().map(|r| r[ax] * r[ax]).collect();
+        let sm = dsp::uniform_filter1d(&sq, win);
+        for i in 0..noise.len() {
+            noise[i] = noise[i].max(sm[i].sqrt());
+        }
+    }
+    noise
+}
+
+/// The detector's noise measure for an arbitrary rate series (rad/s):
+/// same Hampel pre-clean + band-RMS as `adaptive_clean`. Used to show the
+/// GUI how much burst noise is left after repair.
+pub fn noise_level(omega: &[[f64; 3]], fs: f64, cfg: &Config) -> Vec<f64> {
+    let deg: Vec<[f64; 3]> = omega
+        .iter()
+        .map(|r| [r[0] * R2D, r[1] * R2D, r[2] * R2D])
+        .collect();
+    let (x, _) = dsp::hampel(&deg, cfg.hampel_window, cfg.hampel_sigma);
+    band_noise(&x, fs, cfg)
+}
+
 pub fn find_intervals(
     mask: &[bool],
     t: &[f64],

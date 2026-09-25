@@ -1,5 +1,5 @@
 use crate::settings::GuiSettings;
-use o4core::pipeline::{self, Outcome, Progress, Stage};
+use o4core::pipeline::{self, Outcome, Progress, Stage, TraceKind};
 use serde::Serialize;
 use std::collections::{HashMap, VecDeque};
 use std::path::{Path, PathBuf};
@@ -123,6 +123,22 @@ fn run_job(app: &AppHandle, job: Job, cfg: &o4core::config::Config, out_dir: Opt
         }
     });
     let emit_progress = |p: Progress| {
+        if let Some(tr) = &p.trace {
+            let _ = app.emit(
+                "job_trace",
+                serde_json::json!({
+                    "id": job.id,
+                    "kind": match tr.kind {
+                        TraceKind::Before => "before",
+                        TraceKind::After => "after",
+                    },
+                    "t0": tr.t0,
+                    "t1": tr.t1,
+                    "values": tr.values,
+                    "bursts": tr.bursts,
+                }),
+            );
+        }
         if !p.message.is_empty() {
             let _ = app.emit(
                 "job_log",
@@ -197,4 +213,31 @@ pub async fn pick_folder(app: AppHandle) -> Option<String> {
         .file()
         .blocking_pick_folder()
         .map(|f| f.to_string())
+}
+
+/// Open the file manager with a finished output selected.
+#[tauri::command]
+pub fn reveal_file(path: String) -> Result<(), String> {
+    let p = PathBuf::from(&path);
+    if !p.is_file() {
+        return Err(format!("{path} no longer exists"));
+    }
+    #[cfg(windows)]
+    let spawned = {
+        use std::os::windows::process::CommandExt;
+        // explorer parses its own command line: the path must be quoted
+        // inside the /select, switch, which Rust's arg quoting can't express
+        std::process::Command::new("explorer")
+            .raw_arg(format!("/select,\"{}\"", p.display()))
+            .spawn()
+    };
+    #[cfg(not(windows))]
+    let spawned = std::process::Command::new(if cfg!(target_os = "macos") {
+        "open"
+    } else {
+        "xdg-open"
+    })
+    .arg(p.parent().unwrap_or(Path::new(".")))
+    .spawn();
+    spawned.map(|_| ()).map_err(|e| e.to_string())
 }

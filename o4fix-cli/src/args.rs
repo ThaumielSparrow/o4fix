@@ -6,11 +6,11 @@ use std::path::PathBuf;
 #[command(
     name = "o4fix",
     version,
-    about = "Repair DJI O4 Pro gyro noise: writes VIDEO_fixed.MP4 with \
+    about = "Repair DJI O4 gyro noise: writes VIDEO_fixed.MP4 with \
                    clean embedded telemetry - load it in Gyroflow like a stock recording"
 )]
 pub struct Cli {
-    /// DJI O4 Pro .MP4 file(s)
+    /// DJI O4 .MP4 file(s)
     #[arg(required = true)]
     pub videos: Vec<PathBuf>,
     /// output path (single video only); default VIDEO_fixed.MP4
