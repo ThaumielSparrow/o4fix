@@ -8,7 +8,7 @@ the review page are in `docs/experiments/feedback-v1/results.md`
 (production section) and `docs/SESSION_HANDOFF.md`. Release only on the
 user's word.
 
-**Current session handoff (2026-09-10):** Read [docs/SESSION_HANDOFF.md](docs/SESSION_HANDOFF.md) first. It records all recent experiments, user visual verdicts, artifact locations, verification, and the next investigation. No research candidate has been promoted. The historical paused/solved status below is superseded.
+**Session handoff (2026-09-10, research history):** Read [docs/SESSION_HANDOFF.md](docs/SESSION_HANDOFF.md) first. It records all recent experiments, user visual verdicts, artifact locations, verification, and the next investigation. As of 2026-09-24 the edge-offset splice and wp1c refinement have been promoted into the v0.1.3 candidate above; other research candidates remain unpromoted. The historical paused/solved status below is superseded.
 
 **2026-09-09 review:** user reopened development for a comprehensive review.
 See `docs/code-review-2026-09-09.md` for 15 findings, fixes, and remaining work.
