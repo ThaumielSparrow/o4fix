@@ -241,7 +241,17 @@ mod tests {
         // predates the key entirely) therefore adopts drift rebase.
         assert_eq!(dto.drift_rebase_above, 30.0);
         assert_eq!(dto.drift_decay_rate, 1.5);
-        assert_eq!(dto.to_config(), Config::default());
+        // "ramp" IS present in this old file, at the then-current 0.3
+        // default (pre-0.1.3); it is an explicit value, not a missing key,
+        // so it must round-trip unchanged even though Config::default()
+        // moved to 0.19.
+        assert_eq!(
+            dto.to_config(),
+            Config {
+                ramp: 0.3,
+                ..Config::default()
+            }
+        );
     }
 
     /// A settings.json written by a pre-0.1.2 build that DID have the key

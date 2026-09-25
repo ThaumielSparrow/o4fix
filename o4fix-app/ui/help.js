@@ -1,5 +1,5 @@
 window.DEFAULTS = {
-  severe: 8.0, severe_pad: 0.2, severe_merge: 0.2, ramp: 0.3,
+  severe: 8.0, severe_pad: 0.2, severe_merge: 0.2, ramp: 0.19,
   light_cutoff: 25.0, strong_cutoff: 2.5, noise_low: 1.5, noise_high: 5.0,
   noise_band: [30.0, 180.0], noise_window: 100.0,
   hampel_window: 7, hampel_sigma: 6.0, optical_cutoff: 8.0,
@@ -16,7 +16,7 @@ window.HELP = {
   severe: "deg/s 30-180 Hz band-RMS above which orientation is replaced with integrated optical motion (default 8)",
   severe_pad: "s, padding around each severe burst (default 0.2)",
   severe_merge: "s, gap below which severe bursts merge (default 0.2)",
-  ramp: "s, slerp cross-fade to the raw path at burst edges (default 0.3)",
+  ramp: "s, slerp cross-fade to the raw path at burst edges (default 0.19)",
   light_cutoff: "Hz, zero-phase low-pass applied in clean sections (default 25; real motion above 20 Hz is negligible per video ground truth)",
   strong_cutoff: "Hz, low-pass blended in during noise bursts (default 2.5; video ground-truth analysis showed phantom gyro motion extends down to ~3 Hz while real motion above 3 Hz is tiny)",
   noise_low: "deg/s band-RMS where patching starts blending in (default 1.5; calm-flight floor is ~1)",

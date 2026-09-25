@@ -17,7 +17,11 @@ fn splice_matches_python() {
         .map(|i| (sev[[i, 0]], sev[[i, 1]]))
         .collect();
 
-    let cfg = o4core::config::Config::default();
+    // goldens were produced with the pre-0.1.3 0.3 s ramp
+    let cfg = o4core::config::Config {
+        ramp: 0.3,
+        ..o4core::config::Config::default()
+    };
     let (q_out, stats) = o4core::patch::splice_orientation(
         &t,
         &q,

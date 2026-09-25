@@ -4,6 +4,11 @@ use o4core::config::Config;
 use o4core::pipeline::{process, Outcome, Progress};
 use std::sync::atomic::AtomicBool;
 
+/// Settings the committed Python goldens were produced with.
+fn legacy(c: Config) -> Config {
+    Config { ramp: 0.3, ..c }
+}
+
 fn run(cfg: &Config, out: &std::path::Path) -> Result<Outcome, o4core::error::O4Error> {
     let video = gt::repo("sample_vids/DJI_20260711124046_0021_D.MP4");
     process(
@@ -57,7 +62,7 @@ fn no_calibration_sections_is_actionable_error() {
 fn e2e_matches_seeded_python_reference() {
     let out = std::env::temp_dir().join("o4fix_e2e_test.MP4");
     let _ = std::fs::remove_file(&out);
-    let r = run(&Config::default(), &out).unwrap();
+    let r = run(&legacy(Config::default()), &out).unwrap();
     let Outcome::Repaired { bursts, .. } = r else {
         panic!("expected Repaired")
     };
@@ -96,7 +101,7 @@ fn stream(p: &std::path::Path) -> (Vec<f64>, Vec<[f64; 4]>) {
 fn e2e_m4_matches_seeded_python_reference() {
     let out = std::env::temp_dir().join("o4fix_e2e_m4_test.MP4");
     let _ = std::fs::remove_file(&out);
-    let r = run(&Config::m4(), &out).unwrap();
+    let r = run(&legacy(Config::m4()), &out).unwrap();
     let Outcome::Repaired { bursts, .. } = r else {
         panic!("expected Repaired")
     };
