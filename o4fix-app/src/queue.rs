@@ -34,6 +34,7 @@ pub fn stage_name(s: Stage) -> &'static str {
         Stage::Extract | Stage::Analyze => "analyzing",
         Stage::Optical => "measuring motion",
         Stage::Splice => "patching",
+        Stage::Refine => "refining",
         Stage::Write => "verifying",
     }
 }

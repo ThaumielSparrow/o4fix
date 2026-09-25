@@ -17,6 +17,7 @@ pub enum Stage {
     Analyze,
     Optical,
     Splice,
+    Refine,
     Write,
 }
 
@@ -76,6 +77,11 @@ pub fn fs(t: &[f64]) -> f64 {
 /// - `cancel`: checked between stages and inside the optical-flow work
 ///   (`optical::video_rates` polls it per interval and per frame); set it
 ///   to abort early.
+///
+/// Stages run in order: Extract, Analyze, Optical, Splice, Refine (only
+/// when `cfg.refine` is set; skipped otherwise), Write. Cancellation is
+/// polled between stages and, inside Refine itself, once per measured
+/// frame (`refine::refine` returns `Err(Cancelled)` when set mid-flight).
 ///
 /// Returns `Outcome::Healthy` when no severe bursts are found — telemetry
 /// looks clean and NO output file is written. Otherwise returns
@@ -232,6 +238,25 @@ pub fn process(
             ),
         );
     }
+
+    let q_out = if cfg.refine {
+        check()?;
+        say(Stage::Refine, 0.88, format!("   refining residual judder in {} bursts", intervals.len()));
+        let rlog = |s: &str| say(Stage::Refine, 0.89, s.to_string());
+        let r = crate::refine::refine(video, &tel.t, &q_out, &intervals, &tel.meta, &cfg.refine_cfg, &rlog, cancel)?;
+        if let Some(reason) = &r.skipped_reason {
+            say(Stage::Refine, 0.91, format!("   refinement skipped: {reason}"));
+        }
+        for b in &r.bursts {
+            say(Stage::Refine, 0.91, match &b.note {
+                None => format!("     [{:7.2}, {:7.2}] residual correction {:4.2} deg", b.start, b.end, b.max_deg),
+                Some(n) => format!("     [{:7.2}, {:7.2}] not refined: {n}", b.start, b.end),
+            });
+        }
+        r.q
+    } else {
+        q_out
+    };
 
     check()?;
     let out_path: PathBuf = match out {
