@@ -1,0 +1,33 @@
+{
+  "status": "user reviewed: possible slight benefit, no meaningful/drastic improvement; keep defaults",
+  "layout": [
+    "baseline 5.092569ms readout compensation",
+    "compensation off"
+  ],
+  "render_validation": [
+    {
+      "width": 1440,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "duration": "382.690000",
+      "nb_frames": "38269"
+    },
+    {
+      "width": 1440,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "duration": "382.690000",
+      "nb_frames": "38269"
+    }
+  ],
+  "difference_check": "SSIM 0.947840 at 245-253s confirms output differs; not a quality score",
+  "files": {
+    "target/experiments/rs-v1/rs_off.gyroflow": "931571df3da6e1017a56c09ea333884739557c39dbb7f04379c0f34be13c3c43",
+    "target/experiments/rs-v1/compare_106.mp4": "bc3f8768402d9a46110226f767a2cf52655ab10afca4454fa9e34a5c7b255727",
+    "target/experiments/rs-v1/compare_225.mp4": "9b4bc888b886ef42e5214cb49928ae2cb106a8fd0afaff7a17f41c686422e9d2",
+    "target/experiments/rs-v1/compare_249.mp4": "f1bb053171a5f8d7d0b4b0427e35fa62aa3447ffe951ef60ce8eec53d1f13988",
+    "target/experiments/rs-v1/compare_308.mp4": "595f551ce60deed9d55abb7b56575b48e7e66af5c2607b84db878295f8cd2418",
+    "target/experiments/rs-v1/compare_clean.mp4": "24db1fcc9a0ea8f06d5247abfaf1e075663640f2f4d6f19269855be35813b5be",
+    "target/experiments/rs-v1/rs_off.mp4": "aaa7445de067d1aaf2676dc8e1fe43f3b7334ce6889d716dfb635f93297647ae"
+  }
+}

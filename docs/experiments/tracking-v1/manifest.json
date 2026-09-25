@@ -1,0 +1,92 @@
+{
+  "status": "user reviewed: possible slight benefit, not clearly distinguishable; production unchanged",
+  "baseline_render": "target/experiments/decay-v1/baseline.mp4",
+  "source_manifests": [
+    "docs/experiments/calibration-v1/manifest.json",
+    "docs/experiments/residual-v1/decay-manifest.json"
+  ],
+  "files": {
+    "o4core/examples/tracking_gap_probe.rs": "9f95e896088cf6ca1bb1d44526e83d149beafd057008c82b36439ec67b628c8d",
+    "o4core/examples/tracking_gap_repair.rs": "fb668c2a5bfd92f33c6dab3e663dc2b43fa1b3b9eadd563fc260284c65405884",
+    "o4core/examples/tracking_probe.rs": "f99f94ad380ccbe423f98de788cb1f4c89599992766245da76705171533e012b",
+    "o4core/examples/tracking_score.rs": "923f945fcf7fc0f940c854c904847577a8f7b7bff9364955db9554bdd3969306",
+    "o4core/examples/tracking_seed_probe.rs": "c73025ca103ed096bc1d3772c26a0ded372464b9c5bc7138cf06ae0e7430e56b",
+    "o4core/examples/support/fb_tracker.rs": "03f70c231e18fcfc4b272ac3cc6d51d1154f6266644d0e5723936d9709049b73",
+    "o4core/examples/support/gap_patch.rs": "8316bd9b147ca69399ba6355b961f2003286bc03fcd2078ed546ea21e87a8838",
+    "target/experiments/tracking-v1/0021-baseline.json": "788f2f6a3b17b3b27a3195c77ffebce526ae6ea503734593072470cc079e17e4",
+    "target/experiments/tracking-v1/0021-gap.json": "4ea31b1e42b0187f3cb00814856275082a1b5f0e2b8b03fda636b7fb4bb523d1",
+    "target/experiments/tracking-v1/0021-scores.json": "665d041fd4d46866232abb9644d210f987d0ad5288d85b0a1f07e61e734c5053",
+    "target/experiments/tracking-v1/0027-baseline.json": "e1a0d17cdf7b6621500ce2cafea389a3a68af7d076cb48e7d3851b49570fae4d",
+    "target/experiments/tracking-v1/0027-gap.json": "84a99a9e02700fb5857d46fa2029d82cc6aca665a748886cbeb067fb4d448296",
+    "target/experiments/tracking-v1/0027-scores.json": "f0a0fa52c2151bde5336b8f417dfac7260311c9f43279cb834a9928b4a206f2d",
+    "target/experiments/tracking-v1/gap-observations.json": "955bca01ea92e82154dca3e798f2c02f3a0028f012f3c943371a30ad1ce99032",
+    "target/experiments/tracking-v1/gap-scores.json": "bd27b90567bcda6a3f94a3cbb309d63c85b7583e474ef281fb3d561a05251993",
+    "target/experiments/tracking-v1/observations.json": "9964c7bb7fd3efd33ac6c58597ce33e7f34afcdee160084f20dffb14e3521e09",
+    "target/experiments/tracking-v1/scores.json": "a909242672a2d628649e6b7ec5a698b14f87ecf9bea82099ffe8eeb2befee721",
+    "target/experiments/tracking-v1/seed-observations.json": "ba9c0c4b578fc835ce6db7dbfdadaa5bb9634098f3e3f7c30574a6dff4b1983a",
+    "target/experiments/tracking-v1/seed-scores.json": "63232dd72950f4d77909d6d23f78a50da420b4551089bf2cc645040dbf1c52d2",
+    "target/experiments/tracking-v1/gap2.gyroflow": "ebac52c67aad257540691cb2777a158318736ac4de27d30006ac663975e86cd9",
+    "target/experiments/tracking-v1/compare_106.mp4": "7483f09dace28caf4c01725ea18fcac45ee27d94ec06dd3dfdae4b011823d26d",
+    "target/experiments/tracking-v1/compare_225.mp4": "8e48262b418c80e3edd4a97566a3e827921c3bceb3ab22c47e010b0a1581d016",
+    "target/experiments/tracking-v1/compare_249.mp4": "a4509be94915d3c0f4dda494fdb9fdb5e2b9a9a573b88fc489b6fc7943baa9ed",
+    "target/experiments/tracking-v1/compare_308.mp4": "de0523372e5ac902e13415a4641168b14ec0c769d3bd0a10188d108fe11cda0c",
+    "target/experiments/tracking-v1/compare_clean.mp4": "9088170d706e735aef0111cadf650b28c40dc162b091dfe36a0278fee29847c5",
+    "target/experiments/tracking-v1/0060_gap2.MP4": "b3ea7c64d8bdd5fca3680c1da00eb2255cfe2c3ae9407707afff12672c33c86c",
+    "target/experiments/tracking-v1/gap2.mp4": "01c707f84629618706738f0a319f2696d5972d05ce7cd6214755f3e2e0eb4610",
+    "target/experiments/decay-v1/baseline.mp4": "17beb231cf94ae972bbd3c5b9ca4b30b0b18ee6dc5948e8e71c86133f6661336",
+    "target/release/examples/tracking_gap_repair.exe": "8a6005950cd8bbf5754d5d3612a696dd5b4279ca5d9565fa13e7414aa5e34d51"
+  },
+  "render_validation": [
+    {
+      "width": 1440,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "duration": "382.690000",
+      "nb_frames": "38269"
+    },
+    {
+      "width": 1440,
+      "height": 810,
+      "r_frame_rate": "100/1",
+      "duration": "382.690000",
+      "nb_frames": "38269"
+    }
+  ],
+  "comparisons": {
+    "compare_106.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_225.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_249.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_308.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    },
+    "compare_clean.mp4": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "3.000000",
+      "nb_frames": "300"
+    }
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "held_out_common_support": [
+    {
+      "interval": [
+        18.94379865733612,
+        22.94379865733612
+      ],
+      "baseline": {
+        "rms": 2.8798879445773404,
+        "samples": 311,
+        "runs": 2
+      },
+      "candidate": {
+        "rms": 2.3338989272002104,
+        "samples": 311,
+        "runs": 2
+      }
+    },
+    {
+      "interval": [
+        147.06444182724,
+        150.09283081707554
+      ],
+      "baseline": {
+        "rms": 4.030794193573239,
+        "samples": 271,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 3.020877004728443,
+        "samples": 271,
+        "runs": 1
+      }
+    },
+    {
+      "interval": [
+        211.6560135644052,
+        215.6560135644052
+      ],
+      "baseline": {
+        "rms": 5.169243864416134,
+        "samples": 368,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 2.295178853126892,
+        "samples": 368,
+        "runs": 1
+      }
+    },
+    {
+      "interval": [
+        32.86707044389129,
+        36.86707044389129
+      ],
+      "baseline": {
+        "rms": 2.6283243245950874,
+        "samples": 368,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 1.8443740001775029,
+        "samples": 368,
+        "runs": 1
+      }
+    },
+    {
+      "interval": [
+        0.8605974837826538,
+        4.860597483782653
+      ],
+      "baseline": {
+        "rms": 1.6740989682736007,
+        "samples": 370,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 1.3668728952736937,
+        "samples": 370,
+        "runs": 1
+      }
+    },
+    {
+      "interval": [
+        283.04002353355196,
+        286.89518333391356
+      ],
+      "baseline": {
+        "rms": 2.1623613288027475,
+        "samples": 353,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 1.7802958847721957,
+        "samples": 353,
+        "runs": 1
+      }
+    }
+  ],
+  "windows": [
+    {
+      "interval": [
+        18.94379865733612,
+        22.94379865733612
+      ],
+      "samples": 400,
+      "baseline_bad": 16,
+      "candidate_bad": 19,
+      "raw_rate_difference_rms_deg_s": 6.223992344137218
+    },
+    {
+      "interval": [
+        147.06444182724,
+        150.09283081707554
+      ],
+      "samples": 303,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 9.386931381756368
+    },
+    {
+      "interval": [
+        211.6560135644052,
+        215.6560135644052
+      ],
+      "samples": 400,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 9.150594114532561
+    },
+    {
+      "interval": [
+        32.86707044389129,
+        36.86707044389129
+      ],
+      "samples": 400,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 5.26928737979824
+    },
+    {
+      "interval": [
+        0.8605974837826538,
+        4.860597483782653
+      ],
+      "samples": 400,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 4.679430676910828
+    },
+    {
+      "interval": [
+        283.04002353355196,
+        286.89518333391356
+      ],
+      "samples": 385,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 4.0833921722512585
+    },
+    {
+      "interval": [
+        102.0,
+        110.0
+      ],
+      "samples": 800,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 9.56044681083557
+    },
+    {
+      "interval": [
+        221.0,
+        229.0
+      ],
+      "samples": 800,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 9.457981744905277
+    },
+    {
+      "interval": [
+        245.0,
+        253.0
+      ],
+      "samples": 800,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 9.387825667566155
+    },
+    {
+      "interval": [
+        304.0,
+        312.0
+      ],
+      "samples": 800,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 8.658267414725962
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "interval": [
+      105.83058353011872,
+      106.60965551024414
+    ],
+    "samples": 779,
+    "mean_handback": 0.0,
+    "max_handback": 0.0,
+    "handback_added_rate_rms_deg_s": 0.0,
+    "handback_added_rate_max_deg_s": 0.0,
+    "peak_difference_time": 105.83108353011872
+  },
+  {
+    "interval": [
+      223.4395974038599,
+      223.95662839132203
+    ],
+    "samples": 517,
+    "mean_handback": 0.0,
+    "max_handback": 0.0,
+    "handback_added_rate_rms_deg_s": 0.0,
+    "handback_added_rate_max_deg_s": 0.0,
+    "peak_difference_time": 223.4400974038599
+  },
+  {
+    "interval": [
+      225.02774486114777,
+      226.1787379135742
+    ],
+    "samples": 1151,
+    "mean_handback": 0.0,
+    "max_handback": 0.0,
+    "handback_added_rate_rms_deg_s": 0.0,
+    "handback_added_rate_max_deg_s": 0.0,
+    "peak_difference_time": 225.02824486114775
+  },
+  {
+    "interval": [
+      248.34548947510527,
+      249.31547928173612
+    ],
+    "samples": 970,
+    "mean_handback": 0.05600804624953375,
+    "max_handback": 0.8441823015100035,
+    "handback_added_rate_rms_deg_s": 0.013374416560870094,
+    "handback_added_rate_max_deg_s": 0.09011542377417468,
+    "peak_difference_time": 249.2099709504373
+  },
+  {
+    "interval": [
+      308.01168509660886,
+      309.2785991456278
+    ],
+    "samples": 1267,
+    "mean_handback": 0.007300022077423669,
+    "max_handback": 0.24053067356488766,
+    "handback_added_rate_rms_deg_s": 0.0011694528251689443,
+    "handback_added_rate_max_deg_s": 0.009291880880678132,
+    "peak_difference_time": 309.2031194822339
+  }
+]

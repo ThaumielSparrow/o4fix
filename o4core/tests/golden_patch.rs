@@ -24,7 +24,8 @@ fn patched_rates_match_python() {
         &|_, _, _| (),
         &AtomicBool::new(false),
     )
-    .unwrap();
+    .unwrap()
+    .rates;
     let mut z = gt::npz("patched.npz");
     let rates_g: Array2<f64> = z.by_name("rates").unwrap();
     assert_eq!(patched.len(), rates_g.nrows());

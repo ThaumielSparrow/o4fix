@@ -31,3 +31,19 @@ fn output_with_multiple_videos_rejected() {
             .is_err()
     );
 }
+
+#[test]
+fn invalid_numeric_flags_are_usage_errors() {
+    for flags in [
+        vec!["--ramp", "0"],
+        vec!["--severe", "NaN"],
+        vec!["--noise-band", "180", "30"],
+    ] {
+        let mut argv = vec!["o4fix", "a.MP4"];
+        argv.extend(flags);
+        let error = Cli::try_parse_from(argv)
+            .and_then(Cli::validate)
+            .unwrap_err();
+        assert_eq!(error.exit_code(), 2);
+    }
+}

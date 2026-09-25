@@ -1,0 +1,95 @@
+{
+  "bands_hz": [
+    [
+      2,
+      8
+    ],
+    [
+      8,
+      30
+    ]
+  ],
+  "note": "Stored gyro motion magnitudes, not physical motion error or render-quality scores. Full-clip filtering context. Raw detector is 30-180 Hz band RMS.",
+  "windows": [
+    {
+      "window": [
+        14.0,
+        30.0
+      ],
+      "noise_peak_deg_s": 347.5599160575436,
+      "fraction_noise_above_severe": 0.2818301143821489,
+      "max_baseline_to_candidate_orientation_deg": 1.3959378027511504,
+      "rate_rms_change_deg_s": 1.4909962321519388,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          7.599219235705709,
+          7.487998084626773
+        ],
+        [
+          1.6982520294647474,
+          1.6740101861203855
+        ]
+      ]
+    },
+    {
+      "window": [
+        132.0,
+        146.0
+      ],
+      "noise_peak_deg_s": 392.13949052332424,
+      "fraction_noise_above_severe": 0.2260875776841203,
+      "max_baseline_to_candidate_orientation_deg": 0.6282728975261366,
+      "rate_rms_change_deg_s": 1.2447838702930525,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          15.933367268888528,
+          15.947787096609135
+        ],
+        [
+          3.2523407581084642,
+          3.2406682313147517
+        ]
+      ]
+    },
+    {
+      "window": [
+        55.9,
+        58.9
+      ],
+      "noise_peak_deg_s": 1.0458531406190419,
+      "fraction_noise_above_severe": 0.0,
+      "max_baseline_to_candidate_orientation_deg": 0.21513825041852544,
+      "rate_rms_change_deg_s": 0.003377649530181868,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          1.601087693063191,
+          1.6010879138203042
+        ],
+        [
+          0.9954569228979344,
+          0.995456641638126
+        ]
+      ]
+    },
+    {
+      "window": [
+        264.0,
+        272.0
+      ],
+      "noise_peak_deg_s": 396.7311647853775,
+      "fraction_noise_above_severe": 0.15676959619952494,
+      "max_baseline_to_candidate_orientation_deg": 0.2732614572402948,
+      "rate_rms_change_deg_s": 0.7553193802059804,
+      "band_rms_deg_s_baseline_candidate": [
+        [
+          4.927800932690226,
+          5.001142267769328
+        ],
+        [
+          1.8403409880107349,
+          1.8318112595521583
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,537 @@
+[
+  {
+    "t": 132.5,
+    "horizontal_low": 5.639500927571503,
+    "horizontal_high": 7.122247082487327,
+    "intended_rotation_low": 0.0524003194288911,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 132.75,
+    "horizontal_low": 4.5257742988196545,
+    "horizontal_high": 27.268811240476808,
+    "intended_rotation_low": 0.034115491462489836,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 133.0,
+    "horizontal_low": 4.948089151103438,
+    "horizontal_high": 42.28307459648665,
+    "intended_rotation_low": 0.06468479059562265,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 133.25,
+    "horizontal_low": 2.9344284473910873,
+    "horizontal_high": 26.055562654912,
+    "intended_rotation_low": 0.3050781907540832,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 133.5,
+    "horizontal_low": 10.74988911017897,
+    "horizontal_high": 21.621845319355568,
+    "intended_rotation_low": 1.7180356883218124,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 133.75,
+    "horizontal_low": 28.607687824343234,
+    "horizontal_high": 24.536749091769934,
+    "intended_rotation_low": 5.662417922815928,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 134.0,
+    "horizontal_low": 46.0263572728504,
+    "horizontal_high": 45.503763527487294,
+    "intended_rotation_low": 6.5834052761839885,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 134.25,
+    "horizontal_low": 41.11976109529483,
+    "horizontal_high": 52.75195255955731,
+    "intended_rotation_low": 2.7993482021188876,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 134.5,
+    "horizontal_low": 19.552062686888345,
+    "horizontal_high": 41.1379765185933,
+    "intended_rotation_low": 2.594217080929831,
+    "phases": {
+      "outside": 21,
+      "edge": 4
+    },
+    "samples": 25
+  },
+  {
+    "t": 134.75,
+    "horizontal_low": 6.938500800807226,
+    "horizontal_high": 13.031650928315656,
+    "intended_rotation_low": 1.2427890783481659,
+    "phases": {
+      "edge": 15,
+      "bridged_interior": 10
+    },
+    "samples": 25
+  },
+  {
+    "t": 135.0,
+    "horizontal_low": 11.992475247503238,
+    "horizontal_high": 28.348822338333633,
+    "intended_rotation_low": 1.352372897805105,
+    "phases": {
+      "bridged_interior": 20,
+      "edge": 5
+    },
+    "samples": 25
+  },
+  {
+    "t": 135.25,
+    "horizontal_low": 6.179938412302733,
+    "horizontal_high": 5.457704976464199,
+    "intended_rotation_low": 0.5479658127291184,
+    "phases": {
+      "edge": 14,
+      "outside": 11
+    },
+    "samples": 25
+  },
+  {
+    "t": 135.5,
+    "horizontal_low": 0.6444430278366535,
+    "horizontal_high": 1.9139924715257397,
+    "intended_rotation_low": 0.11134174710473654,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 135.75,
+    "horizontal_low": 3.7328843876951403,
+    "horizontal_high": 5.789571081768294,
+    "intended_rotation_low": 0.24118112761206975,
+    "phases": {
+      "outside": 2,
+      "edge": 19,
+      "rebased_interior": 4
+    },
+    "samples": 25
+  },
+  {
+    "t": 136.0,
+    "horizontal_low": 5.994775844800046,
+    "horizontal_high": 5.724621634956635,
+    "intended_rotation_low": 1.248999569300847,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 136.25,
+    "horizontal_low": 6.633208522705181,
+    "horizontal_high": 19.555642393854892,
+    "intended_rotation_low": 5.4959130818017075,
+    "phases": {
+      "rebased_interior": 19,
+      "edge": 6
+    },
+    "samples": 25
+  },
+  {
+    "t": 136.5,
+    "horizontal_low": 21.45425685716809,
+    "horizontal_high": 26.64817270657581,
+    "intended_rotation_low": 10.21400550289388,
+    "phases": {
+      "edge": 13,
+      "outside": 12
+    },
+    "samples": 25
+  },
+  {
+    "t": 136.75,
+    "horizontal_low": 39.79178339690515,
+    "horizontal_high": 13.538612867536667,
+    "intended_rotation_low": 18.78244210115587,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 137.0,
+    "horizontal_low": 29.23082225477539,
+    "horizontal_high": 9.970292651091777,
+    "intended_rotation_low": 11.50407355733526,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 137.25,
+    "horizontal_low": 7.167125355472292,
+    "horizontal_high": 9.545831221885209,
+    "intended_rotation_low": 4.952977427181678,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 137.5,
+    "horizontal_low": 4.604922229524492,
+    "horizontal_high": 12.265805003567477,
+    "intended_rotation_low": 3.8600925837304603,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 137.75,
+    "horizontal_low": 9.86618906916056,
+    "horizontal_high": 17.73182596296686,
+    "intended_rotation_low": 2.321599765933776,
+    "phases": {
+      "outside": 4,
+      "edge": 19,
+      "rebased_interior": 2
+    },
+    "samples": 25
+  },
+  {
+    "t": 138.0,
+    "horizontal_low": 9.929851799352393,
+    "horizontal_high": 19.886992949930775,
+    "intended_rotation_low": 1.0074416668718802,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 138.25,
+    "horizontal_low": 4.466090867318672,
+    "horizontal_high": 5.61313550530162,
+    "intended_rotation_low": 0.17782335232810897,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 138.5,
+    "horizontal_low": 3.7480720172020905,
+    "horizontal_high": 5.5971038830588125,
+    "intended_rotation_low": 0.03452727078398175,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 138.75,
+    "horizontal_low": 3.2702599530720624,
+    "horizontal_high": 6.716180131189541,
+    "intended_rotation_low": 0.09938348005553815,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 139.0,
+    "horizontal_low": 4.307644472436576,
+    "horizontal_high": 20.39405189361515,
+    "intended_rotation_low": 0.16172598512817388,
+    "phases": {
+      "rebased_interior": 8,
+      "edge": 17
+    },
+    "samples": 25
+  },
+  {
+    "t": 139.25,
+    "horizontal_low": 4.052269682417831,
+    "horizontal_high": 3.4036560069887063,
+    "intended_rotation_low": 0.13093078794789106,
+    "phases": {
+      "edge": 2,
+      "outside": 23
+    },
+    "samples": 25
+  },
+  {
+    "t": 139.5,
+    "horizontal_low": 1.719730028498385,
+    "horizontal_high": 1.3482953038396819,
+    "intended_rotation_low": 0.5379402037575459,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 139.75,
+    "horizontal_low": 8.91976903818222,
+    "horizontal_high": 1.3735923386121711,
+    "intended_rotation_low": 2.9422013836120753,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 140.0,
+    "horizontal_low": 33.032957027813545,
+    "horizontal_high": 1.0680164338103706,
+    "intended_rotation_low": 12.151314912981194,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 140.25,
+    "horizontal_low": 51.00854664308924,
+    "horizontal_high": 8.45501837198584,
+    "intended_rotation_low": 20.06457193828704,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 140.5,
+    "horizontal_low": 21.680687915995538,
+    "horizontal_high": 34.542908039702226,
+    "intended_rotation_low": 8.35372510190301,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 140.75,
+    "horizontal_low": 26.15280025879582,
+    "horizontal_high": 25.723759289752575,
+    "intended_rotation_low": 4.864753372784296,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 141.0,
+    "horizontal_low": 13.811143227988962,
+    "horizontal_high": 11.084248271277614,
+    "intended_rotation_low": 3.9638069040436776,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 141.25,
+    "horizontal_low": 9.839714273756213,
+    "horizontal_high": 13.883583900252614,
+    "intended_rotation_low": 1.5083347184009044,
+    "phases": {
+      "edge": 19,
+      "rebased_interior": 6
+    },
+    "samples": 25
+  },
+  {
+    "t": 141.5,
+    "horizontal_low": 12.884978504899454,
+    "horizontal_high": 10.440305742454328,
+    "intended_rotation_low": 0.4546264420603384,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 141.75,
+    "horizontal_low": 4.868499169653597,
+    "horizontal_high": 9.068106006629362,
+    "intended_rotation_low": 0.2534005054770691,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 142.0,
+    "horizontal_low": 6.19338598803161,
+    "horizontal_high": 5.446375247619127,
+    "intended_rotation_low": 0.0892806734737577,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 142.25,
+    "horizontal_low": 3.5100808421189127,
+    "horizontal_high": 7.670344362729962,
+    "intended_rotation_low": 0.1463756017189199,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 142.5,
+    "horizontal_low": 7.649399450002605,
+    "horizontal_high": 38.7090927207656,
+    "intended_rotation_low": 0.19252302209908007,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 142.75,
+    "horizontal_low": 4.0162319614249595,
+    "horizontal_high": 8.565869882583481,
+    "intended_rotation_low": 0.13165665196110252,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 143.0,
+    "horizontal_low": 11.934479822463382,
+    "horizontal_high": 13.437897349574216,
+    "intended_rotation_low": 0.295749721814018,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 143.25,
+    "horizontal_low": 7.372596959697964,
+    "horizontal_high": 16.62753084388798,
+    "intended_rotation_low": 0.15514275704517477,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 143.5,
+    "horizontal_low": 16.717048674540273,
+    "horizontal_high": 21.35304299592402,
+    "intended_rotation_low": 0.11172239063873705,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 143.75,
+    "horizontal_low": 5.030711213554287,
+    "horizontal_high": 8.805079522550848,
+    "intended_rotation_low": 0.18109143343184744,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 144.0,
+    "horizontal_low": 8.312862399765061,
+    "horizontal_high": 8.326823581418068,
+    "intended_rotation_low": 0.2645603513827269,
+    "phases": {
+      "rebased_interior": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 144.25,
+    "horizontal_low": 2.9250217720489595,
+    "horizontal_high": 8.278269358379593,
+    "intended_rotation_low": 0.34532409570239575,
+    "phases": {
+      "rebased_interior": 1,
+      "edge": 19,
+      "outside": 5
+    },
+    "samples": 25
+  },
+  {
+    "t": 144.5,
+    "horizontal_low": 1.1112400929206665,
+    "horizontal_high": 2.53435014685005,
+    "intended_rotation_low": 0.5914461639037124,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 144.75,
+    "horizontal_low": 1.838433355638117,
+    "horizontal_high": 2.1637889875797063,
+    "intended_rotation_low": 0.6123212842343212,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 145.0,
+    "horizontal_low": 2.1784035469847636,
+    "horizontal_high": 9.56209129957799,
+    "intended_rotation_low": 0.178280838436387,
+    "phases": {
+      "outside": 25
+    },
+    "samples": 25
+  },
+  {
+    "t": 145.25,
+    "horizontal_low": 3.32990852334781,
+    "horizontal_high": 11.308079823466612,
+    "intended_rotation_low": 0.5173299386924507,
+    "phases": {
+      "outside": 24
+    },
+    "samples": 24
+  }
+]

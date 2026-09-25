@@ -1,4 +1,17 @@
-# DJI O4 Pro gyro noise fix — SHIPPED v0.1.2, work paused 2026-08-14
+# DJI O4 Pro gyro noise fix — v0.1.2 baseline, active stabilization research
+
+**Current session handoff (2026-09-10):** Read [docs/SESSION_HANDOFF.md](docs/SESSION_HANDOFF.md) first. It records all recent experiments, user visual verdicts, artifact locations, verification, and the next investigation. No research candidate has been promoted. The historical paused/solved status below is superseded.
+
+**2026-09-09 review:** user reopened development for a comprehensive review.
+See `docs/code-review-2026-09-09.md` for 15 findings, fixes, and remaining work.
+Rust now stages output transactionally, validates settings/calibration, and
+requires accepted optical coverage before severe-burst splicing/rebase.
+31 fast tests and 14 clip checks pass; 0060 matches the preserved release
+exactly (sign-folded), and both release binaries were rebuilt. M2/M4 tuning
+and rebase defaults are unchanged; no new visual-quality improvement is
+claimed. Python remains the historical numerical reference and still needs
+the corresponding failure-path safeguards before production use. The older
+status and experiment notes below describe the accepted v0.1.2 baseline.
 
 Status: solved and shipping. v0.1.2 (drift rebase default-on) is the
 current behavior; the user accepted the remaining artifacts ("small

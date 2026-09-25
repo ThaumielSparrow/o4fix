@@ -1,0 +1,21 @@
+{
+  "inputs": {
+    "target/experiments/local-smooth-v1/bursts.json": "2858ebcaf265b32ad6140a16b3890a2d32c0781bf19ce27a0e047e526e6cac6c",
+    "target/experiments/decay-v1/baseline.mp4": "17beb231cf94ae972bbd3c5b9ca4b30b0b18ee6dc5948e8e71c86133f6661336",
+    "target/experiments/local-smooth-v1/context_225.avi": "5fb9ba9829fdcc56528bd2951eb399b3ffa944af26fc8c778f06bafd7920dfd5",
+    "target/experiments/local-smooth-v1/context_249.avi": "8852e8c7b4919c844ed3aff23b849cbc3c25e84b2b632b7631274d231776d221",
+    "target/experiments/local-smooth-v1/context_308.avi": "878d424d30c49dd6d8bdf2e1d6ec81597260ef1462ae0bbf8f27df5c68fdfbac"
+  },
+  "files": {
+    "target/experiments/perspective-v2/106.json": "0ca5470b82a5888afc4597550451bb7687fd4dd5846494ec9304fecdeefc58da",
+    "target/experiments/perspective-v2/225.json": "fb61ff2eac253765e20af34a74f972af3cd2fc28bf3c8542c1fd2bcab1e6fac1",
+    "target/experiments/perspective-v2/249.json": "912c23b9833616bc989b72b4eafa47f9b71e27221ab537759f817a75145980dc",
+    "target/experiments/perspective-v2/308.json": "7be0eebb055288e6aca4d06c5ef4800b2e426867952ee7702bc641dc708bf273",
+    "target/experiments/perspective-v2/control.json": "ce00d6bbdb7c24a87e7b1626c1af8a5ff17e98c478c45957d9555dbc6979a437",
+    "o4core/examples/perspective_condition_probe.rs": "a9dddea65961c2f630c2313e71acc42dc707d0aa24379714513294ecb9613dd1",
+    "docs/experiments/perspective-v2/summarize.py": "1c972aa3f5be7298c2fcc80951f7650792cf8649fd3e41d8c3bbbb9c96fad0a9",
+    "docs/experiments/perspective-v2/metrics.json": "063035dbf028920c9a8be248582ce12a8d894e4c9ea3c07c6883a31584f26aed"
+  },
+  "final_release_binary_sha256": "74bc0317cc7816d8b7171a9e08598e59910ecf5738e12910f09e80cdfb18b899",
+  "binary_note": "Final build after adding a cfg(test)-only two-depth regression; runtime experiment code unchanged."
+}

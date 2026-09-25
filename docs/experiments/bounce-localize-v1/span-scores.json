@@ -1,0 +1,369 @@
+{
+  "note": "LP8 single-pair vs two-pair-span optical rates at common midpoint times; optical-coordinate deg/s. Independent accuracy not established. Quality neighborhoods excluded.",
+  "windows": [
+    {
+      "window": [
+        132.0,
+        146.0
+      ],
+      "bins": [
+        {
+          "start": 132.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.9854699809664558
+        },
+        {
+          "start": 132.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.333194635495886
+        },
+        {
+          "start": 132.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.8485814280411497
+        },
+        {
+          "start": 132.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.2302910551055364
+        },
+        {
+          "start": 133.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.6284326306443275
+        },
+        {
+          "start": 133.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.0788235816289826
+        },
+        {
+          "start": 133.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.714252335612699
+        },
+        {
+          "start": 133.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.342472477542332
+        },
+        {
+          "start": 134.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 4.475668116752729
+        },
+        {
+          "start": 134.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.018557392421607
+        },
+        {
+          "start": 134.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.9897289572011863
+        },
+        {
+          "start": 134.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.0846308081464877
+        },
+        {
+          "start": 135.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.5436010161142084
+        },
+        {
+          "start": 135.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.368204008929965
+        },
+        {
+          "start": 135.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 7.1193132286698635
+        },
+        {
+          "start": 135.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.099597690617677
+        },
+        {
+          "start": 136.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.4824891734869279
+        },
+        {
+          "start": 136.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.0516682515607294
+        },
+        {
+          "start": 136.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.4830082083768525
+        },
+        {
+          "start": 136.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 4.7432830762282885
+        },
+        {
+          "start": 137.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 10.046500973631142
+        },
+        {
+          "start": 137.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 7.207270741180881
+        },
+        {
+          "start": 137.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 12.133563830376174
+        },
+        {
+          "start": 137.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 6.817999911921189
+        },
+        {
+          "start": 138.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.401669046225907
+        },
+        {
+          "start": 138.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 4.983186998403798
+        },
+        {
+          "start": 138.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.9328444664854505
+        },
+        {
+          "start": 138.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.2305124834973897
+        },
+        {
+          "start": 139.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.932413666128627
+        },
+        {
+          "start": 139.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.0868613600810235
+        },
+        {
+          "start": 139.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.241319842003382
+        },
+        {
+          "start": 139.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.2603333462608304
+        },
+        {
+          "start": 140.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 7.689596977068925
+        },
+        {
+          "start": 140.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 4.771892620713128
+        },
+        {
+          "start": 140.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.177621782959448
+        },
+        {
+          "start": 140.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 4.559047088235936
+        },
+        {
+          "start": 141.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.40036268242497
+        },
+        {
+          "start": 141.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 4.26580166575508
+        },
+        {
+          "start": 141.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.7429361673457477
+        },
+        {
+          "start": 141.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.783817315245206
+        },
+        {
+          "start": 142.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.9634743648384094
+        },
+        {
+          "start": 142.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.1996115091078632
+        },
+        {
+          "start": 142.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 7.25480246383074
+        },
+        {
+          "start": 142.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 8.612720430661183
+        },
+        {
+          "start": 143.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.289720900844525
+        },
+        {
+          "start": 143.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 8.805953938724208
+        },
+        {
+          "start": 143.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.795888740336494
+        },
+        {
+          "start": 143.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 6.002598142525753
+        },
+        {
+          "start": 144.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.480236737784771
+        },
+        {
+          "start": 144.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.775684711327162
+        },
+        {
+          "start": 144.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.099485400767851
+        },
+        {
+          "start": 144.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.7419223760666498
+        },
+        {
+          "start": 145.0,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.617063428838378
+        },
+        {
+          "start": 145.25,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.958253517416527
+        },
+        {
+          "start": 145.5,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 5.836270627822652
+        },
+        {
+          "start": 145.75,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 4.430780492891326
+        }
+      ],
+      "bad_pair_counts": [
+        0,
+        0
+      ]
+    },
+    {
+      "window": [
+        55.9,
+        58.9
+      ],
+      "bins": [
+        {
+          "start": 55.9,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.6975526705577266
+        },
+        {
+          "start": 56.15,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.5952693627000776
+        },
+        {
+          "start": 56.4,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.340635142699366
+        },
+        {
+          "start": 56.65,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.911832291876096
+        },
+        {
+          "start": 56.9,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.8559992831095316
+        },
+        {
+          "start": 57.15,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.2803776655148638
+        },
+        {
+          "start": 57.4,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 3.918123602518756
+        },
+        {
+          "start": 57.65,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 2.631187545142335
+        },
+        {
+          "start": 57.9,
+          "pairs": 3,
+          "span_difference_rms_deg_s": 3.1439582827222354
+        },
+        {
+          "start": 58.15,
+          "pairs": 0,
+          "span_difference_rms_deg_s": null
+        },
+        {
+          "start": 58.4,
+          "pairs": 9,
+          "span_difference_rms_deg_s": 2.9285998955102555
+        },
+        {
+          "start": 58.65,
+          "pairs": 25,
+          "span_difference_rms_deg_s": 1.8579362232866639
+        }
+      ],
+      "bad_pair_counts": [
+        1,
+        2
+      ]
+    }
+  ]
+}

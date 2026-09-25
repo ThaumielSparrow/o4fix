@@ -1,0 +1,84 @@
+{
+  "files": {
+    "o4core\\examples\\subset_ensemble_repair.rs": {
+      "bytes": 2529,
+      "sha256": "043031d048d6745f46709381dc947efbba2e92e3fcea3985f5ec7bbb213aca40"
+    },
+    "o4core\\examples\\support\\ensemble_tracker.rs": {
+      "bytes": 1836,
+      "sha256": "39a6b188258e3ff2dd0b80f7571ef1d40135046824120ddfe3ccb47d05646429"
+    },
+    "o4core\\examples\\support\\subset_tracker.rs": {
+      "bytes": 13044,
+      "sha256": "f930fd01cefb7d62eadc6d758b643705312518c147e417372cd2b6a7924b0a11"
+    },
+    "o4core\\examples\\support\\subset_rotation.rs": {
+      "bytes": 5672,
+      "sha256": "728db94c727a72237fa2f955f03949d3c35e687eeeac1c6970b2c53522ad727f"
+    },
+    "o4core\\examples\\support\\gap_patch.rs": {
+      "bytes": 13165,
+      "sha256": "8316bd9b147ca69399ba6355b961f2003286bc03fcd2078ed546ea21e87a8838"
+    },
+    "o4core\\examples\\support\\edge_offset_patch.rs": {
+      "bytes": 6520,
+      "sha256": "caa06ecd2023a477fa9c73aedad5f1849702c1fa145dc70a86f803ec59fc1d12"
+    },
+    "target\\release\\examples\\subset_ensemble_repair.exe": {
+      "bytes": 3764224,
+      "sha256": "e0f62fa9009273f687f9fb7f48573db74ec6cd13e8a6d852804658a3d0cb0693"
+    },
+    "docs\\experiments\\subset-ensemble-v1\\export_reviews.py": {
+      "bytes": 1771,
+      "sha256": "e96bcb844cf59ec58c771deadc4a0f925f0a3aeb53e8dd41160c770e4afff6a6"
+    },
+    "docs\\experiments\\subset-ensemble-v1\\prepare.py": {
+      "bytes": 869,
+      "sha256": "bb5401210984b618456be9e1ef946113f56a76f95bfe550254c8989ad90be97f"
+    },
+    "docs\\experiments\\subset-ensemble-v1\\summarize.py": {
+      "bytes": 1515,
+      "sha256": "e63cba3bcc94b55f110c9e2ee1d0a546f1ee8e6dd1691ca7976bd831dd96a0c3"
+    },
+    "target\\experiments\\subset-ensemble-v1\\ensemble.MP4": {
+      "bytes": 3695514531,
+      "sha256": "cc516607657a81f21320fe3bb61d64c78ec971f1e776d5755c9b1d1211ad13b4"
+    },
+    "target\\experiments\\subset-ensemble-v1\\ensemble.gyroflow": {
+      "bytes": 5499,
+      "sha256": "74feed30dd0835c02564986f65419eefa7935b566891dfd66b235151350d1eee"
+    },
+    "target\\experiments\\subset-ensemble-v1\\ensemble-render.mp4": {
+      "bytes": 1480277899,
+      "sha256": "f1bee378bab97c9cf75ec9207c250eab44f9c2b70ab332065bf8097d3dd13959"
+    },
+    "target\\experiments\\subset-ensemble-v1\\compare_early.mp4": {
+      "bytes": 20564405,
+      "sha256": "077f463b89564ead4cb0ddc3cc65fdc11c71f003bf50c5bcfbddbcc3157486b3"
+    },
+    "target\\experiments\\subset-ensemble-v1\\compare_late.mp4": {
+      "bytes": 20816191,
+      "sha256": "6fc0f302e6bc939a96813947fa97e9a2e0f6b91995514b5a5dfe1a7658a24794"
+    },
+    "target\\experiments\\subset-ensemble-v1\\compare_control.mp4": {
+      "bytes": 1696053,
+      "sha256": "c41edd10d4c50fecfadd65282085b72f4194e98bf114509774bab13e558a6333"
+    },
+    "target\\experiments\\subset-ensemble-v1\\compare_additional.mp4": {
+      "bytes": 10575099,
+      "sha256": "4705f468b1c4f7042d23b965ce0ddc48690076e17035de15994fabe30bdffd5e"
+    },
+    "target\\experiments\\subset-ensemble-v1\\repair.log": {
+      "bytes": 3500,
+      "sha256": "4ef08582cb1fa17db0c4f48441370d27413b588795781abfa40cf85b189a8075"
+    },
+    "target\\experiments\\subset-ensemble-v1\\render.log": {
+      "bytes": 2558447,
+      "sha256": "f50e994c9792bb1571c0baed548a5aa448c84b42a7413330b78c080f6215e34c"
+    }
+  },
+  "prior_input_manifests": [
+    "docs/experiments/bounce-localize-v1/manifest.json",
+    "docs/experiments/subset-stability-v1/manifest.json"
+  ]
+}

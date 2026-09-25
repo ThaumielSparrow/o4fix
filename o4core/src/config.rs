@@ -63,6 +63,100 @@ impl Default for Config {
 }
 
 impl Config {
+    /// Shared by CLI and GUI; reject invalid arithmetic before decoding video.
+    pub fn validate(&self) -> Result<(), crate::error::O4Error> {
+        use crate::error::O4Error::InvalidConfig;
+        for (name, value) in [
+            ("severe", self.severe),
+            ("severe_pad", self.severe_pad),
+            ("severe_merge", self.severe_merge),
+            ("patch_pad", self.patch_pad),
+            ("patch_merge", self.patch_merge),
+            ("fast_wide_cutoff", self.fast_wide_cutoff),
+            ("fast_wide_accel", self.fast_wide_accel),
+            ("hampel_sigma", self.hampel_sigma),
+            ("drift_rebase_above", self.drift_rebase_above),
+            ("drift_decay_rate", self.drift_decay_rate),
+        ] {
+            if !value.is_finite() || value < 0.0 {
+                return Err(InvalidConfig(format!(
+                    "{name} must be finite and non-negative"
+                )));
+            }
+        }
+        for (name, value) in [
+            ("ramp", self.ramp),
+            ("light_cutoff", self.light_cutoff),
+            ("strong_cutoff", self.strong_cutoff),
+            ("optical_cutoff", self.optical_cutoff),
+            ("anchor_cutoff", self.anchor_cutoff),
+            ("noise_window", self.noise_window_ms),
+            (
+                "handback_cutoff",
+                self.handback_cutoff.unwrap_or(self.optical_cutoff),
+            ),
+        ] {
+            if !value.is_finite() || value <= 0.0 {
+                return Err(InvalidConfig(format!("{name} must be finite and positive")));
+            }
+        }
+        for (name, (lo, hi)) in [
+            ("noise_low/high", (self.noise_low, self.noise_high)),
+            ("noise_band", self.noise_band),
+            ("fast_handback", self.fast_handback),
+            ("gyro_trust_noise", self.gyro_trust_noise),
+            ("fast_wide_ramp", self.fast_wide_ramp),
+            (
+                "optical_noise",
+                self.optical_noise
+                    .unwrap_or((self.noise_low, self.noise_high)),
+            ),
+        ] {
+            if !lo.is_finite() || !hi.is_finite() || lo >= hi {
+                return Err(InvalidConfig(format!("{name} must have finite LO < HI")));
+            }
+        }
+        if self.noise_band.0 <= 0.0
+            || self
+                .hampel_window
+                .checked_mul(2)
+                .and_then(|n| n.checked_add(1))
+                .is_none()
+        {
+            return Err(InvalidConfig(
+                "noise_band must be positive and hampel_window must not overflow".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub fn validate_sample_rate(&self, fs: f64) -> Result<(), crate::error::O4Error> {
+        use crate::error::O4Error::InvalidConfig;
+        let nyquist = fs / 2.0;
+        if !fs.is_finite()
+            || fs <= 0.0
+            || self.noise_band.0 >= self.noise_band.1.min(0.95 * nyquist)
+        {
+            return Err(InvalidConfig(
+                "noise band is incompatible with telemetry sample rate".into(),
+            ));
+        }
+        for cutoff in [
+            self.light_cutoff,
+            self.strong_cutoff,
+            self.handback_cutoff.unwrap_or(self.optical_cutoff),
+            self.fast_wide_cutoff,
+            self.anchor_cutoff,
+        ] {
+            if cutoff >= nyquist {
+                return Err(InvalidConfig(format!(
+                    "filter cutoff {cutoff} must be below Nyquist ({nyquist} Hz)"
+                )));
+            }
+        }
+        Ok(())
+    }
+
     /// M4 "sharp-turn" profile: wider fast-motion handback, accel gate on.
     pub fn m4() -> Self {
         Self {
@@ -75,6 +169,46 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn invalid_settings_rejected_before_signal_processing() {
+        for c in [
+            Config {
+                ramp: 0.0,
+                ..Config::default()
+            },
+            Config {
+                severe: f64::NAN,
+                ..Config::default()
+            },
+            Config {
+                noise_high: 1.5,
+                ..Config::default()
+            },
+            Config {
+                optical_noise: Some((5.0, 2.0)),
+                ..Config::default()
+            },
+            Config {
+                light_cutoff: f64::INFINITY,
+                ..Config::default()
+            },
+            Config {
+                drift_decay_rate: -1.0,
+                ..Config::default()
+            },
+            Config {
+                hampel_window: usize::MAX,
+                ..Config::default()
+            },
+        ] {
+            assert!(c.validate().is_err(), "accepted {c:?}");
+        }
+        assert!(Config::default().validate().is_ok());
+        assert!(Config::m4().validate().is_ok());
+        assert!(Config::default().validate_sample_rate(1000.0).is_ok());
+        assert!(Config::default().validate_sample_rate(50.0).is_err());
+        assert!(Config::default().validate_sample_rate(f64::NAN).is_err());
+    }
     #[test]
     fn defaults_match_spec() {
         let c = Config::default();

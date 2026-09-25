@@ -87,6 +87,9 @@ pub struct Cli {
 
 impl Cli {
     pub fn validate(self) -> Result<Self, clap::Error> {
+        self.to_config().validate().map_err(|e| {
+            clap::Error::raw(clap::error::ErrorKind::ValueValidation, e.to_string())
+        })?;
         if self.output.is_some() && self.videos.len() > 1 {
             // mirrors argparse p.error(...): usage error, exit code 2
             return Err(clap::Error::raw(

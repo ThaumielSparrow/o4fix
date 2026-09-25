@@ -1,0 +1,153 @@
+{
+  "parity_max_component": 3.933634116354279e-8,
+  "bursts": [
+    {
+      "interval": [
+        14.168092109840394,
+        17.102696375175473
+      ],
+      "rebased": false,
+      "drift_deg": 23.76816348319262,
+      "implied_bridge_peak_deg_s": 12.152700627199716,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 17.729517859011267
+        },
+        {
+          "interior": true,
+          "samples": 2552,
+          "rate_difference_rms_deg_s": 9.92087956236908
+        }
+      ]
+    },
+    {
+      "interval": [
+        18.72967748518097,
+        19.22967131681549
+      ],
+      "rebased": false,
+      "drift_deg": 3.6633453764659887,
+      "implied_bridge_peak_deg_s": 11.01211204187834,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 9.446646456481643
+        },
+        {
+          "interior": true,
+          "samples": 119,
+          "rate_difference_rms_deg_s": 10.808611890595794
+        }
+      ]
+    },
+    {
+      "interval": [
+        52.338180901425474,
+        52.8881843985492
+      ],
+      "rebased": false,
+      "drift_deg": 0.4374886708709264,
+      "implied_bridge_peak_deg_s": 1.1953066667881338,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 1.8564648300715778
+        },
+        {
+          "interior": true,
+          "samples": 168,
+          "rate_difference_rms_deg_s": 1.1589202517757033
+        }
+      ]
+    },
+    {
+      "interval": [
+        59.317753877917184,
+        59.88280945767487
+      ],
+      "rebased": false,
+      "drift_deg": 1.2409304658943827,
+      "implied_bridge_peak_deg_s": 3.2998677822267166,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 2.8841962783340804
+        },
+        {
+          "interior": true,
+          "samples": 184,
+          "rate_difference_rms_deg_s": 3.245348132651833
+        }
+      ]
+    },
+    {
+      "interval": [
+        71.72897095550537,
+        72.35500153309144
+      ],
+      "rebased": false,
+      "drift_deg": 1.4741184621996934,
+      "implied_bridge_peak_deg_s": 3.5378395894666768,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 2.809052340570228
+        },
+        {
+          "interior": true,
+          "samples": 243,
+          "rate_difference_rms_deg_s": 3.4226437998154364
+        }
+      ]
+    },
+    {
+      "interval": [
+        130.17487686106386,
+        130.6758976931256
+      ],
+      "rebased": false,
+      "drift_deg": 1.0208803515437832,
+      "implied_bridge_peak_deg_s": 3.06232316203749,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 2.956797728689567
+        },
+        {
+          "interior": true,
+          "samples": 120,
+          "rate_difference_rms_deg_s": 3.0381629068086995
+        }
+      ]
+    },
+    {
+      "interval": [
+        255.55017727294432,
+        257.1152279097519
+      ],
+      "rebased": true,
+      "drift_deg": 123.11771359524772,
+      "implied_bridge_peak_deg_s": 118.07821729966062,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 2.287619146372568
+        },
+        {
+          "interior": true,
+          "samples": 1183,
+          "rate_difference_rms_deg_s": 9.481972851223359e-12
+        }
+      ]
+    }
+  ],
+  "note": "Final accepted repair rates minus supplied optical patch: mechanism attribution, not truth. Same frame-index integration convention as production."
+}

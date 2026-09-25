@@ -1,0 +1,110 @@
+{
+  "held_out_common_support": [
+    {
+      "interval": [
+        66.16989395210267,
+        70.16989395210267
+      ],
+      "baseline": {
+        "rms": 2.598880186210922,
+        "samples": 370,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 1.8048268751792418,
+        "samples": 370,
+        "runs": 1
+      }
+    },
+    {
+      "interval": [
+        81.9353158547162,
+        85.72458915700805
+      ],
+      "baseline": {
+        "rms": 2.517189128118675,
+        "samples": 349,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 1.9141655717454338,
+        "samples": 349,
+        "runs": 1
+      }
+    },
+    {
+      "interval": [
+        94.02828085929384,
+        98.02828085929384
+      ],
+      "baseline": {
+        "rms": 2.1381694624468204,
+        "samples": 370,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 1.674525308803469,
+        "samples": 370,
+        "runs": 1
+      }
+    },
+    {
+      "interval": [
+        118.9393437615738,
+        122.9393437615738
+      ],
+      "baseline": {
+        "rms": 2.1110520589402135,
+        "samples": 370,
+        "runs": 1
+      },
+      "candidate": {
+        "rms": 1.6594784545871386,
+        "samples": 370,
+        "runs": 1
+      }
+    }
+  ],
+  "windows": [
+    {
+      "interval": [
+        66.16989395210267,
+        70.16989395210267
+      ],
+      "samples": 400,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 4.836939119991954
+    },
+    {
+      "interval": [
+        81.9353158547162,
+        85.72458915700805
+      ],
+      "samples": 379,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 5.367002695717041
+    },
+    {
+      "interval": [
+        94.02828085929384,
+        98.02828085929384
+      ],
+      "samples": 400,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 4.393024398457882
+    },
+    {
+      "interval": [
+        118.9393437615738,
+        122.9393437615738
+      ],
+      "samples": 400,
+      "baseline_bad": 0,
+      "candidate_bad": 0,
+      "raw_rate_difference_rms_deg_s": 4.930828758779182
+    }
+  ]
+}

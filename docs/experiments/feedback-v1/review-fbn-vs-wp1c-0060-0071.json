@@ -1,0 +1,14 @@
+{"out": "target/experiments/feedback-v1/review-fbn-vs-wp1c-0060-0071.html",
+ "title": "0060 + 0071: render-loop (fbn) vs Gyroflow-free (wp1c)",
+ "intro": "Same question as the 0073 page: is the Gyroflow-free correction (right, no rendering needed, could live inside o4fix) as smooth as the render-loop correction you already approved (left)? Both start from the edge-offset repair and only change the gyro-noise bursts.",
+ "left": "fbn (render loop)", "right": "wp1c (Gyroflow-free)",
+ "items": [
+  {"clip": "0060", "name": "1:46", "window": "source 102-110 s (burst 105.8-106.6 s = 3.8-4.6 s in)", "look": "Both measured similar here.", "base": "0060/compare_fbn_vs_wp1c_106"},
+  {"clip": "0060", "name": "3:45", "window": "source 221-229 s (bursts 223.4-224.0 and 225.0-226.2 s = 2.4-3.0 and 4.0-5.2 s in)", "look": "Measured equal or slightly better on the right.", "base": "0060/compare_fbn_vs_wp1c_225"},
+  {"clip": "0060", "name": "4:09", "window": "source 245-253 s (burst 248.3-249.3 s = 3.3-4.3 s in)", "look": "The right side measured weaker on wobble here (but less fine shake). Worth a close look.", "base": "0060/compare_fbn_vs_wp1c_249"},
+  {"clip": "0060", "name": "5:08", "window": "source 304-312 s (burst 308.0-309.3 s = 4.0-5.3 s in)", "look": "You saw a subtle fbn regression here; the right side applies a smaller correction.", "base": "0060/compare_fbn_vs_wp1c_308"},
+  {"clip": "0060", "name": "Clean control", "window": "source 19-22 s", "look": "No correction: should look identical.", "base": "0060/compare_fbn_vs_wp1c_control"},
+  {"clip": "0071", "name": "Throttle-pin burst", "window": "source 11-21 s (bursts 14.2-17.1 and 18.7-19.2 s)", "look": "Measured about equal; right has slightly less fine shake.", "base": "0071/compare_fbn_vs_wp1c_throttle"},
+  {"clip": "0071", "name": "Late event", "window": "source 252-260 s (burst 255.6-257.1 s = 3.6-5.1 s in)", "look": "Measured equal wobble, less fine shake on the right.", "base": "0071/compare_fbn_vs_wp1c_late"},
+  {"clip": "0071", "name": "Clean control", "window": "source 74-77 s", "look": "No correction: should look identical.", "base": "0071/compare_fbn_vs_wp1c_control"}
+ ]}

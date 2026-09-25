@@ -1,0 +1,136 @@
+{
+  "0060-control": {
+    "pairs": 399,
+    "finite_iterates": 328,
+    "converged": 175,
+    "max_consecutive_converged_pairs": 9,
+    "independent_fits_both_finite": 296,
+    "independent_fits_both_converged": 133,
+    "median_split_disagreement_deg_s": 1.8245640598099455,
+    "median_cost_ratio": 0.5155989662213687,
+    "scores": {
+      "folds": [
+        {
+          "interval": [
+            18.94379865733612,
+            22.94379865733612
+          ],
+          "pairs": 399,
+          "checks": [
+            {
+              "reference_index": 1,
+              "require_convergence": false,
+              "common_pairs": 328,
+              "reference": {
+                "rms_deg_s": 1.8525011739834452,
+                "samples": 39,
+                "runs": 1
+              },
+              "candidate": {
+                "rms_deg_s": 2.433409574515629,
+                "samples": 39,
+                "runs": 1
+              }
+            },
+            {
+              "reference_index": 3,
+              "require_convergence": false,
+              "common_pairs": 313,
+              "reference": {
+                "rms_deg_s": 2.7405780692929507,
+                "samples": 39,
+                "runs": 1
+              },
+              "candidate": {
+                "rms_deg_s": 2.433409574515629,
+                "samples": 39,
+                "runs": 1
+              }
+            },
+            {
+              "reference_index": 1,
+              "require_convergence": true,
+              "common_pairs": 175,
+              "reference": null,
+              "candidate": null
+            },
+            {
+              "reference_index": 3,
+              "require_convergence": true,
+              "common_pairs": 174,
+              "reference": null,
+              "candidate": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "0060-control-logdepth": {
+    "pairs": 399,
+    "finite_iterates": 390,
+    "converged": 339,
+    "max_consecutive_converged_pairs": 58,
+    "independent_fits_both_finite": 355,
+    "independent_fits_both_converged": 288,
+    "median_split_disagreement_deg_s": 1.5239015830067675,
+    "median_cost_ratio": 0.35038548786923973,
+    "scores": {
+      "folds": [
+        {
+          "interval": [
+            18.94379865733612,
+            22.94379865733612
+          ],
+          "pairs": 399,
+          "checks": [
+            {
+              "reference_index": 1,
+              "require_convergence": false,
+              "common_pairs": 390,
+              "reference": {
+                "rms_deg_s": 3.741460206852636,
+                "samples": 318,
+                "runs": 2
+              },
+              "candidate": {
+                "rms_deg_s": 4.321795345643572,
+                "samples": 318,
+                "runs": 2
+              }
+            },
+            {
+              "reference_index": 3,
+              "require_convergence": false,
+              "common_pairs": 373,
+              "reference": {
+                "rms_deg_s": 2.9032784814316366,
+                "samples": 313,
+                "runs": 2
+              },
+              "candidate": {
+                "rms_deg_s": 4.278305078076788,
+                "samples": 313,
+                "runs": 2
+              }
+            },
+            {
+              "reference_index": 1,
+              "require_convergence": true,
+              "common_pairs": 339,
+              "reference": null,
+              "candidate": null
+            },
+            {
+              "reference_index": 3,
+              "require_convergence": true,
+              "common_pairs": 328,
+              "reference": null,
+              "candidate": null
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

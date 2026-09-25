@@ -1,0 +1,860 @@
+{
+  "late": {
+    "input": {
+      "frames": 1400,
+      "valid_interior": 1298,
+      "missing_total": 0,
+      "region_translation_energy_reduction": 0.22280314934979617,
+      "region_rigid_energy_reduction": 0.3462890243351118,
+      "shared_acceleration_rms": 0.3176922539967679,
+      "all_feature_acceleration_rms": 0.5017732989544608
+    },
+    "prior": {
+      "frames": 1400,
+      "valid_interior": 1298,
+      "missing_total": 0,
+      "region_translation_energy_reduction": -0.08829800799390197,
+      "region_rigid_energy_reduction": 0.08412578699052442,
+      "shared_acceleration_rms": 0.15533214394938014,
+      "all_feature_acceleration_rms": 0.4254634286575405
+    },
+    "full": {
+      "frames": 1400,
+      "valid_interior": 1298,
+      "missing_total": 0,
+      "region_translation_energy_reduction": -0.10142577316308543,
+      "region_rigid_energy_reduction": 0.06746047588500781,
+      "shared_acceleration_rms": 0.14683540857674882,
+      "all_feature_acceleration_rms": 0.42689662497827313
+    },
+    "bands": {
+      "window_start": 132.0,
+      "common_active_pairs": 1299,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 24.783500221168094,
+              "roll_rms_deg_s": 5.377691889412824
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 17.007886726425888,
+              "roll_rms_deg_s": 3.548334634746168
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 23.65605557549091,
+              "roll_rms_deg_s": 5.493557043704299
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 17.171893784079735,
+              "roll_rms_deg_s": 3.4682824624616764
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "prior_quarter_second_diagnostics": [
+      {
+        "start": 132.5,
+        "count": 24,
+        "translation_transfer": -0.006241559697170773,
+        "rigid_transfer": -0.011966418523222888
+      },
+      {
+        "start": 132.75,
+        "count": 25,
+        "translation_transfer": -0.13785615636550919,
+        "rigid_transfer": -0.12798604407712744
+      },
+      {
+        "start": 133.0,
+        "count": 25,
+        "translation_transfer": -0.16237696248654787,
+        "rigid_transfer": -0.1502583068058596
+      },
+      {
+        "start": 133.25,
+        "count": 25,
+        "translation_transfer": -0.24883971433547347,
+        "rigid_transfer": -0.23223348471197625
+      },
+      {
+        "start": 133.5,
+        "count": 25,
+        "translation_transfer": -0.17851893526492124,
+        "rigid_transfer": -0.20399501311640145
+      },
+      {
+        "start": 133.75,
+        "count": 25,
+        "translation_transfer": 0.008168233807714809,
+        "rigid_transfer": 0.04693171429011511
+      },
+      {
+        "start": 134.0,
+        "count": 25,
+        "translation_transfer": 0.373476709914901,
+        "rigid_transfer": 0.3777307368573165
+      },
+      {
+        "start": 134.25,
+        "count": 25,
+        "translation_transfer": -0.07015406700928417,
+        "rigid_transfer": -0.1683936880452621
+      },
+      {
+        "start": 134.5,
+        "count": 25,
+        "translation_transfer": 0.30244024052659424,
+        "rigid_transfer": 0.26317991592762446
+      },
+      {
+        "start": 134.75,
+        "count": 25,
+        "translation_transfer": -0.08717188457508218,
+        "rigid_transfer": 0.17667396541754643
+      },
+      {
+        "start": 135.0,
+        "count": 25,
+        "translation_transfer": -0.34851643858813874,
+        "rigid_transfer": -0.11364057060187704
+      },
+      {
+        "start": 135.25,
+        "count": 25,
+        "translation_transfer": -0.4318264014025295,
+        "rigid_transfer": -0.30660984129713675
+      },
+      {
+        "start": 135.5,
+        "count": 25,
+        "translation_transfer": -0.3598438215010271,
+        "rigid_transfer": -0.30379267064880744
+      },
+      {
+        "start": 135.75,
+        "count": 25,
+        "translation_transfer": -0.1360831984682742,
+        "rigid_transfer": -0.17635406518592012
+      },
+      {
+        "start": 136.0,
+        "count": 25,
+        "translation_transfer": -0.18745543498625228,
+        "rigid_transfer": -0.23560511610510448
+      },
+      {
+        "start": 136.25,
+        "count": 25,
+        "translation_transfer": -0.16673820262629957,
+        "rigid_transfer": -0.008699172827739687
+      },
+      {
+        "start": 136.5,
+        "count": 25,
+        "translation_transfer": 0.1437857252666518,
+        "rigid_transfer": 0.6974945973164797
+      },
+      {
+        "start": 136.75,
+        "count": 25,
+        "translation_transfer": 0.1376553350671409,
+        "rigid_transfer": 0.4989110433440357
+      },
+      {
+        "start": 137.0,
+        "count": 25,
+        "translation_transfer": -0.022305034711499028,
+        "rigid_transfer": 0.5563755578274825
+      },
+      {
+        "start": 137.25,
+        "count": 25,
+        "translation_transfer": 0.09494710297351072,
+        "rigid_transfer": 0.12709952476571396
+      },
+      {
+        "start": 137.5,
+        "count": 25,
+        "translation_transfer": -0.15696046554783516,
+        "rigid_transfer": 0.010670699367509084
+      },
+      {
+        "start": 137.75,
+        "count": 25,
+        "translation_transfer": -0.18342323434517938,
+        "rigid_transfer": 0.40435860212766117
+      },
+      {
+        "start": 138.0,
+        "count": 25,
+        "translation_transfer": -0.22092647222484385,
+        "rigid_transfer": 0.16515761694202225
+      },
+      {
+        "start": 138.25,
+        "count": 25,
+        "translation_transfer": -0.18216792969082096,
+        "rigid_transfer": 0.4340354018315056
+      },
+      {
+        "start": 138.5,
+        "count": 25,
+        "translation_transfer": -0.1144282268769854,
+        "rigid_transfer": -0.04453505695773985
+      },
+      {
+        "start": 138.75,
+        "count": 25,
+        "translation_transfer": -0.1233381965338971,
+        "rigid_transfer": -0.09678429908278896
+      },
+      {
+        "start": 139.0,
+        "count": 25,
+        "translation_transfer": -0.1931693044302787,
+        "rigid_transfer": -0.03998911305202402
+      },
+      {
+        "start": 139.25,
+        "count": 25,
+        "translation_transfer": -0.23408897549946306,
+        "rigid_transfer": -0.23631279761305635
+      },
+      {
+        "start": 139.5,
+        "count": 25,
+        "translation_transfer": -0.24841229963645484,
+        "rigid_transfer": -0.21187979004318191
+      },
+      {
+        "start": 139.75,
+        "count": 25,
+        "translation_transfer": -0.003525289981362034,
+        "rigid_transfer": -0.019783854034309822
+      },
+      {
+        "start": 140.0,
+        "count": 25,
+        "translation_transfer": 0.4244480673383638,
+        "rigid_transfer": 0.6233959690051705
+      },
+      {
+        "start": 140.25,
+        "count": 25,
+        "translation_transfer": 0.3821532262456606,
+        "rigid_transfer": 0.4810832855355749
+      },
+      {
+        "start": 140.5,
+        "count": 25,
+        "translation_transfer": 0.24581488374583504,
+        "rigid_transfer": 0.13165972341586696
+      },
+      {
+        "start": 140.75,
+        "count": 25,
+        "translation_transfer": 0.07393569512682296,
+        "rigid_transfer": 0.11449890890625924
+      },
+      {
+        "start": 141.0,
+        "count": 25,
+        "translation_transfer": 0.37146895068673547,
+        "rigid_transfer": 0.5386556225374689
+      },
+      {
+        "start": 141.25,
+        "count": 25,
+        "translation_transfer": -0.19020572393095292,
+        "rigid_transfer": -0.04402477515624015
+      },
+      {
+        "start": 141.5,
+        "count": 25,
+        "translation_transfer": -0.24211381570937696,
+        "rigid_transfer": 0.07826012914410863
+      },
+      {
+        "start": 141.75,
+        "count": 25,
+        "translation_transfer": -0.21176983934754445,
+        "rigid_transfer": 0.495644303063313
+      },
+      {
+        "start": 142.0,
+        "count": 25,
+        "translation_transfer": -0.13328135464392066,
+        "rigid_transfer": 0.0001197245417408066
+      },
+      {
+        "start": 142.25,
+        "count": 25,
+        "translation_transfer": -0.10388509769957688,
+        "rigid_transfer": -0.13733282847966333
+      },
+      {
+        "start": 142.5,
+        "count": 25,
+        "translation_transfer": -0.2558668125770571,
+        "rigid_transfer": 0.3343972219211041
+      },
+      {
+        "start": 142.75,
+        "count": 25,
+        "translation_transfer": -0.21799671589133074,
+        "rigid_transfer": -0.17160774016377256
+      },
+      {
+        "start": 143.0,
+        "count": 25,
+        "translation_transfer": -0.14733746454638474,
+        "rigid_transfer": 0.30718903041212275
+      },
+      {
+        "start": 143.25,
+        "count": 25,
+        "translation_transfer": -0.18967747948611513,
+        "rigid_transfer": -0.017083657058992507
+      },
+      {
+        "start": 143.5,
+        "count": 25,
+        "translation_transfer": -0.18516128845504864,
+        "rigid_transfer": 0.3644429772026465
+      },
+      {
+        "start": 143.75,
+        "count": 25,
+        "translation_transfer": -0.22661477341717307,
+        "rigid_transfer": -0.15067323764290763
+      },
+      {
+        "start": 144.0,
+        "count": 25,
+        "translation_transfer": -0.1699682333190642,
+        "rigid_transfer": 0.11020520726348104
+      },
+      {
+        "start": 144.25,
+        "count": 25,
+        "translation_transfer": -0.20148699397260472,
+        "rigid_transfer": -0.1608443675065796
+      },
+      {
+        "start": 144.5,
+        "count": 25,
+        "translation_transfer": -0.22745148998937825,
+        "rigid_transfer": -0.22156994935166985
+      },
+      {
+        "start": 144.75,
+        "count": 25,
+        "translation_transfer": 0.0030052240705894517,
+        "rigid_transfer": 0.07334794077703277
+      },
+      {
+        "start": 145.0,
+        "count": 25,
+        "translation_transfer": -0.038667749400523865,
+        "rigid_transfer": 0.04421574721368604
+      },
+      {
+        "start": 145.25,
+        "count": 24,
+        "translation_transfer": -0.0422164054190064,
+        "rigid_transfer": -0.06644267907105661
+      }
+    ],
+    "band_percent_changes": [
+      {
+        "translation_rms_half_px_s": -4.549174392704258,
+        "roll_rms_deg_s": 2.1545517421625027
+      },
+      {
+        "translation_rms_half_px_s": 0.9643000349891961,
+        "roll_rms_deg_s": -2.2560491195109167
+      }
+    ],
+    "max_correction_half_px": 4.960157733436063,
+    "minimum_source_margin_px": 5.656607610050969,
+    "video_checks": {
+      "full": {
+        "width": 2880,
+        "height": 810,
+        "r_frame_rate": "100/1",
+        "nb_read_frames": "1400"
+      },
+      "preview": {
+        "width": 1440,
+        "height": 406,
+        "r_frame_rate": "100/1",
+        "nb_read_frames": "1400"
+      }
+    }
+  },
+  "control": {
+    "input": {
+      "frames": 300,
+      "valid_interior": 198,
+      "missing_total": 0,
+      "region_translation_energy_reduction": -0.0072375888852929116,
+      "region_rigid_energy_reduction": -0.06476700239369992,
+      "shared_acceleration_rms": 0.06480971095268306,
+      "all_feature_acceleration_rms": 0.1882015462914048
+    },
+    "prior": {
+      "frames": 300,
+      "valid_interior": 198,
+      "missing_total": 0,
+      "region_translation_energy_reduction": -0.1280704290658019,
+      "region_rigid_energy_reduction": -0.1992343905366969,
+      "shared_acceleration_rms": 0.03459071394828279,
+      "all_feature_acceleration_rms": 0.17911604455288865
+    },
+    "full": {
+      "frames": 300,
+      "valid_interior": 198,
+      "missing_total": 0,
+      "region_translation_energy_reduction": -0.16148860059252823,
+      "region_rigid_energy_reduction": -0.24022402063352577,
+      "shared_acceleration_rms": 0.012402316242894666,
+      "all_feature_acceleration_rms": 0.1658747352681841
+    },
+    "bands": {
+      "window_start": 55.9,
+      "common_active_pairs": 199,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 1.7680638180785602,
+              "roll_rms_deg_s": 0.13102262883382076
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 3.3576597891875855,
+              "roll_rms_deg_s": 0.8467227833264526
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 1.7391204995367109,
+              "roll_rms_deg_s": 0.10744032389161666
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 3.220118161686353,
+              "roll_rms_deg_s": 0.8391041667620711
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "prior_quarter_second_diagnostics": [
+      {
+        "start": 56.25,
+        "count": 9,
+        "translation_transfer": -0.029500955492127945,
+        "rigid_transfer": -0.0981706822315831
+      },
+      {
+        "start": 56.5,
+        "count": 25,
+        "translation_transfer": -0.11974538876394258,
+        "rigid_transfer": -0.20549978390556545
+      },
+      {
+        "start": 56.75,
+        "count": 25,
+        "translation_transfer": -0.14986865791499504,
+        "rigid_transfer": -0.3358086910801077
+      },
+      {
+        "start": 57.0,
+        "count": 25,
+        "translation_transfer": -0.19965028526508255,
+        "rigid_transfer": -0.3048792562171123
+      },
+      {
+        "start": 57.25,
+        "count": 25,
+        "translation_transfer": -0.21562001333116987,
+        "rigid_transfer": -0.2762809967308233
+      },
+      {
+        "start": 57.5,
+        "count": 25,
+        "translation_transfer": -0.15514763146653676,
+        "rigid_transfer": -0.06384064360700692
+      },
+      {
+        "start": 57.75,
+        "count": 25,
+        "translation_transfer": -0.11244654539643006,
+        "rigid_transfer": -0.11279114827077841
+      },
+      {
+        "start": 58.0,
+        "count": 25,
+        "translation_transfer": -0.08528153740515121,
+        "rigid_transfer": -0.1683705918111167
+      },
+      {
+        "start": 58.25,
+        "count": 14,
+        "translation_transfer": 0.004154248821232609,
+        "rigid_transfer": -0.03895067481416792
+      }
+    ],
+    "band_percent_changes": [
+      {
+        "translation_rms_half_px_s": -1.6370064386761474,
+        "roll_rms_deg_s": -17.998650425579633
+      },
+      {
+        "translation_rms_half_px_s": -4.096353893391679,
+        "roll_rms_deg_s": -0.8997769653074417
+      }
+    ],
+    "max_correction_half_px": 0.15535735877786294,
+    "minimum_source_margin_px": 15.303994839331246,
+    "video_checks": {
+      "full": {
+        "width": 2880,
+        "height": 810,
+        "r_frame_rate": "100/1",
+        "nb_read_frames": "300"
+      },
+      "preview": {
+        "width": 1440,
+        "height": 406,
+        "r_frame_rate": "100/1",
+        "nb_read_frames": "300"
+      }
+    }
+  },
+  "additional": {
+    "input": {
+      "frames": 800,
+      "valid_interior": 698,
+      "missing_total": 0,
+      "region_translation_energy_reduction": 0.006298668229415161,
+      "region_rigid_energy_reduction": 0.05398072524280417,
+      "shared_acceleration_rms": 0.14440233162015673,
+      "all_feature_acceleration_rms": 0.2729805341942129
+    },
+    "prior": {
+      "frames": 800,
+      "valid_interior": 698,
+      "missing_total": 0,
+      "region_translation_energy_reduction": -0.1754202077344209,
+      "region_rigid_energy_reduction": -0.11816322545156699,
+      "shared_acceleration_rms": 0.07640234142073452,
+      "all_feature_acceleration_rms": 0.2528608454842778
+    },
+    "full": {
+      "frames": 800,
+      "valid_interior": 698,
+      "missing_total": 0,
+      "region_translation_energy_reduction": -0.18584007902485222,
+      "region_rigid_energy_reduction": -0.1267266210970457,
+      "shared_acceleration_rms": 0.07053314965714572,
+      "all_feature_acceleration_rms": 0.25263038570647656
+    },
+    "bands": {
+      "window_start": 264.0,
+      "common_active_pairs": 699,
+      "panels": [
+        {
+          "panel": 0,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 14.734746952759695,
+              "roll_rms_deg_s": 1.6476016044142006
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 20.645919759431248,
+              "roll_rms_deg_s": 2.167638804497089
+            }
+          ]
+        },
+        {
+          "panel": 1,
+          "bad_pairs": 0,
+          "bands": [
+            {
+              "hz": [
+                2.0,
+                8.0
+              ],
+              "translation_rms_half_px_s": 15.145421225723204,
+              "roll_rms_deg_s": 1.6531067404610038
+            },
+            {
+              "hz": [
+                8.0,
+                30.0
+              ],
+              "translation_rms_half_px_s": 22.210158499096767,
+              "roll_rms_deg_s": 2.3538998779642233
+            }
+          ]
+        }
+      ],
+      "note": "pixel-motion proxy, not ground truth; two panels without additional zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+    },
+    "prior_quarter_second_diagnostics": [
+      {
+        "start": 264.5,
+        "count": 24,
+        "translation_transfer": -0.2539861987111991,
+        "rigid_transfer": 0.008160212844798398
+      },
+      {
+        "start": 264.75,
+        "count": 25,
+        "translation_transfer": -0.16618870067661273,
+        "rigid_transfer": -0.13875865280768784
+      },
+      {
+        "start": 265.0,
+        "count": 25,
+        "translation_transfer": -0.1656295745715759,
+        "rigid_transfer": -0.219474085669354
+      },
+      {
+        "start": 265.25,
+        "count": 25,
+        "translation_transfer": -0.027862660089803315,
+        "rigid_transfer": -0.05958015914299364
+      },
+      {
+        "start": 265.5,
+        "count": 25,
+        "translation_transfer": -0.004533720581129108,
+        "rigid_transfer": -0.004517736231653524
+      },
+      {
+        "start": 265.75,
+        "count": 25,
+        "translation_transfer": -0.008315171671751553,
+        "rigid_transfer": 0.009885313421109543
+      },
+      {
+        "start": 266.0,
+        "count": 25,
+        "translation_transfer": -0.0416199810825757,
+        "rigid_transfer": 0.028593266723504596
+      },
+      {
+        "start": 266.25,
+        "count": 25,
+        "translation_transfer": -0.27903881403900543,
+        "rigid_transfer": -0.3015592649154375
+      },
+      {
+        "start": 266.5,
+        "count": 25,
+        "translation_transfer": -0.17374878571751728,
+        "rigid_transfer": -0.1452516075474568
+      },
+      {
+        "start": 266.75,
+        "count": 25,
+        "translation_transfer": 0.19191430336149606,
+        "rigid_transfer": 0.2837460061481373
+      },
+      {
+        "start": 267.0,
+        "count": 25,
+        "translation_transfer": 0.05404054157204685,
+        "rigid_transfer": 0.1210827460495899
+      },
+      {
+        "start": 267.25,
+        "count": 25,
+        "translation_transfer": -0.22338505241544881,
+        "rigid_transfer": -0.08251179571110678
+      },
+      {
+        "start": 267.5,
+        "count": 25,
+        "translation_transfer": -0.36676866189476853,
+        "rigid_transfer": -0.22584477685476
+      },
+      {
+        "start": 267.75,
+        "count": 25,
+        "translation_transfer": -0.45960350540441164,
+        "rigid_transfer": -0.30083442910796143
+      },
+      {
+        "start": 268.0,
+        "count": 25,
+        "translation_transfer": -0.470495469057264,
+        "rigid_transfer": -0.41180100997699665
+      },
+      {
+        "start": 268.25,
+        "count": 25,
+        "translation_transfer": -0.04088700562574599,
+        "rigid_transfer": 0.019221386953224284
+      },
+      {
+        "start": 268.5,
+        "count": 25,
+        "translation_transfer": -0.2397830149978366,
+        "rigid_transfer": 0.051898425862313746
+      },
+      {
+        "start": 268.75,
+        "count": 25,
+        "translation_transfer": -0.27598033464574434,
+        "rigid_transfer": -0.2643800761533939
+      },
+      {
+        "start": 269.0,
+        "count": 25,
+        "translation_transfer": -0.21114998915653804,
+        "rigid_transfer": -0.29663045596950566
+      },
+      {
+        "start": 269.25,
+        "count": 25,
+        "translation_transfer": -0.1941205281023375,
+        "rigid_transfer": -0.11456303801494716
+      },
+      {
+        "start": 269.5,
+        "count": 25,
+        "translation_transfer": -0.19205387401953877,
+        "rigid_transfer": -0.1888458862964082
+      },
+      {
+        "start": 269.75,
+        "count": 25,
+        "translation_transfer": 0.12790535560957883,
+        "rigid_transfer": 0.16200140223251025
+      },
+      {
+        "start": 270.0,
+        "count": 25,
+        "translation_transfer": 0.09342393268227933,
+        "rigid_transfer": 0.15090563472212926
+      },
+      {
+        "start": 270.25,
+        "count": 25,
+        "translation_transfer": 0.010343382050794658,
+        "rigid_transfer": 0.08343690010133686
+      },
+      {
+        "start": 270.5,
+        "count": 25,
+        "translation_transfer": 0.26007975398832306,
+        "rigid_transfer": 0.31708147154600974
+      },
+      {
+        "start": 270.75,
+        "count": 25,
+        "translation_transfer": 0.32662726276228304,
+        "rigid_transfer": 0.3607779107008281
+      },
+      {
+        "start": 271.0,
+        "count": 25,
+        "translation_transfer": 0.31777629369128924,
+        "rigid_transfer": 0.2650979330225939
+      },
+      {
+        "start": 271.25,
+        "count": 24,
+        "translation_transfer": 0.2305115263810995,
+        "rigid_transfer": 0.3365646335122042
+      }
+    ],
+    "band_percent_changes": [
+      {
+        "translation_rms_half_px_s": 2.7871145278582032,
+        "roll_rms_deg_s": 0.33413029169515607
+      },
+      {
+        "translation_rms_half_px_s": 7.576503047053462,
+        "roll_rms_deg_s": 8.592809516083033
+      }
+    ],
+    "max_correction_half_px": 1.35074998133814,
+    "minimum_source_margin_px": 12.875423114246814,
+    "video_checks": {
+      "full": {
+        "width": 2880,
+        "height": 810,
+        "r_frame_rate": "100/1",
+        "nb_read_frames": "800"
+      },
+      "preview": {
+        "width": 1440,
+        "height": 406,
+        "r_frame_rate": "100/1",
+        "nb_read_frames": "800"
+      }
+    }
+  }
+}

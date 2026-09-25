@@ -1,0 +1,38 @@
+{
+  "files": {
+    "target/experiments/source-pose-v1/0021-depth.json": "8d2b2358b53826a2166e5b8bdf17e1133a09bace82389f3473273dfe1b83114d",
+    "target/experiments/source-pose-v1/0021.json": "6c7c223a7edf645358d539030ab1f8f1af0689745701662c57c8092980ee1918",
+    "target/experiments/source-pose-v1/0027-depth.json": "fb3655dbac6c3f2fdd877dc8601eaaeabebdbe199a5b0958476a5d9eb7fbdb7b",
+    "target/experiments/source-pose-v1/0027.json": "f1c9a53fd943dd6b85871d78772a3f7fcda494388086c4e09dcfe3636275f90f",
+    "target/experiments/source-pose-v1/0060-depth.json": "6fe20f684336c63cca6ab5ffbbc89122e0a36cb7ca1e0eac4f9a3c3f2fae2c90",
+    "target/experiments/source-pose-v1/0060.json": "9e74d5f17374af7232c1199a82e52faa703b34163df692017f5a2a2f2ced081d",
+    "o4core/examples/source_pose_probe.rs": "3b9373bcff7f9b18f3149bdb78a0d0d485817b2067d1b0f54c3950e8b4b0ac6c",
+    "docs/experiments/source-pose-v1/summarize.py": "e3e7613819a1c922744dc45a0415612c977e8a7e10953ae610396b6d20757893",
+    "docs/experiments/source-pose-v1/metrics.json": "de4af38714c9d03ac1907ca8e92a0f687fa0338c4420e5078116330e926e9770",
+    "target/release/examples/source_pose_probe.exe": "d1124d1f6ec3d0b61d639277a5496fe0fddbe198b697292ce771d394c90bb635",
+    "docs/experiments/calibration-v1/0021.json": "e3c8f7ef2981cd9f4320385d44f52de9fbca20a5da84ae4568ffc3606f1afa41",
+    "target/experiments/calibration-v1/0021/observations.json": "dd9f86b686b0b22d325592a7f554605ad50616bcdc48fe160187750b09465d57",
+    "docs/experiments/calibration-v1/0027.json": "ea3bf7321bc0f4b632e3c70bea3601135db75fab0548bc0d6509df084dc31bfc",
+    "target/experiments/calibration-v1/0027/observations.json": "ec091d4bd7d55f3bfb3fa7234f96dd0eccaaae206bafc1adab8118c1b223d58c",
+    "docs/experiments/calibration-v1/0060.json": "8237b1990852423931103c657e15b92121bed1b04b45c93d2fe76f4f3e136fba",
+    "target/experiments/calibration-v1/0060/observations.json": "1a4ef7792a2ac55e80bdf52c41ce96d0a3f04cfeb0d32d3cd81898820d16baf3"
+  },
+  "clips": [
+    {
+      "path": "sample_vids\\DJI_20260711124046_0021_D.MP4",
+      "bytes": 1734239522,
+      "sha256": "088335902a05d268c654869b2b02a9f91ff614770ef28d5122a15498f2f55394"
+    },
+    {
+      "path": "sample_vids\\DJI_20260721141550_0027_D.MP4",
+      "bytes": 2438404957,
+      "sha256": "fe70dc1046fec05a0192bdea130fe9ea40518c5d0cae013164e455b6503f87a4"
+    },
+    {
+      "path": "sample_vids\\DJI_20260808151831_0060_D.MP4",
+      "bytes": 3761447591,
+      "sha256": "f5de3300bd7d55eed91b551f8d811696bfe49c7ff11e0c052349035288f523ed"
+    }
+  ],
+  "note": "Executable built before final cfg(test)-only degeneracy regression; acquisition reference replay verified numerically."
+}

@@ -5,13 +5,14 @@ let settings = null;              // GuiSettings from backend
 let pending = [];                 // absolute paths not yet queued
 const rows = new Map();           // job id -> DOM refs
 let activeJobs = 0;
+let starting = false;
 // events that can arrive before start()'s row registration runs (instant-error
 // jobs emit job_done synchronously from the backend thread) — buffered and
 // replayed once the row exists.
 let earlyEvents = [];
 
 const $ = (id) => document.getElementById(id);
-const busy = () => activeJobs > 0;
+const busy = () => starting || activeJobs > 0;
 
 function baseName(p) { return p.split(/[\\/]/).pop(); }
 
@@ -37,30 +38,39 @@ function addFiles(paths) {
 }
 
 async function start() {
-  const files = pending.slice();
-  const ids = await invoke("start_queue", { files, settings });
-  activeJobs = ids.length;
-  const lis = [...$("queue").querySelectorAll("li")].filter(li => !li.dataset.id);
-  ids.forEach((id, i) => {
-    const li = lis[i];
-    li.dataset.id = id;
-    const cancelBtn = li.querySelector(".cancel");
-    cancelBtn.hidden = false;
-    cancelBtn.onclick = () => {
-      const r = rows.get(id);
-      if (r) { r.cancelling = true; r.chip.textContent = "cancelling…"; r.chip.className = "chip cancelled"; }
-      cancelBtn.disabled = true;
-      invoke("cancel_job", { id });
-    };
-    rows.set(id, { li, chip: li.querySelector(".chip"),
-                   bar: li.querySelector("progress"),
-                   msg: li.querySelector(".msg"), cancel: cancelBtn });
-  });
-  const replay = earlyEvents;
-  earlyEvents = [];
-  for (const [fn, e] of replay) fn(e);
-  pending = [];
+  if (busy() || pending.length === 0) return;
+  starting = true;
   setControls();
+  const files = pending.slice();
+  const lis = [...$("queue").querySelectorAll("li")].filter(li => !li.dataset.id);
+  try {
+    const ids = await invoke("start_queue", { files, settings });
+    activeJobs = ids.length;
+    ids.forEach((id, i) => {
+      const li = lis[i];
+      li.dataset.id = id;
+      const cancelBtn = li.querySelector(".cancel");
+      cancelBtn.hidden = false;
+      cancelBtn.onclick = () => {
+        const r = rows.get(id);
+        if (r) { r.cancelling = true; r.chip.textContent = "cancelling…"; r.chip.className = "chip cancelled"; }
+        cancelBtn.disabled = true;
+        invoke("cancel_job", { id });
+      };
+      rows.set(id, { li, chip: li.querySelector(".chip"),
+                     bar: li.querySelector("progress"),
+                     msg: li.querySelector(".msg"), cancel: cancelBtn });
+    });
+    const replay = earlyEvents;
+    earlyEvents = [];
+    for (const [fn, e] of replay) fn(e);
+    pending = [];
+  } catch (error) {
+    $("log").textContent += `Could not start repair: ${error}\n`;
+  } finally {
+    starting = false;
+    setControls();
+  }
 }
 
 function onProgress(e) {

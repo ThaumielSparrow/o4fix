@@ -1,0 +1,80 @@
+{
+  "accepted_parity_max_component": 3.933634116354279e-08,
+  "bursts": [
+    {
+      "interval": [
+        14.168092109840394,
+        17.102696375175473
+      ],
+      "rebased": false,
+      "drift_deg": 23.76816348319262,
+      "implied_bridge_peak_deg_s": 12.152700627199716,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 17.729517859011267
+        },
+        {
+          "interior": true,
+          "samples": 2552,
+          "rate_difference_rms_deg_s": 9.92087956236908
+        }
+      ],
+      "handback_added_rate_rms_deg_s": 0.005226733092254156,
+      "handback_added_rate_peak_deg_s": 0.03597434873569449,
+      "max_handback_weight": 0.21298168471952292,
+      "peak_noise_deg_s": 455.5949884736478
+    },
+    {
+      "interval": [
+        18.72967748518097,
+        19.22967131681549
+      ],
+      "rebased": false,
+      "drift_deg": 3.6633453764659887,
+      "implied_bridge_peak_deg_s": 11.01211204187834,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 9.446646456481643
+        },
+        {
+          "interior": true,
+          "samples": 119,
+          "rate_difference_rms_deg_s": 10.808611890595794
+        }
+      ],
+      "handback_added_rate_rms_deg_s": 0.0,
+      "handback_added_rate_peak_deg_s": 0.0,
+      "max_handback_weight": 0.0,
+      "peak_noise_deg_s": 10.348459804957503
+    },
+    {
+      "interval": [
+        255.55017727294432,
+        257.1152279097519
+      ],
+      "rebased": true,
+      "drift_deg": 123.11771359524772,
+      "implied_bridge_peak_deg_s": 118.07821729966062,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 2.287619146372568
+        },
+        {
+          "interior": true,
+          "samples": 1183,
+          "rate_difference_rms_deg_s": 9.481972851223359e-12
+        }
+      ],
+      "handback_added_rate_rms_deg_s": 0.000351916784661353,
+      "handback_added_rate_peak_deg_s": 0.003310653910360395,
+      "max_handback_weight": 0.023269510323863415,
+      "peak_noise_deg_s": 319.7932406994806
+    }
+  ]
+}

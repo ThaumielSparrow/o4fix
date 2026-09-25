@@ -54,6 +54,11 @@ pub fn video_rates(
     let fps = cap.get(videoio::CAP_PROP_FPS)?;
     let w = cap.get(videoio::CAP_PROP_FRAME_WIDTH)? as i32;
     let h = cap.get(videoio::CAP_PROP_FRAME_HEIGHT)? as i32;
+    if !cap.is_opened()? || !fps.is_finite() || fps <= 0.0 || w < 2 || h < 2 {
+        return Err(O4Error::Cv(
+            "cannot decode video or invalid frame rate/dimensions".into(),
+        ));
+    }
     drop(cap);
     let done = std::sync::atomic::AtomicUsize::new(0);
     let results: Result<Vec<_>, O4Error> = intervals
@@ -237,7 +242,12 @@ pub fn fit_video_alignment(
 ) -> Option<Alignment> {
     use crate::dsp;
     let good: Vec<usize> = (0..opt.quality.len())
-        .filter(|&i| opt.quality[i] > 0.5)
+        .filter(|&i| {
+            opt.quality[i].is_finite()
+                && opt.quality[i] > 0.5
+                && opt.t[i].is_finite()
+                && opt.omega[i].iter().all(|v| v.is_finite())
+        })
         .collect();
     if good.len() < 200 {
         return None;
@@ -333,6 +343,9 @@ pub fn fit_video_alignment(
             ss_tot += (g[i][k] - mk).powi(2);
         }
     }
+    if ss_tot <= f64::EPSILON || !ss_tot.is_finite() || !ss_res.is_finite() {
+        return None;
+    }
     Some(Alignment {
         shift,
         n: n_mat,
@@ -343,6 +356,16 @@ pub fn fit_video_alignment(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn stationary_calibration_does_not_pass_with_nan_r2() {
+        let opt = OpticalRates {
+            t: (0..300).map(|i| i as f64 / 100.0).collect(),
+            omega: vec![[0.0; 3]; 300],
+            quality: vec![1.0; 300],
+        };
+        let tm: Vec<f64> = (0..3000).map(|i| i as f64 / 1000.0).collect();
+        assert!(fit_video_alignment(&opt, &tm, &vec![[0.0; 3]; tm.len()], 1000.0).is_none());
+    }
 
     #[test]
     fn fit_video_alignment_returns_none_below_good_gate() {

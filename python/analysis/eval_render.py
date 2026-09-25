@@ -36,8 +36,9 @@ F_PX = 546.4  # calib focal length @1440w; constant is fine for comparisons
 # named windows in the 0021_D test clip (seconds)
 WINDOWS = [
     ("powerloop 7-12", 7, 12),
-    ("clean 60-65", 60, 65),
-    ("clean 100-105", 100, 105),
+    ("clean 67-72.5", 67, 72.5),
+    ("clean 94-98", 94, 98),
+    ("clean 120-128", 120, 128),
     ("burst 140-145", 140, 145),
     ("flick 22.1", 21.1, 23.1),
     ("flick 31.1", 30.1, 32.1),
@@ -178,7 +179,7 @@ def evaluate_series(r, patched):
     pmask = np.zeros(len(t), bool)
     for a, b in patched:
         pmask |= (t >= a) & (t <= b)
-    out["ALL patched (64%)"] = metrics_for_mask(t, rates, logsr, fs, pmask)
+    out["ALL optical-triggered"] = metrics_for_mask(t, rates, logsr, fs, pmask)
     out["ALL clean"] = metrics_for_mask(t, rates, logsr, fs, ~pmask)
     for name, a, b in WINDOWS:
         m = (t >= a) & (t <= b)

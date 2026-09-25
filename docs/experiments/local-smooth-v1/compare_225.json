@@ -1,0 +1,25 @@
+{
+  "window": [
+    221.0,
+    229.0
+  ],
+  "panels": [
+    "baseline",
+    "sigma40ms",
+    "sigma80ms"
+  ],
+  "common_zoom": 1.08,
+  "max_translation_half_px": [
+    4.799724271111648,
+    8.177953447800313
+  ],
+  "max_roll_deg": [
+    0.4162696488471542,
+    0.5
+  ],
+  "limited_frames": [
+    0,
+    32
+  ],
+  "low_confidence_pairs": 0
+}

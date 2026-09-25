@@ -5,7 +5,7 @@ use std::collections::{HashMap, VecDeque};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 
 #[derive(Default)]
 pub struct AppState {
@@ -93,6 +93,7 @@ fn run_job(app: &AppHandle, job: Job, cfg: &o4core::config::Config, out_dir: Opt
         .to_string_lossy()
         .to_string();
     let finish = |status: &'static str, message: String| {
+        app.state::<AppState>().jobs.lock().unwrap().remove(&job.id);
         let _ = app.emit(
             "job_done",
             JobDone {

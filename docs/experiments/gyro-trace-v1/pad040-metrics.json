@@ -1,0 +1,531 @@
+{
+  "parity_max_component": 4.647718665484746e-8,
+  "baseline_padding": 0.2,
+  "candidate_padding": 0.4,
+  "bursts": [
+    {
+      "interval": [
+        0.005563575216064431,
+        0.9365896545715332
+      ],
+      "candidate_drift": 0.599883230349196,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            0.20556357521606444,
+            0.7365896545715331
+          ],
+          "drift": 0.6423924969288841,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        48.49142458461548,
+        49.676531490466
+      ],
+      "candidate_drift": 2.1235712289540367,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            48.691424584615476,
+            49.476531490466
+          ],
+          "drift": 2.120811711701362,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        64.88860305317688,
+        66.03260912698151
+      ],
+      "candidate_drift": 2.1249760137562466,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            65.08860305317688,
+            65.83260912698151
+          ],
+          "drift": 2.0733065464478493,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        71.53142570556639,
+        72.45140420204436
+      ],
+      "candidate_drift": 1.7633217693211314,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            71.7314257055664,
+            72.25140420204436
+          ],
+          "drift": 0.6870604118962592,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        79.26105541158296,
+        80.15607140889742
+      ],
+      "candidate_drift": 1.0548019929412087,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            79.46105541158296,
+            79.95607140889742
+          ],
+          "drift": 0.8888166297549919,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        89.57385204696655,
+        90.84084669974519
+      ],
+      "candidate_drift": 7.933692409055235,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            89.77385204696655,
+            90.64084669974518
+          ],
+          "drift": 7.92934698867983,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        97.80666665655303,
+        99.1217454749048
+      ],
+      "candidate_drift": 5.949488459951137,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            98.00666665655304,
+            98.9217454749048
+          ],
+          "drift": 5.946684390645241,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        100.17687034090972,
+        101.68582673779298
+      ],
+      "candidate_drift": 125.61102489783889,
+      "candidate_rebased": true,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            100.37687034090972,
+            101.48582673779298
+          ],
+          "drift": 125.46110939419214,
+          "rebased": true
+        }
+      ]
+    },
+    {
+      "interval": [
+        105.63007869154357,
+        106.81010759764649
+      ],
+      "candidate_drift": 58.46167449486213,
+      "candidate_rebased": true,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            105.83007869154358,
+            106.61010759764649
+          ],
+          "drift": 58.460192605064854,
+          "rebased": true
+        }
+      ]
+    },
+    {
+      "interval": [
+        116.89794855087828,
+        118.70597510683716
+      ],
+      "candidate_drift": 2.391536929451789,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            117.09794855087829,
+            118.50597510683716
+          ],
+          "drift": 2.4006544345278167,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        122.37979481885314,
+        123.48862789314545
+      ],
+      "candidate_drift": 0.5575594776675133,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            122.57979481885314,
+            123.28862789314545
+          ],
+          "drift": 0.5687836935745081,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        134.1124492480191,
+        135.02043041135195
+      ],
+      "candidate_drift": 0.5485934085270984,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            134.3124492480191,
+            134.82043041135194
+          ],
+          "drift": 0.5581141711281095,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        146.10941442044341,
+        146.97741983578769
+      ],
+      "candidate_drift": 0.7440040020029485,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            146.30941442044343,
+            146.77741983578767
+          ],
+          "drift": 0.7282486789980144,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        150.29981772284972,
+        151.18081588778963
+      ],
+      "candidate_drift": 0.9368324104917347,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            150.49981772284974,
+            150.98081588778962
+          ],
+          "drift": 0.5897519260708315,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        180.86132455500305,
+        182.33429062044038
+      ],
+      "candidate_drift": 6.1558549859116525,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            181.06132455500307,
+            182.13429062044037
+          ],
+          "drift": 6.120493242657724,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        191.51242076477055,
+        192.42143092838566
+      ],
+      "candidate_drift": 1.9268675609965273,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            191.71242076477057,
+            192.22143092838564
+          ],
+          "drift": 1.9500684132671824,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        204.61562282385253,
+        205.50361282209778
+      ],
+      "candidate_drift": 3.4060479017362213,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            204.81562282385255,
+            205.30361282209776
+          ],
+          "drift": 3.200388586957298,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        206.13548494980895,
+        207.3494746885681
+      ],
+      "candidate_drift": 4.0248957389949,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            206.33548494980897,
+            207.1494746885681
+          ],
+          "drift": 4.023679748945331,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        209.8780404306848,
+        211.6120335714215
+      ],
+      "candidate_drift": 3.735134928598477,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            210.0780404306848,
+            211.4120335714215
+          ],
+          "drift": 3.584269270317563,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        223.2390973155365,
+        224.15709789670564
+      ],
+      "candidate_drift": 0.9449307608445868,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            223.43909731553651,
+            223.95709789670562
+          ],
+          "drift": 0.9703711273153198,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        224.82727535576416,
+        226.3792482529428
+      ],
+      "candidate_drift": 102.50774992158496,
+      "candidate_rebased": true,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            225.02727535576417,
+            226.17924825294278
+          ],
+          "drift": 102.52597589801022,
+          "rebased": true
+        }
+      ]
+    },
+    {
+      "interval": [
+        235.72818005869075,
+        236.8881887988385
+      ],
+      "candidate_drift": 2.1117315042633926,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            235.92818005869077,
+            236.6881887988385
+          ],
+          "drift": 2.1076208000494416,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        237.71041325464628,
+        238.63041900046053
+      ],
+      "candidate_drift": 3.7886500481130594,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            237.9104132546463,
+            238.43041900046052
+          ],
+          "drift": 3.7073921333364663,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        248.14497013623324,
+        249.51597962055482
+      ],
+      "candidate_drift": 103.18016809724641,
+      "candidate_rebased": true,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            248.34497013623326,
+            249.3159796205548
+          ],
+          "drift": 103.18752396395303,
+          "rebased": true
+        }
+      ]
+    },
+    {
+      "interval": [
+        282.00595637940006,
+        283.13298211993686
+      ],
+      "candidate_drift": 0.7857627587784808,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            282.20595637940005,
+            282.93298211993687
+          ],
+          "drift": 0.7709291551266586,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        307.8111682585352,
+        309.47912198448455
+      ],
+      "candidate_drift": 175.30669345874668,
+      "candidate_rebased": true,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            308.0111682585352,
+            309.27912198448456
+          ],
+          "drift": 174.97422793258673,
+          "rebased": true
+        }
+      ]
+    },
+    {
+      "interval": [
+        342.13796248833853,
+        343.0427989847134
+      ],
+      "candidate_drift": 0.49041967677515763,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            342.3379624883385,
+            342.8427989847134
+          ],
+          "drift": 0.1495857908066779,
+          "rebased": false
+        }
+      ]
+    }
+  ],
+  "windows": [
+    {
+      "window": [
+        102.0,
+        110.0
+      ],
+      "max_orientation_difference_deg": 1.717907632205224
+    },
+    {
+      "window": [
+        221.0,
+        229.0
+      ],
+      "max_orientation_difference_deg": 8.46861100257026
+    },
+    {
+      "window": [
+        245.0,
+        253.0
+      ],
+      "max_orientation_difference_deg": 9.003733290675566
+    },
+    {
+      "window": [
+        304.0,
+        312.0
+      ],
+      "max_orientation_difference_deg": 8.786027895031475
+    },
+    {
+      "window": [
+        19.0,
+        22.0
+      ],
+      "max_orientation_difference_deg": 7.111936473907614e-15
+    }
+  ],
+  "note": "Same cached production rates; padding 0.2 to 0.4; ramp remains 0.19. Intervals and endpoint drift/rebase decisions can change. Research only."
+}

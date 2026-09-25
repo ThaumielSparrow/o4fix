@@ -1,0 +1,51 @@
+{
+  "approximate": true,
+  "note": "same default handback formula, cached eight-second optical context rather than exact production segment edges; all selected segments have zero gyro trust; no claim of causality",
+  "bursts": [
+    {
+      "burst": [
+        105.83007869154358,
+        106.61010759764648
+      ],
+      "mean_weight": 0.0,
+      "max_weight": 0.0,
+      "fraction_above_half": 0.0
+    },
+    {
+      "burst": [
+        223.43909731553651,
+        223.9570978967056
+      ],
+      "mean_weight": 0.0,
+      "max_weight": 0.0,
+      "fraction_above_half": 0.0
+    },
+    {
+      "burst": [
+        225.02727535576415,
+        226.1792482529428
+      ],
+      "mean_weight": 0.0,
+      "max_weight": 0.0,
+      "fraction_above_half": 0.0
+    },
+    {
+      "burst": [
+        248.3449701362333,
+        249.3159796205548
+      ],
+      "mean_weight": 0.05676773224064457,
+      "max_weight": 0.8504308758587876,
+      "fraction_above_half": 0.05452674897119342
+    },
+    {
+      "burst": [
+        308.0111682585352,
+        309.27912198448456
+      ],
+      "mean_weight": 0.007481099877494796,
+      "max_weight": 0.24438836546154308,
+      "fraction_above_half": 0.0
+    }
+  ]
+}

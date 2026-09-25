@@ -1,0 +1,73 @@
+{
+  "window_start": 304.0,
+  "common_active_pairs": 179,
+  "panels": [
+    {
+      "panel": 0,
+      "bad_pairs": 0,
+      "bands": [
+        {
+          "hz": [
+            2.0,
+            8.0
+          ],
+          "translation_rms_half_px_s": 24.37954075790984,
+          "roll_rms_deg_s": 11.815771661074908
+        },
+        {
+          "hz": [
+            8.0,
+            30.0
+          ],
+          "translation_rms_half_px_s": 30.325725491210076,
+          "roll_rms_deg_s": 5.754453681689743
+        }
+      ]
+    },
+    {
+      "panel": 1,
+      "bad_pairs": 0,
+      "bands": [
+        {
+          "hz": [
+            2.0,
+            8.0
+          ],
+          "translation_rms_half_px_s": 24.96618243287623,
+          "roll_rms_deg_s": 9.435566125168002
+        },
+        {
+          "hz": [
+            8.0,
+            30.0
+          ],
+          "translation_rms_half_px_s": 52.62165953331877,
+          "roll_rms_deg_s": 7.936972171021211
+        }
+      ]
+    },
+    {
+      "panel": 2,
+      "bad_pairs": 0,
+      "bands": [
+        {
+          "hz": [
+            2.0,
+            8.0
+          ],
+          "translation_rms_half_px_s": 25.927666474353668,
+          "roll_rms_deg_s": 9.349222215375677
+        },
+        {
+          "hz": [
+            8.0,
+            30.0
+          ],
+          "translation_rms_half_px_s": 46.57681558965163,
+          "roll_rms_deg_s": 7.224794395438419
+        }
+      ]
+    }
+  ],
+  "note": "pixel-motion proxy, not ground truth; common 8% zoom; confidence neighborhoods and 0.5s edges excluded; no low-frequency pan claim"
+}

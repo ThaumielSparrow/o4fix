@@ -1,0 +1,175 @@
+{
+  "windows": [
+    {
+      "window": [
+        102.0,
+        110.0
+      ],
+      "samples": 800,
+      "bad_fraction": 0.0,
+      "longest_bad_seconds": 0.0,
+      "bad_runs": [],
+      "severe_intervals": [
+        [
+          105.83007869154358,
+          106.61010759764649
+        ]
+      ],
+      "optical_intervals": [
+        {
+          "start": 103.18915975602724,
+          "end": 106.9871138461206,
+          "peak_noise": 396.96774958101656,
+          "gyro_trust": 0.0
+        },
+        {
+          "start": 108.79560801939668,
+          "end": 112.2118926201581,
+          "peak_noise": 3.8796377310157713,
+          "gyro_trust": 1.0
+        }
+      ]
+    },
+    {
+      "window": [
+        221.0,
+        229.0
+      ],
+      "samples": 800,
+      "bad_fraction": 0.0,
+      "longest_bad_seconds": 0.0,
+      "bad_runs": [],
+      "severe_intervals": [
+        [
+          223.43909731553651,
+          223.95709789670562
+        ],
+        [
+          225.02727535576417,
+          226.17924825294278
+        ]
+      ],
+      "optical_intervals": [
+        {
+          "start": 222.62212449713138,
+          "end": 226.56422791601562,
+          "peak_noise": 333.3931312971256,
+          "gyro_trust": 0.0
+        },
+        {
+          "start": 227.94752935141756,
+          "end": 229.57752108366392,
+          "peak_noise": 6.481234583333752,
+          "gyro_trust": 1.0
+        }
+      ]
+    },
+    {
+      "window": [
+        245.0,
+        253.0
+      ],
+      "samples": 800,
+      "bad_fraction": 0.0,
+      "longest_bad_seconds": 0.0,
+      "bad_runs": [],
+      "severe_intervals": [
+        [
+          248.34497013623326,
+          249.3159796205548
+        ]
+      ],
+      "optical_intervals": [
+        {
+          "start": 247.90098997444915,
+          "end": 249.69898711872372,
+          "peak_noise": 608.3979337364019,
+          "gyro_trust": 0.0
+        }
+      ]
+    },
+    {
+      "window": [
+        304.0,
+        312.0
+      ],
+      "samples": 800,
+      "bad_fraction": 0.0,
+      "longest_bad_seconds": 0.0,
+      "bad_runs": [],
+      "severe_intervals": [
+        [
+          308.0111682585352,
+          309.27912198448456
+        ]
+      ],
+      "optical_intervals": [
+        {
+          "start": 304.5959453434961,
+          "end": 306.1519267443979,
+          "peak_noise": 5.3390274180104065,
+          "gyro_trust": 1.0
+        },
+        {
+          "start": 307.2681923542175,
+          "end": 309.6851203155545,
+          "peak_noise": 440.84701907622593,
+          "gyro_trust": 0.0
+        },
+        {
+          "start": 311.9755131413193,
+          "end": 313.44638854629306,
+          "peak_noise": 4.829895070625342,
+          "gyro_trust": 1.0
+        }
+      ]
+    },
+    {
+      "window": [
+        117.0,
+        128.0
+      ],
+      "samples": 1100,
+      "bad_fraction": 0.01818181818181818,
+      "longest_bad_seconds": 0.20000000000000284,
+      "bad_runs": [
+        [
+          118.035,
+          118.235
+        ]
+      ],
+      "severe_intervals": [
+        [
+          117.09794855087829,
+          118.50597510683716
+        ],
+        [
+          122.57979481885314,
+          123.28862789314545
+        ]
+      ],
+      "optical_intervals": [
+        {
+          "start": 116.67396622196472,
+          "end": 118.93196193613983,
+          "peak_noise": 30.425223972388544,
+          "gyro_trust": 1.0
+        },
+        {
+          "start": 122.17981523702028,
+          "end": 123.78358772068574,
+          "peak_noise": 14.94781927668276,
+          "gyro_trust": 1.0
+        },
+        {
+          "start": 126.41374212226654,
+          "end": 128.13385510160066,
+          "peak_noise": 6.0805041500504515,
+          "gyro_trust": 1.0
+        }
+      ]
+    }
+  ],
+  "config": "Config { severe: 8.0, severe_pad: 0.2, severe_merge: 0.2, ramp: 0.3, light_cutoff: 25.0, strong_cutoff: 2.5, noise_low: 1.5, noise_high: 5.0, noise_band: (30.0, 180.0), noise_window_ms: 100.0, hampel_window: 7, hampel_sigma: 6.0, optical_cutoff: 8.0, handback_cutoff: None, fast_handback: (100.0, 250.0), gyro_trust_noise: (200.0, 300.0), patch_pad: 0.5, patch_merge: 1.0, optical_noise: None, fast_wide_cutoff: 0.0, fast_wide_ramp: (150.0, 300.0), fast_wide_accel: 1500.0, anchor_mode: false, anchor_cutoff: 1.5, drift_rebase_above: 30.0, drift_decay_rate: 1.5 }",
+  "note": "source-to-fixed orientation difference is not Gyroflow stabilization correction; LP8 rates are diagnostic only"
+}

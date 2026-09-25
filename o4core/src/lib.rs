@@ -1,3 +1,4 @@
+pub mod alignment; // experimental; default pipeline still uses optical::fit_video_alignment
 pub mod config;
 pub mod detect;
 pub mod dsp;

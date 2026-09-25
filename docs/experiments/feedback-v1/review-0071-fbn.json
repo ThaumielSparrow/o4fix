@@ -1,0 +1,9 @@
+{"out": "target/experiments/feedback-v1/review-0071-fbn.html",
+ "title": "0071: second-step feedback correction (fbn)",
+ "intro": "Clip 0071 was not used for tuning. The right side adds the gain-corrected render-feedback correction inside the gyro-noise bursts only; outside the bursts both sides should look the same.",
+ "left": "edge-offset baseline (current best)", "right": "fbn feedback correction",
+ "items": [
+  {"clip": "0071", "name": "Throttle-pin burst", "window": "source 11-21 s (bursts 14.2-17.1 s and 18.7-19.2 s)", "look": "Main test: the long full-throttle burst. The first-pass correction overshot here; judder should now be clearly lower on the right.", "base": "0071/compare_fbn_throttle"},
+  {"clip": "0071", "name": "Late event", "window": "source 252-260 s (burst 255.6-257.1 s)", "look": "Wobble should be lower on the right; watch for any added fine shake.", "base": "0071/compare_fbn_late"},
+  {"clip": "0071", "name": "Clean control", "window": "source 74-77 s", "look": "No correction is applied here: both sides should look identical.", "base": "0071/compare_fbn_control"}
+ ]}

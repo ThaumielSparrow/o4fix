@@ -1,0 +1,16 @@
+{
+  "files": {
+    "target/experiments/perspective-v1/106.json": "0158bc9b07f009889bab9565495bf7e9c1152f59ae39ed93d3a7b23971870632",
+    "target/experiments/perspective-v1/225.json": "28e67dcc1e26e4eda57c3ab022de2e5ed11c57a1dc6321ffe9a477de4979f898",
+    "target/experiments/perspective-v1/249.json": "ebd0b0d94237044fdffc6de2955c6c4328be3d2088aa9e56a9a2e6c689d49822",
+    "target/experiments/perspective-v1/308.json": "be31c6eb07a975b6f91fca3a15da490860828da310a43d6426f478ff89e466f4",
+    "target/experiments/perspective-v1/control.json": "476c7d3e29c075691d7a98e868ec1102e093b377accb50de276c3a49981bd848",
+    "o4core/examples/perspective_track_probe.rs": "b4e507c7a5f3bdfcaf167e02b8ebb70d9367557f580383d832c3d1ed9ae81eed",
+    "target/release/examples/perspective_track_probe.exe": "132451973ab41daae54b63f6ff2af9e018896d3270f0b98102e2a9303e45a210",
+    "target/experiments/local-smooth-v1/bursts.json": "2858ebcaf265b32ad6140a16b3890a2d32c0781bf19ce27a0e047e526e6cac6c",
+    "target/experiments/decay-v1/baseline.mp4": "17beb231cf94ae972bbd3c5b9ca4b30b0b18ee6dc5948e8e71c86133f6661336",
+    "target/experiments/local-smooth-v1/context_225.avi": "5fb9ba9829fdcc56528bd2951eb399b3ffa944af26fc8c778f06bafd7920dfd5",
+    "target/experiments/local-smooth-v1/context_249.avi": "8852e8c7b4919c844ed3aff23b849cbc3c25e84b2b632b7631274d231776d221",
+    "target/experiments/local-smooth-v1/context_308.avi": "878d424d30c49dd6d8bdf2e1d6ec81597260ef1462ae0bbf8f27df5c68fdfbac"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "files": {
+    "target/experiments/multiframe-v1/0060-control-logdepth-scores.json": "c284f3ed07fd3e41f2971f46c6d89dd41157968c47a36e07b74811eaf8edacee",
+    "target/experiments/multiframe-v1/0060-control-logdepth.json": "d807537f68a12032919f2a466c2bff2298ef9666d8196312326b49f71833765e",
+    "target/experiments/multiframe-v1/0060-control-scores.json": "b34df6e620546f27564cff8471403ad7ffd1187a8acea0bf0685b9512c0e7a2d",
+    "target/experiments/multiframe-v1/0060-control.json": "14504365e02142b200669509bef0d40d8e764dea46d08f3532e3fc2f5bc4da01",
+    "target/experiments/multiframe-v1/linear_depth_source.rs": "8517f6a0463d295b4836f37e09dfbea9666c51fb9a4416c9d19ffe490c263178",
+    "target/experiments/source-pose-v1/0060.json": "9e74d5f17374af7232c1199a82e52faa703b34163df692017f5a2a2f2ced081d",
+    "docs/experiments/calibration-v1/0060.json": "8237b1990852423931103c657e15b92121bed1b04b45c93d2fe76f4f3e136fba",
+    "o4core/examples/multiframe_pose_probe.rs": "bc0c7c7ab81e748e83c998ad59b82b26ebbb388cc99c3e1a5d922a0ba124045b",
+    "o4core/examples/multiframe_score.rs": "d8faea4536a4a281872e37b426e2402ccb03c18473c524043844317e1b27ba5d",
+    "target/release/examples/multiframe_pose_probe.exe": "768108b0b88f53cdb5db90ad99b4ef09cc560b453af792a43be0f1d1178806c9",
+    "target/release/examples/multiframe_score.exe": "6161bc754420c62ccb9836f6ad0684787e5c7f4bf1feb9a7900733e1c20d3b26",
+    "docs/experiments/multiframe-v1/summarize.py": "bbbe7ec460ef6c6b790254056d0ee60d90f610ccf2f6a12f0541537e3c9a185b",
+    "docs/experiments/multiframe-v1/metrics.json": "d9e5623fadf5b405e781a1ef03da5f2c9672b284cbf8ff074021d84e6748ca22"
+  },
+  "source_video_fingerprint": "Verified in docs/experiments/source-pose-v1/manifest.json; same source used for telemetry scoring."
+}

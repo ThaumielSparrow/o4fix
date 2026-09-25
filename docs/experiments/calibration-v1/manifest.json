@@ -1,0 +1,101 @@
+{
+  "experiment": "calibration-v1",
+  "complaint_clip": "0060",
+  "complaint_seconds": [
+    106,
+    225,
+    249,
+    308
+  ],
+  "control_windows_seconds": [
+    [
+      117,
+      128
+    ]
+  ],
+  "renders_produced": false,
+  "files": {
+    "target/experiments/calibration-v1/baseline/o4fix-app.exe": "c25251c4688fbad96ee6eaafc23d236f19957373d07c60da9194e9aba770272d",
+    "target/experiments/calibration-v1/baseline/o4fix.exe": "25eca114e7fcc3ec9643dc917beca826902ea64edca58a3cd1696579a89143bb",
+    "target/experiments/calibration-v1/0021/observations.json": "dd9f86b686b0b22d325592a7f554605ad50616bcdc48fe160187750b09465d57",
+    "target/experiments/calibration-v1/0027/observations.json": "ec091d4bd7d55f3bfb3fa7234f96dd0eccaaae206bafc1adab8118c1b223d58c",
+    "target/experiments/calibration-v1/0060/observations.json": "1a4ef7792a2ac55e80bdf52c41ce96d0a3f04cfeb0d32d3cd81898820d16baf3",
+    "target/experiments/calibration-v1/0021/calibration.json": "04d42b2fd9a01856d335690be4471885c38a7148dbfd154e4ca662b1d207a7c1",
+    "target/experiments/calibration-v1/0027/calibration.json": "13615578028eaacf163c6a3c78b8073c86999a64f3bef69865208953ab34931a",
+    "target/experiments/calibration-v1/0060/calibration.json": "69255efd47ca11cfadb65584858bbd0ebc30cddc05a860f1ec04d63637d7a381",
+    "o4core/src/alignment.rs": "ef6aafc076b8c85c74c941e245d5eda89a6a361c10afe305cb43f25ba032cab8",
+    "o4core/src/patch.rs": "60000fb98746412b191061b8fb25b1c638fd8aec376e273d55f353f9dcfa820c",
+    "o4core/examples/calibration_probe.rs": "183a325417725af767d493e3573a2a0b9c6988b40448330bc2ee0994049d7375",
+    "Cargo.lock": "29f87ccd85e313a86728486e801dde0b557d5a3b09de3856cc557f3e8405fb00",
+    "target/release/o4fix.exe": "ced5a9eb59c997ad9238ed4c2bdd7143f235ec141245a9407398fe2063e58a4c",
+    "target/release/o4fix-app.exe": "752d4670df20df454711221c0acdd5d46c9e69d08579881aae8fc2502964dc70"
+  },
+  "clips": [
+    {
+      "id": "0021",
+      "path": "\\\\?\\C:\\Users\\lzhan\\Desktop\\o4prostab\\sample_vids\\DJI_20260711124046_0021_D.MP4",
+      "bytes": 1734239522,
+      "sha256": "088335902a05d268c654869b2b02a9f91ff614770ef28d5122a15498f2f55394",
+      "video_info": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1440,
+            "height": 1080,
+            "r_frame_rate": "100/1",
+            "duration": "176.390000",
+            "nb_frames": "17639"
+          }
+        ]
+      },
+      "config": "Config { severe: 8.0, severe_pad: 0.2, severe_merge: 0.2, ramp: 0.3, light_cutoff: 25.0, strong_cutoff: 2.5, noise_low: 1.5, noise_high: 5.0, noise_band: (30.0, 180.0), noise_window_ms: 100.0, hampel_window: 7, hampel_sigma: 6.0, optical_cutoff: 8.0, handback_cutoff: None, fast_handback: (100.0, 250.0), gyro_trust_noise: (200.0, 300.0), patch_pad: 0.5, patch_merge: 1.0, optical_noise: None, fast_wide_cutoff: 0.0, fast_wide_ramp: (150.0, 300.0), fast_wide_accel: 1500.0, anchor_mode: false, anchor_cutoff: 1.5, drift_rebase_above: 30.0, drift_decay_rate: 1.5 }"
+    },
+    {
+      "id": "0027",
+      "path": "\\\\?\\C:\\Users\\lzhan\\Desktop\\o4prostab\\sample_vids\\DJI_20260721141550_0027_D.MP4",
+      "bytes": 2438404957,
+      "sha256": "fe70dc1046fec05a0192bdea130fe9ea40518c5d0cae013164e455b6503f87a4",
+      "video_info": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1440,
+            "height": 1080,
+            "r_frame_rate": "100/1",
+            "duration": "248.050000",
+            "nb_frames": "24805"
+          }
+        ]
+      },
+      "config": "Config { severe: 8.0, severe_pad: 0.2, severe_merge: 0.2, ramp: 0.3, light_cutoff: 25.0, strong_cutoff: 2.5, noise_low: 1.5, noise_high: 5.0, noise_band: (30.0, 180.0), noise_window_ms: 100.0, hampel_window: 7, hampel_sigma: 6.0, optical_cutoff: 8.0, handback_cutoff: None, fast_handback: (100.0, 250.0), gyro_trust_noise: (200.0, 300.0), patch_pad: 0.5, patch_merge: 1.0, optical_noise: None, fast_wide_cutoff: 0.0, fast_wide_ramp: (150.0, 300.0), fast_wide_accel: 1500.0, anchor_mode: false, anchor_cutoff: 1.5, drift_rebase_above: 30.0, drift_decay_rate: 1.5 }"
+    },
+    {
+      "id": "0060",
+      "path": "\\\\?\\C:\\Users\\lzhan\\Desktop\\o4prostab\\sample_vids\\DJI_20260808151831_0060_D.MP4",
+      "bytes": 3761447591,
+      "sha256": "f5de3300bd7d55eed91b551f8d811696bfe49c7ff11e0c052349035288f523ed",
+      "video_info": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1440,
+            "height": 1080,
+            "r_frame_rate": "100/1",
+            "duration": "382.690000",
+            "nb_frames": "38269"
+          }
+        ]
+      },
+      "config": "Config { severe: 8.0, severe_pad: 0.2, severe_merge: 0.2, ramp: 0.3, light_cutoff: 25.0, strong_cutoff: 2.5, noise_low: 1.5, noise_high: 5.0, noise_band: (30.0, 180.0), noise_window_ms: 100.0, hampel_window: 7, hampel_sigma: 6.0, optical_cutoff: 8.0, handback_cutoff: None, fast_handback: (100.0, 250.0), gyro_trust_noise: (200.0, 300.0), patch_pad: 0.5, patch_merge: 1.0, optical_noise: None, fast_wide_cutoff: 0.0, fast_wide_ramp: (150.0, 300.0), fast_wide_accel: 1500.0, anchor_mode: false, anchor_cutoff: 1.5, drift_rebase_above: 30.0, drift_decay_rate: 1.5 }"
+    }
+  ],
+  "validation": {
+    "regular_tests_passed": 33,
+    "private_regressions_passed": 14,
+    "release_build": "both CLI and GUI succeeded",
+    "default_0060": "exact sign-folded quaternion parity; five rebases"
+  }
+}

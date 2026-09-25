@@ -1,0 +1,657 @@
+{
+  "parity_max_component": 3.9983752343764056e-8,
+  "bursts": [
+    {
+      "interval": [
+        9.734796232066042,
+        10.714867549387815
+      ],
+      "rebased": false,
+      "drift_deg": 2.847549971894397,
+      "implied_bridge_peak_deg_s": 4.362499497915638,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 2.8513391697032833
+        },
+        {
+          "interior": true,
+          "samples": 598,
+          "rate_difference_rms_deg_s": 3.851137057660497
+        }
+      ]
+    },
+    {
+      "interval": [
+        10.962922699259643,
+        11.99792826390625
+      ],
+      "rebased": true,
+      "drift_deg": 22.792598921549427,
+      "implied_bridge_peak_deg_s": 33.06232010332241,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 1.5107833214833433
+        },
+        {
+          "interior": true,
+          "samples": 654,
+          "rate_difference_rms_deg_s": 7.0331427359895335e-12
+        }
+      ]
+    },
+    {
+      "interval": [
+        16.25955872038544,
+        18.592498750501406
+      ],
+      "rebased": true,
+      "drift_deg": 60.182743509464444,
+      "implied_bridge_peak_deg_s": 38.71095487450539,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 4.105900252497805
+        },
+        {
+          "interior": true,
+          "samples": 1952,
+          "rate_difference_rms_deg_s": 7.255454704910784e-12
+        }
+      ]
+    },
+    {
+      "interval": [
+        19.49194379946686,
+        22.58100639303589
+      ],
+      "rebased": false,
+      "drift_deg": 13.90183546219098,
+      "implied_bridge_peak_deg_s": 6.752761509323203,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 11.88989889138417
+        },
+        {
+          "interior": true,
+          "samples": 2706,
+          "rate_difference_rms_deg_s": 7.514180941827654
+        }
+      ]
+    },
+    {
+      "interval": [
+        24.90546573501374,
+        26.63476078167724
+      ],
+      "rebased": true,
+      "drift_deg": 174.66906345617406,
+      "implied_bridge_peak_deg_s": 151.58632027076843,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 3.529204595737698
+        },
+        {
+          "interior": true,
+          "samples": 1348,
+          "rate_difference_rms_deg_s": 7.002990929819728e-12
+        }
+      ]
+    },
+    {
+      "interval": [
+        134.71447032204986,
+        135.39350314647947
+      ],
+      "rebased": false,
+      "drift_deg": 1.5469702930093927,
+      "implied_bridge_peak_deg_s": 3.421869029751679,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 3.0680323321978205
+        },
+        {
+          "interior": true,
+          "samples": 298,
+          "rate_difference_rms_deg_s": 3.2396107801655996
+        }
+      ]
+    },
+    {
+      "interval": [
+        135.7655290435361,
+        136.62750802954375
+      ],
+      "rebased": true,
+      "drift_deg": 36.35609700123602,
+      "implied_bridge_peak_deg_s": 63.33927790016787,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 3.220726396981079
+        },
+        {
+          "interior": true,
+          "samples": 479,
+          "rate_difference_rms_deg_s": 1.0735356916409197e-11
+        }
+      ]
+    },
+    {
+      "interval": [
+        137.78981040359497,
+        139.2717351244333
+      ],
+      "rebased": true,
+      "drift_deg": 53.41254814749013,
+      "implied_bridge_peak_deg_s": 54.10181266334239,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 5.606978738339935
+        },
+        {
+          "interior": true,
+          "samples": 1099,
+          "rate_difference_rms_deg_s": 1.0944800523411381e-11
+        }
+      ]
+    },
+    {
+      "interval": [
+        141.25308539291927,
+        144.45123214950837
+      ],
+      "rebased": true,
+      "drift_deg": 89.24406315706086,
+      "implied_bridge_peak_deg_s": 41.870090840803314,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 1.2725384388579057
+        },
+        {
+          "interior": true,
+          "samples": 2817,
+          "rate_difference_rms_deg_s": 1.0106740134179067e-11
+        }
+      ]
+    },
+    {
+      "interval": [
+        153.21893556576327,
+        154.36494371322414
+      ],
+      "rebased": false,
+      "drift_deg": 0.6341768572520806,
+      "implied_bridge_peak_deg_s": 0.8307952263199909,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 1.369949828431638
+        },
+        {
+          "interior": true,
+          "samples": 764,
+          "rate_difference_rms_deg_s": 0.959824233935548
+        }
+      ]
+    },
+    {
+      "interval": [
+        178.84296236711398,
+        179.3410084486569
+      ],
+      "rebased": false,
+      "drift_deg": 1.1471458613063052,
+      "implied_bridge_peak_deg_s": 3.4618423501712243,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 3.2384984004157413
+        },
+        {
+          "interior": true,
+          "samples": 116,
+          "rate_difference_rms_deg_s": 3.3996510800919046
+        }
+      ]
+    },
+    {
+      "interval": [
+        182.93952417293548,
+        184.30451089576508
+      ],
+      "rebased": false,
+      "drift_deg": 5.464883827519677,
+      "implied_bridge_peak_deg_s": 6.009989708994746,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 9.789473747214114
+        },
+        {
+          "interior": true,
+          "samples": 982,
+          "rate_difference_rms_deg_s": 6.986365292420432
+        }
+      ]
+    },
+    {
+      "interval": [
+        188.73492351483702,
+        189.4399780885724
+      ],
+      "rebased": false,
+      "drift_deg": 3.8513772031743367,
+      "implied_bridge_peak_deg_s": 8.204612542520797,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 6.04309914804965
+        },
+        {
+          "interior": true,
+          "samples": 324,
+          "rate_difference_rms_deg_s": 8.07216004758463
+        }
+      ]
+    },
+    {
+      "interval": [
+        191.97030592674258,
+        192.47232850662505
+      ],
+      "rebased": false,
+      "drift_deg": 1.5393574911153134,
+      "implied_bridge_peak_deg_s": 4.608644087808509,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 3.5877955531685637
+        },
+        {
+          "interior": true,
+          "samples": 119,
+          "rate_difference_rms_deg_s": 4.565209450210394
+        }
+      ]
+    },
+    {
+      "interval": [
+        220.19744873835268,
+        220.76746290156063
+      ],
+      "rebased": false,
+      "drift_deg": 0.6026394712246009,
+      "implied_bridge_peak_deg_s": 1.5884707019095061,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 3.8329650187678745
+        },
+        {
+          "interior": true,
+          "samples": 189,
+          "rate_difference_rms_deg_s": 1.5310237346731963
+        }
+      ]
+    },
+    {
+      "interval": [
+        224.42881228989683,
+        225.16283003159884
+      ],
+      "rebased": false,
+      "drift_deg": 3.4763163604266505,
+      "implied_bridge_peak_deg_s": 7.1136592725426695,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 5.038411154605272
+        },
+        {
+          "interior": true,
+          "samples": 352,
+          "rate_difference_rms_deg_s": 6.85948206384659
+        }
+      ]
+    },
+    {
+      "interval": [
+        244.02762867128754,
+        244.56166866896058
+      ],
+      "rebased": false,
+      "drift_deg": 0.72868122056795,
+      "implied_bridge_peak_deg_s": 2.0506614412589994,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 3.513593090401156
+        },
+        {
+          "interior": true,
+          "samples": 151,
+          "rate_difference_rms_deg_s": 2.0376673335327538
+        }
+      ]
+    },
+    {
+      "interval": [
+        252.17921103378575,
+        252.908259774086
+      ],
+      "rebased": false,
+      "drift_deg": 1.3224582161079343,
+      "implied_bridge_peak_deg_s": 2.724348208438849,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 18.612279339735437
+        },
+        {
+          "interior": true,
+          "samples": 348,
+          "rate_difference_rms_deg_s": 5.7622078776497
+        }
+      ]
+    },
+    {
+      "interval": [
+        260.89102487880706,
+        261.4430716238431
+      ],
+      "rebased": false,
+      "drift_deg": 1.8966600156519218,
+      "implied_bridge_peak_deg_s": 5.162416514540265,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 4.439751778254725
+        },
+        {
+          "interior": true,
+          "samples": 171,
+          "rate_difference_rms_deg_s": 5.067065253126189
+        }
+      ]
+    },
+    {
+      "interval": [
+        264.4312372815247,
+        264.93225711318206
+      ],
+      "rebased": false,
+      "drift_deg": 0.6632801415251417,
+      "implied_bridge_peak_deg_s": 1.9895463531449546,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 2.2146953716689626
+        },
+        {
+          "interior": true,
+          "samples": 120,
+          "rate_difference_rms_deg_s": 1.9517171268463154
+        }
+      ]
+    },
+    {
+      "interval": [
+        267.05964362674985,
+        267.9806301964493
+      ],
+      "rebased": false,
+      "drift_deg": 2.251090342617571,
+      "implied_bridge_peak_deg_s": 3.6702843464034105,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 2.9870301306943556
+        },
+        {
+          "interior": true,
+          "samples": 540,
+          "rate_difference_rms_deg_s": 3.42817751250248
+        }
+      ]
+    },
+    {
+      "interval": [
+        268.4335895053384,
+        269.46559198835536
+      ],
+      "rebased": false,
+      "drift_deg": 7.378506302078174,
+      "implied_bridge_peak_deg_s": 10.73495902827554,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 5.160653910455692
+        },
+        {
+          "interior": true,
+          "samples": 650,
+          "rate_difference_rms_deg_s": 9.425038984764214
+        }
+      ]
+    },
+    {
+      "interval": [
+        274.14721360056313,
+        274.549214017128
+      ],
+      "rebased": false,
+      "drift_deg": 0.5094687907583948,
+      "implied_bridge_peak_deg_s": 1.9057931634660186,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 4.052078890747266
+        },
+        {
+          "interior": true,
+          "samples": 20,
+          "rate_difference_rms_deg_s": 1.9131991855562784
+        }
+      ]
+    },
+    {
+      "interval": [
+        275.017253576185,
+        275.9382325620755
+      ],
+      "rebased": false,
+      "drift_deg": 1.7797241836031275,
+      "implied_bridge_peak_deg_s": 2.9016535885476427,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 5.116830200770637
+        },
+        {
+          "interior": true,
+          "samples": 540,
+          "rate_difference_rms_deg_s": 2.628433592314499
+        }
+      ]
+    },
+    {
+      "interval": [
+        289.0451791939011,
+        289.6892142707318
+      ],
+      "rebased": false,
+      "drift_deg": 1.3507367340880916,
+      "implied_bridge_peak_deg_s": 3.150845355343312,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 2.7635187211870846
+        },
+        {
+          "interior": true,
+          "samples": 261,
+          "rate_difference_rms_deg_s": 2.992858689893697
+        }
+      ]
+    },
+    {
+      "interval": [
+        318.2975283118303,
+        319.23673188022406
+      ],
+      "rebased": false,
+      "drift_deg": 3.180973386198931,
+      "implied_bridge_peak_deg_s": 5.085849633931653,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 17.552952569390463
+        },
+        {
+          "interior": true,
+          "samples": 557,
+          "rate_difference_rms_deg_s": 9.49113231160231
+        }
+      ]
+    },
+    {
+      "interval": [
+        325.8943142718304,
+        326.49829576608823
+      ],
+      "rebased": false,
+      "drift_deg": 1.6957541025064313,
+      "implied_bridge_peak_deg_s": 4.2178823768447575,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 17.091084539758153
+        },
+        {
+          "interior": true,
+          "samples": 223,
+          "rate_difference_rms_deg_s": 6.663157424134725
+        }
+      ]
+    },
+    {
+      "interval": [
+        327.3183286496027,
+        328.0824043891858
+      ],
+      "rebased": false,
+      "drift_deg": 1.1045140055992553,
+      "implied_bridge_peak_deg_s": 2.1710738423284104,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 381,
+          "rate_difference_rms_deg_s": 4.7362420216632435
+        },
+        {
+          "interior": true,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 2.299177225600501
+        }
+      ]
+    },
+    {
+      "interval": [
+        328.2894467060345,
+        329.2654934399212
+      ],
+      "rebased": false,
+      "drift_deg": 0.692833921137688,
+      "implied_bridge_peak_deg_s": 1.0657867802552665,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 380,
+          "rate_difference_rms_deg_s": 3.4604179160854986
+        },
+        {
+          "interior": true,
+          "samples": 595,
+          "rate_difference_rms_deg_s": 2.340162236868323
+        }
+      ]
+    },
+    {
+      "interval": [
+        329.90554282913206,
+        330.4145602416257
+      ],
+      "rebased": false,
+      "drift_deg": 1.8953473458369463,
+      "implied_bridge_peak_deg_s": 5.596545048763643,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 382,
+          "rate_difference_rms_deg_s": 7.43680882196646
+        },
+        {
+          "interior": true,
+          "samples": 126,
+          "rate_difference_rms_deg_s": 5.601144539332234
+        }
+      ]
+    },
+    {
+      "interval": [
+        375.6264575803327,
+        376.1349523885569
+      ],
+      "rebased": false,
+      "drift_deg": 0.6479461064152038,
+      "implied_bridge_peak_deg_s": 3.1483368822674986,
+      "phases": [
+        {
+          "interior": false,
+          "samples": 305,
+          "rate_difference_rms_deg_s": 384.4499082827002
+        },
+        {
+          "interior": true,
+          "samples": 0,
+          "rate_difference_rms_deg_s": null
+        }
+      ]
+    }
+  ],
+  "note": "Final accepted repair rates minus supplied optical patch: mechanism attribution, not truth. Same frame-index integration convention as production."
+}

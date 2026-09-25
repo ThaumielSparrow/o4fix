@@ -443,6 +443,74 @@ pub fn patch_video(
     out: &Path,
     q_target: Option<&[[f64; 4]]>,
 ) -> Result<PatchReport, O4Error> {
+    staged_output(video, out, &|stage| {
+        patch_video_inner(video, stage, q_target)
+    })
+}
+
+/// Reject source aliases before any write, including hard links on Windows.
+pub fn validate_output(video: &Path, out: &Path) -> Result<(), O4Error> {
+    match same_file::is_same_file(video, out) {
+        Ok(true) => Err(O4Error::Mp4(
+            "output must differ from the source video".into(),
+        )),
+        Ok(false) => Ok(()),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(e) => Err(e.into()),
+    }
+}
+
+/// Stage beside the destination so rename publishes one complete file on the
+/// same filesystem. Failure/unwind removes only our own staging file.
+fn staged_output<T>(
+    video: &Path,
+    out: &Path,
+    write: &dyn Fn(&Path) -> Result<T, O4Error>,
+) -> Result<T, O4Error> {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    validate_output(video, out)?;
+    let parent = out
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or(Path::new("."));
+    struct Stage(std::path::PathBuf);
+    impl Drop for Stage {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_file(&self.0);
+        }
+    }
+    let stage = loop {
+        let p = parent.join(format!(
+            ".o4fix-{}-{}.MP4",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ));
+        match std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&p)
+        {
+            Ok(_) => break Stage(p),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(e) => return Err(e.into()),
+        }
+    };
+    let result = write(&stage.0)?;
+    std::fs::OpenOptions::new()
+        .write(true)
+        .open(&stage.0)?
+        .sync_all()?;
+    validate_output(video, out)?;
+    std::fs::rename(&stage.0, out)?;
+    Ok(result)
+}
+
+fn patch_video_inner(
+    video: &Path,
+    out: &Path,
+    q_target: Option<&[[f64; 4]]>,
+) -> Result<PatchReport, O4Error> {
     let st = aligned_slots(video)?;
     let mut unchanged_count = st.n_dedup;
     let new_file: Vec<[f64; 4]> = match q_target {
@@ -494,8 +562,8 @@ pub fn patch_video(
         .map(|q| core::array::from_fn(|k| q[k] as f32))
         .collect();
     for q in &new_f32 {
-        if q.iter().any(|x| x.is_nan()) {
-            return Err(O4Error::Mp4("NaN in injected values".into()));
+        if q.iter().any(|x| !x.is_finite()) {
+            return Err(O4Error::Mp4("non-finite injected values".into()));
         }
         if *q == [0.0f32; 4] {
             return Err(O4Error::Mp4("all-zero quat in injected values".into()));
@@ -535,7 +603,22 @@ pub fn inject_and_check(
     q_target: &[[f64; 4]],
     log: &dyn Fn(&str),
 ) -> Result<bool, O4Error> {
-    let rep = patch_video(video, out, Some(q_target))?;
+    staged_output(video, out, &|stage| {
+        if verify_injected(video, stage, q_target, log)? {
+            Ok(true)
+        } else {
+            Err(O4Error::VerifyFailed)
+        }
+    })
+}
+
+fn verify_injected(
+    video: &Path,
+    out: &Path,
+    q_target: &[[f64; 4]],
+    log: &dyn Fn(&str),
+) -> Result<bool, O4Error> {
+    let rep = patch_video_inner(video, out, Some(q_target))?;
     log(&format!(
         "  {}/{} samples unchanged (original bytes kept)",
         rep.unchanged,
@@ -559,4 +642,80 @@ pub fn inject_and_check(
         "timestamps: max diff {dt_max} ms; values: max diff {err_max} (sign-folded)"
     ));
     Ok(dt_max == 0.0 && err_max == 0.0)
+}
+
+#[cfg(test)]
+mod output_tests {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    fn test_dir() -> std::path::PathBuf {
+        static NEXT: AtomicUsize = AtomicUsize::new(0);
+        let dir = std::env::temp_dir().join(format!(
+            "o4fix-output-test-{}-{}",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ));
+        std::fs::create_dir(&dir).unwrap();
+        dir
+    }
+
+    #[test]
+    fn failed_write_preserves_source_and_existing_output() {
+        let dir = test_dir();
+        let src = dir.join("source.MP4");
+        let out = dir.join("out.MP4");
+        std::fs::write(&src, b"source").unwrap();
+        std::fs::write(&out, b"previous repair").unwrap();
+        let result: Result<(), O4Error> = staged_output(&src, &out, &|stage| {
+            std::fs::write(stage, b"partial")?;
+            Err(O4Error::VerifyFailed)
+        });
+        assert!(result.is_err());
+        assert_eq!(std::fs::read(&src).unwrap(), b"source");
+        assert_eq!(std::fs::read(&out).unwrap(), b"previous repair");
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 2);
+        std::fs::remove_file(src).unwrap();
+        std::fs::remove_file(out).unwrap();
+        std::fs::remove_dir(dir).unwrap();
+    }
+
+    #[test]
+    fn source_and_hardlink_alias_are_rejected_before_write() {
+        let dir = test_dir();
+        let src = dir.join("source.MP4");
+        let alias = dir.join("alias.MP4");
+        std::fs::write(&src, b"source").unwrap();
+        std::fs::hard_link(&src, &alias).unwrap();
+        for out in [&src, &alias] {
+            let result: Result<(), O4Error> =
+                staged_output(&src, out, &|_| panic!("must not write"));
+            assert!(result.is_err());
+        }
+        assert_eq!(std::fs::read(&src).unwrap(), b"source");
+        std::fs::remove_file(alias).unwrap();
+        std::fs::remove_file(src).unwrap();
+        std::fs::remove_dir(dir).unwrap();
+    }
+
+    #[test]
+    fn successful_write_replaces_output_only_after_verification() {
+        let dir = test_dir();
+        let src = dir.join("source.MP4");
+        let out = dir.join("out.MP4");
+        std::fs::write(&src, b"source").unwrap();
+        std::fs::write(&out, b"previous repair").unwrap();
+        staged_output(&src, &out, &|stage| {
+            std::fs::write(stage, b"verified repair")?;
+            assert_eq!(std::fs::read(&out)?, b"previous repair");
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(std::fs::read(&out).unwrap(), b"verified repair");
+        assert_eq!(std::fs::read(&src).unwrap(), b"source");
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 2);
+        std::fs::remove_file(src).unwrap();
+        std::fs::remove_file(out).unwrap();
+        std::fs::remove_dir(dir).unwrap();
+    }
 }

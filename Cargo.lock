@@ -2625,6 +2625,7 @@ dependencies = [
  "num-complex",
  "opencv",
  "rayon",
+ "same-file",
  "serde_json",
  "sha2",
  "telemetry-parser",

@@ -1,0 +1,62 @@
+[
+  {
+    "label": "106",
+    "start": 102,
+    "duration": 8,
+    "video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    }
+  },
+  {
+    "label": "225",
+    "start": 221,
+    "duration": 8,
+    "video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    }
+  },
+  {
+    "label": "249",
+    "start": 245,
+    "duration": 8,
+    "video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    }
+  },
+  {
+    "label": "308",
+    "start": 304,
+    "duration": 8,
+    "video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "8.000000",
+      "nb_frames": "800"
+    }
+  },
+  {
+    "label": "clean",
+    "start": 19,
+    "duration": 3,
+    "video": {
+      "width": 1440,
+      "height": 406,
+      "r_frame_rate": "100/1",
+      "duration": "3.000000",
+      "nb_frames": "300"
+    }
+  }
+]

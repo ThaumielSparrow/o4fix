@@ -1,0 +1,56 @@
+{
+  "clip": "DJI_20260829141435_0073_D.MP4",
+  "accepted_reference": "target/experiments/generalization-v1/0073/edgeoffset.MP4",
+  "files": [
+    {
+      "path": "o4core/examples/bounce_localize.rs",
+      "sha256": "4230cff033735cbb2abb1b81808dca4d29005e06f50af0c649163166a3ebd9f4",
+      "bytes": 3838
+    },
+    {
+      "path": "o4core/examples/optical_span_probe.rs",
+      "sha256": "3de571342b827b932ab6ec6750f09288b6be2243c587b62da45881c1754c59c3",
+      "bytes": 1326
+    },
+    {
+      "path": "o4core/examples/optical_span_score.rs",
+      "sha256": "31538fda7b89c116290d4fbdda45b5f80c8ba723f26985dba75ac191b3e4d115",
+      "bytes": 2979
+    },
+    {
+      "path": "o4core/examples/gap_edge_repair.rs",
+      "sha256": "0d43b58e73b48b3a3c0ab0d706bae6f1b12bcc60cd05efa2159ee6f23b0a39b4",
+      "bytes": 2396
+    },
+    {
+      "path": "o4core/examples/support/gap_patch.rs",
+      "sha256": "8316bd9b147ca69399ba6355b961f2003286bc03fcd2078ed546ea21e87a8838",
+      "bytes": 13165
+    },
+    {
+      "path": "o4core/examples/support/fb_tracker.rs",
+      "sha256": "03f70c231e18fcfc4b272ac3cc6d51d1154f6266644d0e5723936d9709049b73",
+      "bytes": 9758
+    },
+    {
+      "path": "o4core/examples/support/edge_offset_patch.rs",
+      "sha256": "caa06ecd2023a477fa9c73aedad5f1849702c1fa145dc70a86f803ec59fc1d12",
+      "bytes": 6520
+    },
+    {
+      "path": "target/experiments/bounce-localize-v1/gap2edge.gyroflow",
+      "sha256": "b1f32b3d9c815f15133b40f2a6c934a741c28c81bcd60e8202082b00a24b4c34",
+      "bytes": 5499
+    },
+    {
+      "path": "target/experiments/bounce-localize-v1/gap2edge.MP4",
+      "bytes": 3695514531,
+      "sha256": "d265657c7a54e8f3ec3ae0aee3ec2d72977427a035d04e84a6b880938573d53a"
+    },
+    {
+      "path": "target/experiments/generalization-v1/0073/edgeoffset.MP4",
+      "bytes": 3695514531,
+      "sha256": "801f0f47f69058cdb7e620cfa094900b3e995713a14b12c96a8485b423f148ef"
+    }
+  ]
+}

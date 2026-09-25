@@ -1,0 +1,77 @@
+{
+  "source": "sample_vids/DJI_20260808151831_0060_D.MP4",
+  "sample_rate": 999.9999999952252,
+  "note": "Exact production interval and orientation-ramp formulas on original telemetry. Slerp weight is not an angular-rate contribution or proof of visible error. Rate partner weight excludes fast handback. No repair or render generated.",
+  "bursts": [
+    {
+      "interval": [
+        105.83007869154358,
+        106.61010759764649
+      ],
+      "snapped_interval": [
+        105.83058353011872,
+        106.60965551024414
+      ],
+      "detected_noisy_samples_in_raw_orientation_ramp": 200,
+      "max_raw_orientation_slerp_weight_when_noisy": 0.2637363522227092,
+      "max_noise_in_exposed_samples": 209.29691680464208,
+      "max_light_rate_partner_weight_when_noisy": 0.0
+    },
+    {
+      "interval": [
+        223.43909731553651,
+        223.95709789670562
+      ],
+      "snapped_interval": [
+        223.4395974038599,
+        223.95662839132203
+      ],
+      "detected_noisy_samples_in_raw_orientation_ramp": 118,
+      "max_raw_orientation_slerp_weight_when_noisy": 0.2637151352324101,
+      "max_noise_in_exposed_samples": 13.25596398142121,
+      "max_light_rate_partner_weight_when_noisy": 0.0
+    },
+    {
+      "interval": [
+        225.02727535576417,
+        226.17924825294278
+      ],
+      "snapped_interval": [
+        225.02774486114777,
+        226.1787379135742
+      ],
+      "detected_noisy_samples_in_raw_orientation_ramp": 201,
+      "max_raw_orientation_slerp_weight_when_noisy": 0.2635804086480801,
+      "max_noise_in_exposed_samples": 321.7602178428862,
+      "max_light_rate_partner_weight_when_noisy": 0.0
+    },
+    {
+      "interval": [
+        248.34497013623326,
+        249.3159796205548
+      ],
+      "snapped_interval": [
+        248.34548947510527,
+        249.31547928173612
+      ],
+      "detected_noisy_samples_in_raw_orientation_ramp": 201,
+      "max_raw_orientation_slerp_weight_when_noisy": 0.2638011208101385,
+      "max_noise_in_exposed_samples": 435.9547929810953,
+      "max_light_rate_partner_weight_when_noisy": 0.0
+    },
+    {
+      "interval": [
+        308.0111682585352,
+        309.27912198448456
+      ],
+      "snapped_interval": [
+        308.01168509660886,
+        309.2785991456278
+      ],
+      "detected_noisy_samples_in_raw_orientation_ramp": 202,
+      "max_raw_orientation_slerp_weight_when_noisy": 0.2637899501482499,
+      "max_noise_in_exposed_samples": 181.9451666071565,
+      "max_light_rate_partner_weight_when_noisy": 0.0
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "parity_max_component": 3.933634116354279e-8,
+  "padding": 0.2,
+  "ramp": 0.19,
+  "forced_intervals": [
+    [
+      14.168092109840394,
+      17.102696375175473
+    ],
+    [
+      18.72967748518097,
+      19.22967131681549
+    ],
+    [
+      255.55017727294432,
+      257.1152279097519
+    ]
+  ],
+  "bursts": [
+    {
+      "interval": [
+        14.168092109840394,
+        17.102696375175473
+      ],
+      "candidate_drift": 23.76816348319262,
+      "candidate_rebased": true,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            14.168092109840394,
+            17.102696375175473
+          ],
+          "drift": 23.76816348319262,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        18.72967748518097,
+        19.22967131681549
+      ],
+      "candidate_drift": 3.663345376466044,
+      "candidate_rebased": true,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            18.72967748518097,
+            19.22967131681549
+          ],
+          "drift": 3.6633453764659887,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        52.338180901425474,
+        52.8881843985492
+      ],
+      "candidate_drift": 0.4374886708709264,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            52.338180901425474,
+            52.8881843985492
+          ],
+          "drift": 0.4374886708709264,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        59.317753877917184,
+        59.88280945767487
+      ],
+      "candidate_drift": 1.2409304658943827,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            59.317753877917184,
+            59.88280945767487
+          ],
+          "drift": 1.2409304658943827,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        71.72897095550537,
+        72.35500153309144
+      ],
+      "candidate_drift": 1.4741184621996946,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            71.72897095550537,
+            72.35500153309144
+          ],
+          "drift": 1.4741184621996946,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        130.17487686106386,
+        130.6758976931256
+      ],
+      "candidate_drift": 1.0208803515437832,
+      "candidate_rebased": false,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            130.17487686106386,
+            130.6758976931256
+          ],
+          "drift": 1.0208803515437832,
+          "rebased": false
+        }
+      ]
+    },
+    {
+      "interval": [
+        255.55017727294432,
+        257.1152279097519
+      ],
+      "candidate_drift": 123.11771359524772,
+      "candidate_rebased": true,
+      "overlapping_baseline": [
+        {
+          "interval": [
+            255.55017727294432,
+            257.1152279097519
+          ],
+          "drift": 123.11771359524772,
+          "rebased": true
+        }
+      ]
+    }
+  ],
+  "windows": [
+    {
+      "window": [
+        14.0,
+        17.0
+      ],
+      "max_orientation_difference_deg": 23.67625825263316
+    },
+    {
+      "window": [
+        255.0,
+        257.0
+      ],
+      "max_orientation_difference_deg": 6.3611093629270335e-15
+    },
+    {
+      "window": [
+        74.0,
+        77.0
+      ],
+      "max_orientation_difference_deg": 3.1805546814635168e-15
+    }
+  ],
+  "note": "Accepted edgeoffset baseline; additionally rebase severe intervals wholly inside zero-trust optical segments. Same rates, ramps, original padding and decay. Research ablation; optical bias can be carried forward."
+}

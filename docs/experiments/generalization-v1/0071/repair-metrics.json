@@ -1,0 +1,64 @@
+{
+  "source": "sample_vids/DJI_20260829140442_0071_D.MP4",
+  "candidate": "fixed edge offsets, ramp .19, padding .2; unchanged M2 optics/calibration/trust/decay",
+  "same_drift_and_rebase_decisions": true,
+  "bursts": [
+    {
+      "interval": [
+        14.168092109840394,
+        17.102696375175473
+      ],
+      "drift_deg": 23.76816348319262,
+      "rebased": false
+    },
+    {
+      "interval": [
+        18.72967748518097,
+        19.22967131681549
+      ],
+      "drift_deg": 3.6633453764659887,
+      "rebased": false
+    },
+    {
+      "interval": [
+        52.338180901425474,
+        52.8881843985492
+      ],
+      "drift_deg": 0.4374886708709264,
+      "rebased": false
+    },
+    {
+      "interval": [
+        59.317753877917184,
+        59.88280945767487
+      ],
+      "drift_deg": 1.2409304658943827,
+      "rebased": false
+    },
+    {
+      "interval": [
+        71.72897095550537,
+        72.35500153309144
+      ],
+      "drift_deg": 1.4741184621996934,
+      "rebased": false
+    },
+    {
+      "interval": [
+        130.17487686106386,
+        130.6758976931256
+      ],
+      "drift_deg": 1.0208803515437832,
+      "rebased": false
+    },
+    {
+      "interval": [
+        255.55017727294432,
+        257.1152279097519
+      ],
+      "drift_deg": 123.11771359524772,
+      "rebased": true
+    }
+  ],
+  "coverage_passed": true
+}
