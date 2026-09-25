@@ -246,7 +246,18 @@ pub fn process(
             0.88,
             format!("   refining residual judder in {} bursts", intervals.len()),
         );
-        let rlog = |s: &str| say(Stage::Refine, 0.89, s.to_string());
+        // Refine reports from rayon workers; one lock keeps pcts monotone in
+        // 0.88..=0.905 across log lines and per-window pct-only ticks.
+        let refine_pct = std::sync::Mutex::new(0.88f64);
+        let rlog = |s: &str| {
+            let p = refine_pct.lock().unwrap_or_else(|e| e.into_inner());
+            say(Stage::Refine, *p, s.to_string());
+        };
+        let rtick = |f: f64| {
+            let mut p = refine_pct.lock().unwrap_or_else(|e| e.into_inner());
+            *p = p.max(0.88 + 0.025 * f.clamp(0.0, 1.0));
+            say(Stage::Refine, *p, String::new()); // pct-only tick
+        };
         let r = crate::refine::refine(
             video,
             &tel.t,
@@ -255,6 +266,7 @@ pub fn process(
             &tel.meta,
             &cfg.refine_cfg,
             &rlog,
+            &rtick,
             cancel,
         )?;
         if let Some(reason) = &r.skipped_reason {

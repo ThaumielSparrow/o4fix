@@ -100,7 +100,14 @@ pub fn burst_correction(
     fade: f64,
     dt: f64,
 ) -> Vec<V3> {
-    let g = gate(&c.t, &[burst], pad, fade);
+    correction(c, &[burst], pad, fade, dt)
+}
+
+/// Cumulative correction angle (rad) for a set of bursts sharing one window:
+/// integral of −gate·conf·hp with ONE union gate (max over bursts), as the
+/// research `correct_from_warp` does, so overlapping gates never weigh > 1.
+pub fn correction(c: &Conditioned, bursts: &[(f64, f64)], pad: f64, fade: f64, dt: f64) -> Vec<V3> {
+    let g = gate(&c.t, bursts, pad, fade);
     let mut acc = [0.0; 3];
     (0..c.t.len())
         .map(|i| {
@@ -123,6 +130,9 @@ pub fn max_angle_deg(ang: &[V3]) -> f64 {
 #[derive(Debug)]
 pub struct GeometryStats {
     pub hp_rms_deg: f64,
+    /// None when fewer than 50 calm pairs move faster than 30 deg/s; the
+    /// motion-ratio check is then not applicable and counts as passing
+    /// (refine() logs that it was skipped).
     pub motion_ratio: Option<f64>,
     pub pairs: usize,
 }
