@@ -523,7 +523,15 @@ pub fn splice_orientation(
         };
         for k in 0..=n {
             let tt = t[i0 + k];
-            let s = smoothstep((tt - t[i0]) / dur);
+            // Fixed edge offsets (gyro-trace-v1): in a rebased burst the carried
+            // offset changes only in the fully replaced interior, so the raw
+            // path blended in at the entry/exit ramps does not move. Overlapping
+            // ramps fall back to the whole-burst interpolation.
+            let s = if rebased && dur > 2.0 * ramp_s {
+                smoothstep((tt - t[i0] - ramp_s) / (dur - 2.0 * ramp_s))
+            } else {
+                smoothstep((tt - t[i0]) / dur)
+            };
             let base = if !rebased && off_pre_ang < 1e-12 {
                 q_raw[i0 + k] // exact original path (bit-identical branch)
             } else {
@@ -711,5 +719,41 @@ mod splice_rebase_tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn stationary_camera_rebased_burst_has_no_edge_motion() {
+        // camera still; raw drift of 60 deg confined to the burst middle
+        let t: Vec<f64> = (0..5001).map(|i| i as f64 / 1000.).collect();
+        let q: Vec<[f64; 4]> = t
+            .iter()
+            .map(|&s| {
+                qexp([
+                    0.,
+                    0.,
+                    60_f64.to_radians() * ((s - 2.3) / 0.4).clamp(0., 1.),
+                ])
+            })
+            .collect();
+        let rates = vec![[0.; 3]; t.len() - 1];
+        let (out, st) = splice_orientation(&t, &q, &rates, &[(2., 3.)], 0.19, 30., 0.);
+        assert!(st[0].rebased);
+        let (_, r) = quats_to_rates(&t, &out);
+        let peak = r.iter().map(|v| v[2].abs().to_degrees()).fold(0., f64::max);
+        assert!(peak < 1e-8, "false rate {peak} deg/s");
+    }
+
+    #[test]
+    fn non_rebased_burst_path_unchanged_by_edge_fix() {
+        let t: Vec<f64> = (0..5001).map(|i| i as f64 / 1000.).collect();
+        let q: Vec<[f64; 4]> = t
+            .iter()
+            .map(|&s| qexp([3_f64.to_radians() * ((s - 2.3) / 0.4).clamp(0., 1.), 0., 0.]))
+            .collect();
+        let rates = vec![[0.; 3]; t.len() - 1];
+        let (out, st) = splice_orientation(&t, &q, &rates, &[(2., 3.)], 0.19, 30., 0.);
+        assert!(!st[0].rebased);
+        // pre-burst samples keep original bits
+        assert!(out[..1900].iter().zip(&q[..1900]).all(|(a, b)| a == b));
     }
 }

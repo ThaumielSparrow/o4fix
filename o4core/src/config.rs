@@ -35,7 +35,7 @@ impl Default for Config {
             severe: 8.0,
             severe_pad: 0.2,
             severe_merge: 0.2,
-            ramp: 0.3,
+            ramp: 0.19,
             light_cutoff: 25.0,
             strong_cutoff: 2.5,
             noise_low: 1.5,
@@ -213,6 +213,7 @@ mod tests {
     fn defaults_match_spec() {
         let c = Config::default();
         assert_eq!(c.severe, 8.0);
+        assert_eq!(c.ramp, 0.19);
         assert_eq!(c.noise_band, (30.0, 180.0));
         assert_eq!(c.fast_wide_cutoff, 0.0);
         assert_eq!(Config::m4().fast_wide_cutoff, 16.0);

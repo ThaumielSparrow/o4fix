@@ -1,13 +1,16 @@
 //! Multi-clip regression beyond the original 0021 Python golden fixture.
-//! Requires the user's preserved v0.1.2 repair of 0060; never overwrites it.
+//! Reference is the reviewed edge-offset research repair
+//! (target/experiments/gyro-trace-v1/edgeoffset.MP4), not the raw source
+//! clip; comparisons use a float32-level tolerance because that reference
+//! file was written from cached rates. Never overwrites either file.
 mod common;
 use std::sync::atomic::AtomicBool;
 
 #[test]
 #[ignore]
-fn monster_bursts_match_preserved_release() {
+fn monster_bursts_match_edge_offset_research_repair() {
     let source = common::repo("sample_vids/DJI_20260808151831_0060_D.MP4");
-    let reference = common::repo("sample_vids/DJI_20260808151831_0060_D_fixed.MP4");
+    let reference = common::repo("target/experiments/gyro-trace-v1/edgeoffset.MP4");
     let out = std::env::temp_dir().join(format!("o4fix-review-0060-{}.MP4", std::process::id()));
     let result = o4core::pipeline::process(
         &source,
@@ -38,9 +41,9 @@ fn monster_bursts_match_preserved_release() {
         "0060: {} slots, max sign-folded error {max_error}",
         actual_q.len()
     );
-    assert_eq!(
-        max_error, 0.0,
-        "default repair must preserve measured 0060 behavior"
+    assert!(
+        max_error <= 1e-6,
+        "default splice must reproduce the reviewed edge-offset repair (max {max_error})"
     );
     std::fs::remove_file(out).unwrap();
 }

@@ -24,7 +24,7 @@ pub struct Cli {
     pub severe_pad: f64,
     #[arg(long, default_value_t = 0.2)]
     pub severe_merge: f64,
-    #[arg(long, default_value_t = 0.3)]
+    #[arg(long, default_value_t = 0.19)]
     pub ramp: f64,
 
     // filter tuning (defaults tuned on O4 Pro test flight)
