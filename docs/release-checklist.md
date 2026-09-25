@@ -3,7 +3,7 @@
 CI cannot run the clip-gated tests (1.7 GB clip + Python goldens), so a
 release REQUIRES this local gate first. All on the release commit:
 
-1. `cargo fmt --check`, `cargo clippy --workspace --all-targets -- -D warnings`,
+1. `cargo fmt --check`, `cargo clippy --workspace --lib --bins --tests -- -D warnings` (research examples are not shipped),
    fast suite `cargo test -p o4core -p o4fix-cli -p o4fix-app` — green.
 2. Goldens present (else `python python/tools/dump_goldens.py`, ~25-30 min incl. M4).
 3. Full clip-gated suite green: `cargo test -p o4core -- --ignored`
