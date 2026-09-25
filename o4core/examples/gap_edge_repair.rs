@@ -1,11 +1,11 @@
 //! Experimental repair; all production defaults remain unchanged.
+#[path = "support/edge_offset_patch.rs"]
+mod edge;
 #[path = "support/fb_tracker.rs"]
 #[allow(clippy::too_many_arguments)]
 mod fb;
 #[path = "support/gap_patch.rs"]
 mod gap_patch;
-#[path = "support/edge_offset_patch.rs"]
-mod edge;
 use o4core::{config::Config, detect, mp4, pipeline, quat, telemetry};
 use std::{path::Path, sync::atomic::AtomicBool};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -77,4 +77,3 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
-

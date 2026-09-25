@@ -15,15 +15,57 @@ use std::process::{Command, Stdio};
 
 fn pair(p: &Mat, g: &Mat, w: f32, h: f32) -> opencv::Result<Option<([f64; 4], usize)>> {
     let mut a = Vector::<Point2f>::new();
-    imgproc::good_features_to_track(p, &mut a, 1500, 0.005, 14., &core::no_array(), 7, false, 0.04)?;
+    imgproc::good_features_to_track(
+        p,
+        &mut a,
+        1500,
+        0.005,
+        14.,
+        &core::no_array(),
+        7,
+        false,
+        0.04,
+    )?;
     if a.len() < 60 {
         return Ok(None);
     }
     let crit = TermCriteria::new(core::TermCriteria_COUNT + core::TermCriteria_EPS, 30, 0.01)?;
-    let (mut b, mut st, mut err) = (Vector::<Point2f>::new(), Vector::<u8>::new(), Vector::<f32>::new());
-    video::calc_optical_flow_pyr_lk(p, g, &a, &mut b, &mut st, &mut err, Size::new(21, 21), 3, crit, 0, 1e-4)?;
-    let (mut r, mut sr, mut er) = (Vector::<Point2f>::new(), Vector::<u8>::new(), Vector::<f32>::new());
-    video::calc_optical_flow_pyr_lk(g, p, &b, &mut r, &mut sr, &mut er, Size::new(21, 21), 3, crit, 0, 1e-4)?;
+    let (mut b, mut st, mut err) = (
+        Vector::<Point2f>::new(),
+        Vector::<u8>::new(),
+        Vector::<f32>::new(),
+    );
+    video::calc_optical_flow_pyr_lk(
+        p,
+        g,
+        &a,
+        &mut b,
+        &mut st,
+        &mut err,
+        Size::new(21, 21),
+        3,
+        crit,
+        0,
+        1e-4,
+    )?;
+    let (mut r, mut sr, mut er) = (
+        Vector::<Point2f>::new(),
+        Vector::<u8>::new(),
+        Vector::<f32>::new(),
+    );
+    video::calc_optical_flow_pyr_lk(
+        g,
+        p,
+        &b,
+        &mut r,
+        &mut sr,
+        &mut er,
+        Size::new(21, 21),
+        3,
+        crit,
+        0,
+        1e-4,
+    )?;
     let (mut aa, mut bb) = (Vector::<Point2f>::new(), Vector::<Point2f>::new());
     for i in 0..a.len() {
         let (x, y, z) = (a.get(i)?, b.get(i)?, r.get(i)?);
@@ -40,7 +82,16 @@ fn pair(p: &Mat, g: &Mat, w: f32, h: f32) -> opencv::Result<Option<([f64; 4], us
         return Ok(None);
     }
     let mut inl = Mat::default();
-    let m = calib3d::estimate_affine_partial_2d(&aa, &bb, &mut inl, calib3d::RANSAC, 0.7, 4000, 0.995, 20)?;
+    let m = calib3d::estimate_affine_partial_2d(
+        &aa,
+        &bb,
+        &mut inl,
+        calib3d::RANSAC,
+        0.7,
+        4000,
+        0.995,
+        20,
+    )?;
     if m.empty() {
         return Ok(None);
     }
@@ -61,14 +112,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let (start, dur): (f64, f64) = (a[2].parse()?, a[3].parse()?);
     let probe = Command::new("C:/ffmpeg/bin/ffprobe.exe")
-        .args(["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", &a[1]])
+        .args([
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height",
+            "-of",
+            "csv=p=0",
+            &a[1],
+        ])
         .output()?;
-    let dims: Vec<i32> = String::from_utf8(probe.stdout)?.trim().split(',').map(|s| s.parse().unwrap()).collect();
+    let dims: Vec<i32> = String::from_utf8(probe.stdout)?
+        .trim()
+        .split(',')
+        .map(|s| s.parse().unwrap())
+        .collect();
     let (w, h) = (dims[0], dims[1]);
     // Frame-accurate: input seek to start, frame count derived from duration at 100 fps.
     let frames = (dur * 100.).round() as usize;
     let mut child = Command::new("C:/ffmpeg/bin/ffmpeg.exe")
-        .args(["-v", "error", "-ss", &format!("{start}"), "-i", &a[1], "-frames:v", &frames.to_string(), "-f", "rawvideo", "-pix_fmt", "gray", "-"])
+        .args([
+            "-v",
+            "error",
+            "-ss",
+            &format!("{start}"),
+            "-i",
+            &a[1],
+            "-frames:v",
+            &frames.to_string(),
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "gray",
+            "-",
+        ])
         .stdout(Stdio::piped())
         .spawn()?;
     let mut out = child.stdout.take().unwrap();
@@ -82,7 +161,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if let Some(p) = &prev {
             let t = start + (k as f64 - 0.5) / 100.;
             match pair(p, &m, w as f32, h as f32)? {
-                Some((d, n)) => rows.push(json!({"t":t,"rate":[d[0]*100.,d[1]*100.,d[2]*100.,d[3]*100.],"n":n})),
+                Some((d, n)) => {
+                    rows.push(json!({"t":t,"rate":[d[0]*100.,d[1]*100.,d[2]*100.,d[3]*100.],"n":n}))
+                }
                 None => rows.push(json!({"t":t,"rate":null,"n":0})),
             }
         }
@@ -93,7 +174,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if k != frames {
         return Err(format!("decoded {k} frames, expected {frames}").into());
     }
-    std::fs::write(&a[4], serde_json::to_vec(&json!({"render":a[1],"start":start,"width":w,"height":h,"frames":k,"pairs":rows}))?)?;
+    std::fs::write(
+        &a[4],
+        serde_json::to_vec(
+            &json!({"render":a[1],"start":start,"width":w,"height":h,"frames":k,"pairs":rows}),
+        )?,
+    )?;
     println!("{k} frames, {} pairs", rows.len());
     Ok(())
 }

@@ -25,7 +25,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let adj: Value = serde_json::from_str(&std::fs::read_to_string(&a[3])?)?;
     let t: Vec<f64> = serde_json::from_value(adj["t"].clone())?;
     let ang: Vec<[f64; 3]> = serde_json::from_value(adj["angle"].clone())?;
-    if t.len() != ang.len() || t.len() < 2 || t.windows(2).any(|w| w[1] <= w[0]) || ang.iter().flatten().any(|v| !v.is_finite()) {
+    if t.len() != ang.len()
+        || t.len() < 2
+        || t.windows(2).any(|w| w[1] <= w[0])
+        || ang.iter().flatten().any(|v| !v.is_finite())
+    {
         return Err("bad adjustment".into());
     }
     let mut j = 0usize;
@@ -63,7 +67,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         q[i + 1] = quat::qnorm(quat::qmul(quat::qmul(q[i], dq), quat::qexp(inc)));
     }
     let changed = q.iter().zip(&base.q).filter(|(x, y)| x != y).count();
-    println!("{}", json!({"samples":q.len(),"changed":changed,"max_adjust_deg":max_deg}));
+    println!(
+        "{}",
+        json!({"samples":q.len(),"changed":changed,"max_adjust_deg":max_deg})
+    );
     if !mp4::inject_and_check(source, out, &q, &|s| println!("{s}"))? {
         return Err("verification failed".into());
     }

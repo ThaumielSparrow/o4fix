@@ -24,15 +24,27 @@ type V3 = [f64; 3];
 
 fn mounts() -> Vec<[[f64; 3]; 3]> {
     let mut out = vec![];
-    let perms = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+    let perms = [
+        [0, 1, 2],
+        [0, 2, 1],
+        [1, 0, 2],
+        [1, 2, 0],
+        [2, 0, 1],
+        [2, 1, 0],
+    ];
     for p in perms {
         for s in 0..8 {
-            let sg = [1. - 2. * (s & 1) as f64, 1. - 2. * ((s >> 1) & 1) as f64, 1. - 2. * ((s >> 2) & 1) as f64];
+            let sg = [
+                1. - 2. * (s & 1) as f64,
+                1. - 2. * ((s >> 1) & 1) as f64,
+                1. - 2. * ((s >> 2) & 1) as f64,
+            ];
             let mut m = [[0.; 3]; 3];
             for r in 0..3 {
                 m[r][p[r]] = sg[r];
             }
-            let det = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+            let det = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+                - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
                 + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
             if det > 0. {
                 out.push(m);
@@ -57,25 +69,34 @@ struct Tel {
 }
 impl Tel {
     fn at(&self, t: f64) -> [f64; 4] {
-        let i = self.t.partition_point(|&x| x <= t).clamp(1, self.t.len() - 1);
+        let i = self
+            .t
+            .partition_point(|&x| x <= t)
+            .clamp(1, self.t.len() - 1);
         let f = ((t - self.t[i - 1]) / (self.t[i] - self.t[i - 1])).clamp(0., 1.);
         quat::slerp(self.q[i - 1], self.q[i], f)
     }
 }
 
 fn cross(a: V3, b: V3) -> V3 {
-    [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+    [
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    ]
 }
 
 fn solve3(a: [[f64; 3]; 3], b: V3) -> V3 {
-    let det = a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1]) - a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0])
+    let det = a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
+        - a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0])
         + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]);
     std::array::from_fn(|k| {
         let mut m = a;
         for r in 0..3 {
             m[r][k] = b[r];
         }
-        (m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+        (m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+            - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
             + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]))
             / det
     })
@@ -97,7 +118,11 @@ fn fit_rotation(a: &[V3], b: &[V3]) -> Option<(V3, usize, f64)> {
             }
             n += 1;
             // d x a = -[a]x d ; residual r = (b - a) + [a]x d
-            let ax = [[0., -a[i][2], a[i][1]], [a[i][2], 0., -a[i][0]], [-a[i][1], a[i][0], 0.]];
+            let ax = [
+                [0., -a[i][2], a[i][1]],
+                [a[i][2], 0., -a[i][0]],
+                [-a[i][1], a[i][0], 0.],
+            ];
             let r0: V3 = std::array::from_fn(|k| b[i][k] - a[i][k]);
             for p in 0..3 {
                 for q in 0..3 {
@@ -113,7 +138,10 @@ fn fit_rotation(a: &[V3], b: &[V3]) -> Option<(V3, usize, f64)> {
         let res: Vec<f64> = (0..a.len())
             .map(|i| {
                 let c = cross(d, a[i]);
-                (0..3).map(|k| (b[i][k] - a[i][k] - c[k]).powi(2)).sum::<f64>().sqrt()
+                (0..3)
+                    .map(|k| (b[i][k] - a[i][k] - c[k]).powi(2))
+                    .sum::<f64>()
+                    .sqrt()
             })
             .collect();
         let mut s: Vec<f64> = (0..a.len()).filter(|&i| use_[i]).map(|i| res[i]).collect();
@@ -130,15 +158,57 @@ fn fit_rotation(a: &[V3], b: &[V3]) -> Option<(V3, usize, f64)> {
 
 fn track(p: &Mat, g: &Mat) -> opencv::Result<Vec<(Point2f, Point2f)>> {
     let mut a = Vector::<Point2f>::new();
-    imgproc::good_features_to_track(p, &mut a, 1200, 0.005, 18., &core::no_array(), 7, false, 0.04)?;
+    imgproc::good_features_to_track(
+        p,
+        &mut a,
+        1200,
+        0.005,
+        18.,
+        &core::no_array(),
+        7,
+        false,
+        0.04,
+    )?;
     if a.len() < 40 {
         return Ok(vec![]);
     }
     let crit = TermCriteria::new(core::TermCriteria_COUNT + core::TermCriteria_EPS, 30, 0.01)?;
-    let (mut b, mut st, mut err) = (Vector::<Point2f>::new(), Vector::<u8>::new(), Vector::<f32>::new());
-    video::calc_optical_flow_pyr_lk(p, g, &a, &mut b, &mut st, &mut err, Size::new(21, 21), 4, crit, 0, 1e-4)?;
-    let (mut r, mut sr, mut er) = (Vector::<Point2f>::new(), Vector::<u8>::new(), Vector::<f32>::new());
-    video::calc_optical_flow_pyr_lk(g, p, &b, &mut r, &mut sr, &mut er, Size::new(21, 21), 4, crit, 0, 1e-4)?;
+    let (mut b, mut st, mut err) = (
+        Vector::<Point2f>::new(),
+        Vector::<u8>::new(),
+        Vector::<f32>::new(),
+    );
+    video::calc_optical_flow_pyr_lk(
+        p,
+        g,
+        &a,
+        &mut b,
+        &mut st,
+        &mut err,
+        Size::new(21, 21),
+        4,
+        crit,
+        0,
+        1e-4,
+    )?;
+    let (mut r, mut sr, mut er) = (
+        Vector::<Point2f>::new(),
+        Vector::<u8>::new(),
+        Vector::<f32>::new(),
+    );
+    video::calc_optical_flow_pyr_lk(
+        g,
+        p,
+        &b,
+        &mut r,
+        &mut sr,
+        &mut er,
+        Size::new(21, 21),
+        4,
+        crit,
+        0,
+        1e-4,
+    )?;
     let mut out = vec![];
     for i in 0..a.len() {
         let (x, y, z) = (a.get(i)?, b.get(i)?, r.get(i)?);
@@ -154,28 +224,58 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if a.len() != 8 {
         return Err("usage: warp_residual_probe MP4 START DURATION READOUT_MS LAG_S AXES|search OUTPUT_JSON".into());
     }
-    let (start, dur, readout, lag): (f64, f64, f64, f64) = (a[2].parse()?, a[3].parse()?, a[4].parse::<f64>()? / 1000., a[5].parse()?);
+    let (start, dur, readout, lag): (f64, f64, f64, f64) = (
+        a[2].parse()?,
+        a[3].parse()?,
+        a[4].parse::<f64>()? / 1000.,
+        a[5].parse()?,
+    );
     let tel = telemetry::extract_quats(std::path::Path::new(&a[1]))?;
     let km = tel.meta.camera_matrix.ok_or("no lens matrix")?;
     let dd = tel.meta.distortion.ok_or("no distortion")?;
     let (w, h) = (1440i32, 1080i32);
     let sx = w as f64 / tel.meta.calib_w.unwrap_or(w as f64);
     let sy = h as f64 / tel.meta.calib_h.unwrap_or(h as f64);
-    let k = Mat::from_slice_2d(&[[km[0][0] * sx, 0., km[0][2] * sx], [0., km[1][1] * sy, km[1][2] * sy], [0., 0., 1.]])?;
+    let k = Mat::from_slice_2d(&[
+        [km[0][0] * sx, 0., km[0][2] * sx],
+        [0., km[1][1] * sy, km[1][2] * sy],
+        [0., 0., 1.],
+    ])?;
     let d = Mat::from_slice(&dd)?.try_clone()?;
-    let tq = Tel { t: tel.t.clone(), q: tel.q.clone() };
+    let tq = Tel {
+        t: tel.t.clone(),
+        q: tel.q.clone(),
+    };
     let search = a[6] == "search";
     let crop: Option<(f64, f64)> = std::env::var("O4_CROP").ok().map(|v| {
         let p: Vec<f64> = v.split(',').map(|x| x.parse().unwrap()).collect();
         (p[0], p[1])
     });
     let all = mounts();
-    let cands: Vec<usize> = if search { (0..all.len()).collect() } else { vec![a[6].parse()?] };
+    let cands: Vec<usize> = if search {
+        (0..all.len()).collect()
+    } else {
+        vec![a[6].parse()?]
+    };
 
     let f0 = (start * 100.).round() as usize;
     let frames = (dur * 100.).round() as usize;
     let mut child = Command::new("C:/ffmpeg/bin/ffmpeg.exe")
-        .args(["-v", "error", "-ss", &format!("{}", f0 as f64 / 100.), "-i", &a[1], "-frames:v", &frames.to_string(), "-f", "rawvideo", "-pix_fmt", "gray", "-"])
+        .args([
+            "-v",
+            "error",
+            "-ss",
+            &format!("{}", f0 as f64 / 100.),
+            "-i",
+            &a[1],
+            "-frames:v",
+            &frames.to_string(),
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "gray",
+            "-",
+        ])
         .stdout(Stdio::piped())
         .spawn()?;
     let mut out = child.stdout.take().unwrap();
@@ -188,11 +288,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let src: Vector<Point2f> = pts.iter().copied().collect();
         let mut u = Vector::<Point2f>::new();
         calib3d::fisheye_undistort_points_def(&src, &mut u, &k, &d)?;
-        Ok(u.iter().map(|p| {
-            let v = [p.x as f64, p.y as f64, 1.];
-            let n = (v[0] * v[0] + v[1] * v[1] + 1.).sqrt();
-            [v[0] / n, v[1] / n, v[2] / n]
-        }).collect())
+        Ok(u.iter()
+            .map(|p| {
+                let v = [p.x as f64, p.y as f64, 1.];
+                let n = (v[0] * v[0] + v[1] * v[1] + 1.).sqrt();
+                [v[0] / n, v[1] / n, v[2] / n]
+            })
+            .collect())
     };
     while out.read_exact(&mut buf).is_ok() {
         let g = Mat::new_rows_cols_with_data(h, w, &buf)?.try_clone()?;
@@ -207,15 +309,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 // (|x/z| < XMAX, |y/z| < YMAX in normalized coords), env O4_CROP="XMAX,YMAX".
                 let keep: Vec<usize> = (0..tr.len())
                     .filter(|&i| match crop {
-                        Some((xm, ym)) => [ba[i], bb[i]].iter().all(|b| b[2] > 0. && (b[0] / b[2]).abs() < xm && (b[1] / b[2]).abs() < ym),
+                        Some((xm, ym)) => [ba[i], bb[i]].iter().all(|b| {
+                            b[2] > 0. && (b[0] / b[2]).abs() < xm && (b[1] / b[2]).abs() < ym
+                        }),
                         None => true,
                     })
                     .collect();
                 let tr: Vec<_> = keep.iter().map(|&i| tr[i]).collect();
                 let ba: Vec<V3> = keep.iter().map(|&i| ba[i]).collect();
                 let bb: Vec<V3> = keep.iter().map(|&i| bb[i]).collect();
-                let qa: Vec<_> = tr.iter().map(|x| tq.at(fi as f64 / 100. + x.0.y as f64 / h as f64 * readout + lag)).collect();
-                let qb: Vec<_> = tr.iter().map(|x| tq.at((fi + 1) as f64 / 100. + x.1.y as f64 / h as f64 * readout + lag)).collect();
+                let qa: Vec<_> = tr
+                    .iter()
+                    .map(|x| tq.at(fi as f64 / 100. + x.0.y as f64 / h as f64 * readout + lag))
+                    .collect();
+                let qb: Vec<_> = tr
+                    .iter()
+                    .map(|x| {
+                        tq.at((fi + 1) as f64 / 100. + x.1.y as f64 / h as f64 * readout + lag)
+                    })
+                    .collect();
                 let qm = tq.at(tmid + lag);
                 for &ci in &cands {
                     let m = &all[ci];
@@ -247,18 +359,41 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .enumerate()
             .map(|(i, s)| {
                 // frame-to-frame change of the residual: cancels slowly varying translation flow
-                let mut s: Vec<f64> = s.windows(2).map(|w| (0..3).map(|k| (w[1][k] - w[0][k]).powi(2)).sum::<f64>().sqrt()).collect();
+                let mut s: Vec<f64> = s
+                    .windows(2)
+                    .map(|w| {
+                        (0..3)
+                            .map(|k| (w[1][k] - w[0][k]).powi(2))
+                            .sum::<f64>()
+                            .sqrt()
+                    })
+                    .collect();
                 s.sort_by(f64::total_cmp);
-                (i, if s.is_empty() { f64::INFINITY } else { s[s.len() / 2] })
+                (
+                    i,
+                    if s.is_empty() {
+                        f64::INFINITY
+                    } else {
+                        s[s.len() / 2]
+                    },
+                )
             })
             .collect();
         r.sort_by(|x, y| x.1.total_cmp(&y.1));
         for (i, s) in r.iter().take(5) {
-            println!("mount {i}: median |frame-to-frame residual change| {:.6} rad  {:?}", s, all[*i]);
+            println!(
+                "mount {i}: median |frame-to-frame residual change| {:.6} rad  {:?}",
+                s, all[*i]
+            );
         }
         return Ok(());
     }
-    std::fs::write(&a[7], serde_json::to_vec(&json!({"mp4": a[1], "start": start, "readout_ms": readout * 1000., "lag": lag, "mount": a[6], "pairs": rows}))?)?;
+    std::fs::write(
+        &a[7],
+        serde_json::to_vec(
+            &json!({"mp4": a[1], "start": start, "readout_ms": readout * 1000., "lag": lag, "mount": a[6], "pairs": rows}),
+        )?,
+    )?;
     println!("{} frames, {} pairs", kf, rows.len());
     Ok(())
 }
