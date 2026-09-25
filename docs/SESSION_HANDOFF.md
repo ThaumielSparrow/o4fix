@@ -6,11 +6,11 @@ For the complete experiment-by-experiment index and consolidated user rulings, s
 
 ## Production promotion (2026-09-24): v0.1.3 candidate with residual refinement
 
-Branch `refine-v013` (HEAD a1e551e, not merged, not released). `o4core/src/refine/` ports the wp1c Gyroflow-free probe and correction into the repair pipeline, and it is on by default. `--no-refine` or the GUI "Refine residual judder" toggle turns it off. Settings v2 migrates the 0.3 s ramp to 0.19 s. The splice now carries the fixed edge offsets. Bursts are skipped when the correction exceeds 4°, the window is unmeasurable, or the burst is within 0.5 s of the clip start. The results are in the production section of [feedback-v1 results](experiments/feedback-v1/results.md):
-- Parity with wp1c: 0.024/0.046/0.010° (0073/0060/0071). The splice reproduces edgeoffset.MP4 exactly.
+Branch `refine-v013` (HEAD a1e551e, not merged, not released). `o4core/src/refine/` ports the wp1c Gyroflow-free probe and correction into the repair pipeline, and it is on by default. `--no-refine` or the GUI "Refine residual judder" toggle turns it off. Settings v2 migrates the 0.3 s ramp to 0.19 s. The splice now carries the fixed edge offsets. Bursts are skipped when the correction exceeds 4°, the window is unmeasurable, or the burst is within 0.5 s of the clip start or end (judged on the measured frames). Overlapping burst gates are combined with max, as in research (final-review fix I1). The results are in the production section of [feedback-v1 results](experiments/feedback-v1/results.md):
+- Parity with wp1c: 0.017/0.046/0.010° (0073/0060/0071; 0073 was 0.024° before the union-gate fix). The splice reproduces edgeoffset.MP4 exactly.
 - Runtime: refinement roughly doubles repair time (0060: 231 s vs 112 s).
 - 0021 regression render vs shipped v0.1.2: clean/mild are within noise, and refined bursts improve. The severe/flick shake increases come from the clip-end landing and from cap-skipped bursts where the applied corrections are provably identical, so they are tracker noise.
-- Review page (release vs wp1c on 0073/0060; release vs v0.1.2 on 0021): `target/experiments/release-v013/review-release.html`. User verdict pending. Release/tag only on user request.
+- Review page (release vs wp1c on 0073/0060; release vs v0.1.2 on 0021): `target/experiments/release-v013/review-release-v2.html` (rebuilt after the union-gate fix; the first page `review-release.html` is superseded). User verdict pending. Release/tag only on user request.
 
 ## Latest (2026-09-24): render-feedback telemetry refinement — POSITIVE user verdict
 

@@ -56,7 +56,7 @@ It needs the edgeoffset.MP4 inputs (`generalization-v1/{0073,0071}/`,
 `gyro-trace-v1/`), their stages/metrics JSON, and the feedback-v1
 `wp1c-adjust.json` files under `target/experiments/`. It
 runs for about 1 min per clip, and the tolerance is 0.15 deg in-burst. Result at a1e551e:
-0073 0.024 deg, 0071 0.010 deg, 0060 0.046 deg.
+0073 0.017 deg, 0071 0.010 deg, 0060 0.046 deg (after the 2026-09-25 union-gate fix; 0073 was 0.024).
 `rebased_clip` (above) also checks that the release splice reproduces the
 research edgeoffset.MP4. Together the two tests establish end-to-end parity.
 
