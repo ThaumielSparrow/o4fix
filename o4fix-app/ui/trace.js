@@ -263,7 +263,8 @@ class ClipTrace {
 
   _stepProgress(dt) {
     const cap = Math.min(PROGRESS_CAP, this.pct + CREEP_EPS);
-    this._creepTo = Math.min(cap, this._creepTo + CREEP_RATE * dt);
+    // follow reported progress at once; only the lead beyond it is rate-limited
+    this._creepTo = Math.min(cap, Math.max(this.pct, this._creepTo + CREEP_RATE * dt));
     const k = 1 - Math.exp(-dt / FOLLOW_TAU);
     this.disp = Math.min(this.disp + (this._creepTo - this.disp) * k, cap);
     this.renderAtHeadX((this.warp.indexAt(this.disp) / this.n) * VW);
