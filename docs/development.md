@@ -13,6 +13,9 @@
   - `optical.rs` — video-based motion estimation (video_rates, fit_video_alignment)
   - `patch.rs` — quaternion rewriting (optical_patch, splice_orientation)
   - `pipeline.rs` — main processing pipeline (process)
+  - `threads.rs` — bounded worker pool (`Config.threads`), OpenCV/FFmpeg
+    thread limits, Windows worker priority/EcoQoS, 100-pair work chunks
+    (see `docs/experiments/perf-v1/results.md`)
   - `refine/` — residual refinement stage (default on; runs after the
     splice, before MP4 write-back). It is the productized research `wp1c`
     probe. `geometry.rs` covers fisheye bearings, rolling-shutter row

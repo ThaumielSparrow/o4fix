@@ -37,6 +37,11 @@ needed (Windows 10 may prompt once for Microsoft WebView2).
   instead of 112 s, and 0021 (176 s, 20% noisy) takes 353 s instead of 125 s.
 - Splice ramps default to 0.19 s (was 0.3 s). The edges of each
   repaired burst now start from the correct orientation offset.
+- **CPU usage (GUI setting; CLI `--threads N`).** Video analysis runs on
+  a bounded pool of below-normal-priority worker threads: Auto (default)
+  uses half the logical cores, Low a quarter, High all but one. Clips
+  processed at once share the same budget. The output is identical for
+  every setting.
 
 ## CLI
 
