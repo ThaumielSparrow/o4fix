@@ -1,0 +1,172 @@
+<!doctype html>
+<!--
+  Standalone dev harness for the per-clip trace's progress-follow playhead
+  (o4fix-app/ui/trace.js). Not wired into the app or CI — open directly in a
+  browser to eyeball the warp/creep/squash/settle/fade behavior against
+  synthetic before/progress/after events, without running the real backend.
+
+  Each row is one ClipTrace with its own fake job: "Start" begins a
+  before-trace + a jittery pct ticker (uneven jumps + occasional stalls, to
+  exercise the creep/ease follow), and its buttons fire the same events
+  app.js would route from job_progress / job_trace / job_done.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<title>trace progress harness</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+  body { max-width: 720px; margin: 40px auto; font: 14px var(--body); color: var(--ink); background: var(--ground); }
+  h1 { font: 600 20px var(--display); }
+  .row { background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+         padding: 14px 16px; margin-bottom: 14px; }
+  .row h2 { font: 600 14px var(--display); margin: 0 0 8px; }
+  .trace { position: relative; height: 44px; margin: 10px 0 8px; border-radius: 5px;
+           overflow: hidden; background: var(--track); }
+  .trace svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .trace path { fill: none; stroke-width: 1.3; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .trace .calm { stroke: var(--ink-3); }
+  .trace .noisy { stroke: var(--noise); stroke-width: 1.6; }
+  .trace .band { fill: var(--noise-soft); stroke: none; transition: fill .4s; }
+  .trace .band.fixed { fill: var(--fixed-soft); }
+  .trace .head { stroke: var(--ink-2); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .ctl { display: flex; gap: 8px; align-items: center; }
+  .ctl button { font: 12px var(--body); padding: 4px 10px; border-radius: 6px;
+                border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
+  .ctl button:hover { border-color: var(--fixed); }
+  .pctlabel { font-variant-numeric: tabular-nums; color: var(--ink-3); min-width: 4ch; }
+  label.top { display: flex; gap: 6px; align-items: center; margin-bottom: 16px; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<h1>trace progress harness</h1>
+<label class="top">
+  <input type="checkbox" id="reduced">
+  Force <code>prefers-reduced-motion: reduce</code> (must toggle before "Start")
+</label>
+
+<div class="row">
+  <h2>Normal completion — burst gets refined</h2>
+  <div class="trace" id="t1"></div>
+  <div class="ctl">
+    <button data-act="start">Start</button>
+    <button data-act="after">Send after (finish)</button>
+    <span class="pctlabel" id="p1">0%</span>
+  </div>
+</div>
+
+<div class="row">
+  <h2>Healthy clip — no bursts found</h2>
+  <div class="trace" id="t2"></div>
+  <div class="ctl">
+    <button data-act="start">Start</button>
+    <button data-act="healthy">Finish (healthy)</button>
+    <span class="pctlabel" id="p2">0%</span>
+  </div>
+</div>
+
+<div class="row">
+  <h2>Cancelled mid-burst</h2>
+  <div class="trace" id="t3"></div>
+  <div class="ctl">
+    <button data-act="start">Start</button>
+    <button data-act="cancel">Cancel</button>
+    <span class="pctlabel" id="p3">0%</span>
+  </div>
+</div>
+
+<div class="row">
+  <h2>Error mid-burst</h2>
+  <div class="trace" id="t4"></div>
+  <div class="ctl">
+    <button data-act="start">Start</button>
+    <button data-act="error">Error out</button>
+    <span class="pctlabel" id="p4">0%</span>
+  </div>
+</div>
+
+<script>
+  // Let the checkbox override prefers-reduced-motion for this page only.
+  // trace.js calls the bare global matchMedia(); replace it before trace.js loads.
+  const forceReduced = () => document.getElementById("reduced").checked;
+  window.matchMedia = (q) => ({
+    matches: q.includes("prefers-reduced-motion") ? forceReduced() : false,
+  });
+</script>
+<script src="../trace.js"></script>
+<script>
+  // ---- synthetic clip: 60 s, three bursts (one tiny) ----
+  const T0 = 0, T1 = 60, N = 240; // 4 buckets/s
+  const BURSTS = [[8, 12], [24, 24.6], [40, 52]];
+  function inAnyBurst(t) { return BURSTS.some(([a, b]) => t >= a && t < b); }
+  const values = [];
+  for (let i = 0; i < N; i++) {
+    const t = T0 + ((i + 0.5) / N) * (T1 - T0);
+    const calm = 3 + 2 * Math.sin(t * 0.7) + (Math.random() - 0.5);
+    values.push(inAnyBurst(t) ? 22 + 14 * Math.random() : Math.max(1.5, calm));
+  }
+  // "true" repaired values: bursts come down close to (but not exactly) calm,
+  // so the settle step visibly does something beyond the provisional squash
+  const afterValues = values.map((v, i) => {
+    const t = T0 + ((i + 0.5) / N) * (T1 - T0);
+    return inAnyBurst(t) ? 3.5 + 1.5 * Math.sin(t * 1.3) : v;
+  });
+  const healthyValues = values.map((v, i) => {
+    const t = T0 + ((i + 0.5) / N) * (T1 - T0);
+    return Math.max(1.5, 3 + 2 * Math.sin(t * 0.7));
+  });
+
+  function demo(hostId, pctLabelId, { bursts, values }) {
+    const host = document.getElementById(hostId);
+    const label = document.getElementById(pctLabelId);
+    const trace = new window.o4trace.ClipTrace(host);
+    let pctTimer = 0, pct = 0;
+    function tickPct() {
+      // uneven jumps + occasional stalls, like real job_progress events
+      const stall = Math.random() < 0.15;
+      if (!stall) pct = Math.min(0.97, pct + Math.random() * 0.05);
+      trace.setProgress(pct);
+      label.textContent = Math.round(pct * 100) + "%";
+      pctTimer = setTimeout(tickPct, 120 + Math.random() * 380);
+    }
+    return {
+      start() {
+        clearTimeout(pctTimer);
+        pct = 0;
+        trace.setBefore({ t0: T0, t1: T1, values, bursts });
+        tickPct();
+      },
+      after(afterVals) {
+        clearTimeout(pctTimer);
+        trace.setAfter({ values: afterVals });
+      },
+      stop(kind) {
+        clearTimeout(pctTimer);
+        trace.stop(kind);
+      },
+    };
+  }
+
+  const demos = {
+    t1: demo("t1", "p1", { bursts: BURSTS, values }),
+    t2: demo("t2", "p2", { bursts: [], values: healthyValues }),
+    t3: demo("t3", "p3", { bursts: BURSTS, values }),
+    t4: demo("t4", "p4", { bursts: BURSTS, values }),
+  };
+
+  document.querySelectorAll(".row").forEach((row, idx) => {
+    const id = "t" + (idx + 1);
+    row.querySelectorAll("button").forEach((btn) => {
+      btn.onclick = () => {
+        const act = btn.dataset.act;
+        if (act === "start") demos[id].start();
+        else if (act === "after") demos[id].after(afterValues);
+        else if (act === "healthy") demos[id].stop("healthy");
+        else if (act === "cancel") demos[id].stop("cancelled");
+        else if (act === "error") demos[id].stop("error");
+      };
+    });
+  });
+</script>
+</body>
+</html>
