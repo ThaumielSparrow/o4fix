@@ -355,6 +355,10 @@ function renderSettings() {
   $("clear-out").hidden = !settings.output_dir;
   for (const b of $("concurrent").children)
     b.setAttribute("aria-checked", String(+b.dataset.v === settings.concurrent_files));
+  const cpu = window.CPU_USAGE_HELP[settings.cpu_usage] ? settings.cpu_usage : "auto";
+  for (const b of $("cpu-usage").children)
+    b.setAttribute("aria-checked", String(b.dataset.v === cpu));
+  $("cpu-usage-note").textContent = window.CPU_USAGE_HELP[cpu];
   save(); // also syncs profile radio + summary
 }
 
@@ -427,6 +431,10 @@ async function init() {
   for (const b of $("concurrent").children) {
     b.setAttribute("role", "radio");
     b.onclick = () => { settings.concurrent_files = +b.dataset.v; renderSettings(); };
+  }
+  for (const b of $("cpu-usage").children) {
+    b.setAttribute("role", "radio");
+    b.onclick = () => { settings.cpu_usage = b.dataset.v; renderSettings(); };
   }
 }
 

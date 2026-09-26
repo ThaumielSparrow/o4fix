@@ -108,6 +108,8 @@ impl ConfigDto {
             drift_decay_rate: self.drift_decay_rate,
             refine: self.refine,
             refine_cfg: o4core::refine::RefineConfig::default(),
+            // app-level: set per run from GuiSettings::cpu_usage
+            threads: None,
         }
     }
 }
@@ -127,6 +129,9 @@ pub struct GuiSettings {
     pub config: ConfigDto,
     pub output_dir: Option<String>,
     pub concurrent_files: usize,
+    /// "auto" | "low" | "high" (o4core::threads::preset). A file without
+    /// the key reads as "auto"; unknown values also act as auto.
+    pub cpu_usage: String,
 }
 
 impl Default for GuiSettings {
@@ -137,6 +142,7 @@ impl Default for GuiSettings {
             config: ConfigDto::default(),
             output_dir: None,
             concurrent_files: 1,
+            cpu_usage: "auto".into(),
         }
     }
 }
@@ -222,6 +228,7 @@ mod tests {
             config: ConfigDto::from_config(&Config::m4()),
             output_dir: Some("D:\\out".into()),
             concurrent_files: 3,
+            cpu_usage: "high".into(),
         };
         let j = serde_json::to_string(&s).unwrap();
         assert_eq!(serde_json::from_str::<GuiSettings>(&j).unwrap(), s);
@@ -396,6 +403,20 @@ mod tests {
         .unwrap();
         assert_eq!(load_from(&path).config.drift_rebase_above, 0.0);
         std::fs::remove_file(&path).ok();
+    }
+
+    /// Pre-0.2.1 settings.json has no cpu_usage key: it loads as "auto"
+    /// without a version bump or migration.
+    #[test]
+    fn missing_cpu_usage_reads_as_auto() {
+        let mut s: GuiSettings = serde_json::from_value(serde_json::json!({
+            "settings_version": CURRENT_SETTINGS_VERSION, "profile": "m2",
+            "config": {}, "output_dir": null, "concurrent_files": 2
+        }))
+        .unwrap();
+        assert_eq!(s.cpu_usage, "auto");
+        assert!(!s.migrate());
+        assert_eq!(s.concurrent_files, 2);
     }
 
     #[test]

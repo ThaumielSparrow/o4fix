@@ -52,7 +52,11 @@ pub fn start_queue(
     files: Vec<String>,
     settings: GuiSettings,
 ) -> Vec<u64> {
-    let cfg = settings.config.to_config();
+    let mut cfg = settings.config.to_config();
+    // One thread budget for the whole queue: every job gets the same size,
+    // so concurrent jobs share o4core's single pool of that size (work
+    // stealing balances them) instead of each adding its own threads.
+    cfg.threads = Some(o4core::threads::preset(&settings.cpu_usage));
     let out_dir = settings.output_dir.clone().map(PathBuf::from);
     let queue: Arc<Mutex<VecDeque<Job>>> = Arc::default();
     let mut ids = Vec::new();

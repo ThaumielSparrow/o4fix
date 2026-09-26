@@ -13,6 +13,14 @@ window.DEFAULTS = {
 };
 window.M4 = Object.assign({}, window.DEFAULTS, { fast_wide_cutoff: 16.0 });
 
+// "CPU usage" (app setting, not a repair parameter: results are identical
+// for every choice). One budget shared by all clips processed at once.
+window.CPU_USAGE_HELP = {
+  low: "Uses about a quarter of your CPU cores. Slowest, keeps the computer free for other work.",
+  auto: "Uses about half of your CPU cores. Leaves room for other apps.",
+  high: "Uses all CPU cores but one. Fastest; other apps may feel slow while clips are processed.",
+};
+
 window.HELP = {
   severe: "deg/s 30-180 Hz band-RMS above which orientation is replaced with integrated optical motion (default 8)",
   severe_pad: "s, padding around each severe burst (default 0.2)",
