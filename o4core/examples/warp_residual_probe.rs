@@ -251,6 +251,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let p: Vec<f64> = v.split(',').map(|x| x.parse().unwrap()).collect();
         (p[0], p[1])
     });
+    let regions = std::env::var("O4_REGIONS").is_ok_and(|v| v == "1");
     let all = mounts();
     let cands: Vec<usize> = if search {
         (0..all.len()).collect()
@@ -339,7 +340,71 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         } else {
                             // world-frame residual rotation -> telemetry body frame, per second
                             let db = qrot(quat::qconj(qm), dw);
-                            rows.push(json!({"t": tmid, "rate": [db[0]*100., db[1]*100., db[2]*100.], "n": n, "rms": rms}));
+                            let mut row = json!({"t": tmid, "rate": [db[0]*100., db[1]*100., db[2]*100.], "n": n, "rms": rms});
+                            // Optional (env O4_REGIONS=1): the same fit on image halves. A telemetry
+                            // error rotates every region alike; translation parallax does not.
+                            if regions {
+                                let halves: [(&str, Box<dyn Fn(&Point2f) -> bool>); 4] = [
+                                    ("top", Box::new(|p: &Point2f| (p.y as f64) < h as f64 / 2.)),
+                                    ("bottom", Box::new(|p: &Point2f| (p.y as f64) >= h as f64 / 2.)),
+                                    ("left", Box::new(|p: &Point2f| (p.x as f64) < w as f64 / 2.)),
+                                    ("right", Box::new(|p: &Point2f| (p.x as f64) >= w as f64 / 2.)),
+                                ];
+                                for (name, inside) in halves.iter() {
+                                    let idx: Vec<usize> =
+                                        (0..tr.len()).filter(|&i| inside(&tr[i].0)).collect();
+                                    let sa: Vec<V3> = idx.iter().map(|&i| wa[i]).collect();
+                                    let sb: Vec<V3> = idx.iter().map(|&i| wb[i]).collect();
+                                    row[*name] = match fit_rotation(&sa, &sb) {
+                                        Some((dr, nr, _)) => {
+                                            let r = qrot(quat::qconj(qm), dr);
+                                            json!({"rate": [r[0]*100., r[1]*100., r[2]*100.], "n": nr})
+                                        }
+                                        None => serde_json::Value::Null,
+                                    };
+                                }
+                            }
+                            // Translation-aware estimate of the same residual: essential matrix on the
+                            // telemetry-derotated bearings, expressed in the pair's mid camera frame.
+                            if regions {
+                                let to_cam = |v: V3| -> V3 {
+                                    let b = qrot(quat::qconj(qm), v);
+                                    std::array::from_fn(|r| (0..3).map(|c| m[c][r] * b[c]).sum())
+                                };
+                                let (mut p1, mut p2) = (Vector::<Point2f>::new(), Vector::<Point2f>::new());
+                                for i in 0..tr.len() {
+                                    let (ca, cb) = (to_cam(wa[i]), to_cam(wb[i]));
+                                    if ca[2] > 0.1 && cb[2] > 0.1 {
+                                        p1.push(Point2f::new((ca[0] / ca[2]) as f32, (ca[1] / ca[2]) as f32));
+                                        p2.push(Point2f::new((cb[0] / cb[2]) as f32, (cb[1] / cb[2]) as f32));
+                                    }
+                                }
+                                if p1.len() >= 40 {
+                                    let eye = Mat::eye(3, 3, core::CV_64F)?.to_mat()?;
+                                    let mut inl = Mat::default();
+                                    core::set_rng_seed(1_000_000 + fi as i32)?;
+                                    let e = calib3d::find_essential_mat(
+                                        &p1, &p2, &eye, calib3d::RANSAC, 0.999, 0.001, 1000, &mut inl,
+                                    )?;
+                                    if e.rows() == 3 && e.cols() == 3 {
+                                        let (mut r1, mut r2, mut tt) = (Mat::default(), Mat::default(), Mat::default());
+                                        calib3d::decompose_essential_mat(&e, &mut r1, &mut r2, &mut tt)?;
+                                        let rod = |r: &Mat| -> opencv::Result<V3> {
+                                            let mut rv = Mat::default();
+                                            calib3d::rodrigues(r, &mut rv, &mut core::no_array())?;
+                                            Ok([*rv.at::<f64>(0)?, *rv.at::<f64>(1)?, *rv.at::<f64>(2)?])
+                                        };
+                                        let (v1, v2) = (rod(&r1)?, rod(&r2)?);
+                                        let nn = |v: &V3| v.iter().map(|x| x * x).sum::<f64>();
+                                        let rc = if nn(&v1) <= nn(&v2) { v1 } else { v2 };
+                                        let rb = mv(m, rc); // camera -> body
+                                        let ni: i32 = (0..inl.rows()).map(|j| *inl.at::<u8>(j).unwrap() as i32).sum();
+                                        let tv: Vec<f64> = (0..3).map(|j| *tt.at::<f64>(j).unwrap()).collect();
+                                        row["ess"] = json!({"rate": [rb[0]*100., rb[1]*100., rb[2]*100.], "n": ni, "t": tv});
+                                    }
+                                }
+                            }
+                            rows.push(row);
                         }
                     } else if !search {
                         rows.push(json!({"t": tmid, "rate": null, "n": 0}));
