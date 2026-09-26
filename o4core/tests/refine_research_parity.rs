@@ -47,7 +47,11 @@ fn case(base_mp4: &str, stages: &str, adjust: &str) {
         &tel.q,
         &iv,
         &tel.meta,
-        &RefineConfig::default(),
+        // research wp1c predates the cap gate (regions-v1/v2): pin it off
+        &RefineConfig {
+            cap_gate: None,
+            ..Default::default()
+        },
         &|s| println!("{s}"),
         &|_| {},
         &AtomicBool::new(false),

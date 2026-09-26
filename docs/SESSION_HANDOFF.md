@@ -4,6 +4,38 @@ Last updated: 2026-09-25. This document supersedes stale “work paused / solved
 
 For the complete experiment-by-experiment index and consolidated user rulings, start with [Stabilization experiments and rulings handoff](STABILIZATION_EXPERIMENTS_HANDOFF.md). That ledger was compiled from every experiment report and the recorded visual verdicts; it supersedes older summary/status wording below when entries conflict. This file retains the production invariants, artifact locations, runtime notes, and historical investigation trail.
 
+## 2026-09-26 (later): cap gate + agreement floor in production (merged to main)
+
+Agreement floor added after review (clips 1-3 slightly better, 4-5 minimal): default 0.3,
+`--no-refine-agreement-floor`. Both rules share one essential-matrix estimate; no runtime cost.
+
+### Detail
+
+Branch `refine-cap-gate` (uncommitted): `RefineConfig.cap_gate` default 0.75, CLI
+`--refine-cap-gate` / `--no-refine-cap-gate`. Decisions match research on 0083/0005/0076
+(plus 0076 275.1 s newly admitted, render 18.3 -> 11.5). All known-bad 0021/0060 bursts are rejected.
+No runtime cost; outside admitted bursts, output is unchanged (<= 0.015 deg/s). Local release rebuilt.
+Step 2: under-cap bursts with agreement < 0.3 are made worse by today's refinement (0073
+178.8 s 2.9 -> 16.8, 0058 206.9 s 3.5 -> 19.7); skipping them fixes it (net win on 14 bursts).
+Review `target/experiments/regions-v2/review-capgate-floor.html`: User verdict (2026-09-26, review-capgate-floor): "clips 1-3: looks slightly better / clip 4 and 5: difference is minimal" (1 = production gate 0076 275.1 s; 2-3 = floor 0073 178.8, 0058 206.9; 4-5 = floor 0058 318.5, 0057 45.3). Details in
+[regions-v2](experiments/regions-v2/results.md).
+
+## 2026-09-26: regions-v1 render-free cap gate — POSITIVE user verdict
+
+[regions-v1](experiments/regions-v1/results.md): admit a cap-skipped burst to refinement when
+the pooled 1-8 Hz correlation between the probe residual and a translation-aware
+(essential-matrix) estimate is >= 0.75. On 0083 four capped bursts pass; the review
+(`target/experiments/judder83/review-gate.html`) got: "gated refinement side looks noticably
+better for all clips." The gate admits nothing on 0021/0060 (no regression possible there) and
+does not admit 0083 1:53 (0.41). Out-of-sample check [regions-v2](experiments/regions-v2/results.md)
+(10 unseen capped bursts on 0076/0058): one admission (0076 153.7 s, render 87 -> 40 deg/s), no
+false admits, 4 rejections confirmed harmful if forced, 2 conservative misses. Review page
+`target/experiments/regions-v2/review-gate-0076.html`: user saw little difference ("maybe the right
+side looks a little smoother, but the left doesnt have much judder/vibration to begin with").
+All-burst check: see regions-v2 results (gate holds on 144 unseen bursts; under-cap low-agreement refinement may hurt, unverified).
+New clip 0005 (0:17-0:30 = one 13 s burst skipped at 5.06 deg, admitted at 0.96): User verdict (2026-09-26, 0005): "much better than before in terms of judder, this clip doesnt have much choppiness, ive just noticed it in general in certain clips post-fix." Next: port the ess estimate
++ gate into `o4core/src/refine/` (threshold 0.75).
+
 ## 2026-09-25: merged to main (local build, not released)
 
 `main` now carries: perf-v1 (bounded below-normal worker pool, single-threaded OpenCV/FFmpeg,
@@ -15,7 +47,8 @@ For the complete experiment-by-experiment index and consolidated user rulings, s
 (harness `o4fix-app/ui/dev/progress-harness.html`). Golden tests pin the veto off (Python
 references predate it). The merged build's 0083 output differs from the reviewed pre-merge
 veto file by at most 1e-5 deg (float32 rounding; deterministic and thread-count independent;
-veto-off output is byte-identical to the old build). Local `targetelease` rebuilt. Next:
+veto-off output is byte-identical to the old build). Local `target
+elease` rebuilt. Next:
 render-free gate for refinement above the 4 deg cap (judder83-v1 candidate B) — test
 regional agreement of the probe residual (parallax vs rotation) on 0083 (good) vs 0021
 powerloop/109.6 s and 0060 48.7 s (probe wrong).

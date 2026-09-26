@@ -1,5 +1,9 @@
 # DJI O4 Pro gyro noise fix — v0.1.2 baseline, active stabilization research
 
+**2026-09-26 (main, local build, not released):** refinement cap gate (over-cap bursts refined
+when probe and essential-matrix estimates agree >= 0.75) and agreement floor (under-cap bursts
+skipped below 0.3), both default-on. See `docs/experiments/regions-v2/results.md`.
+
 **2026-09-25 (main, local build, not released):** v0.2.0 + perf-v1 (bounded
 below-normal worker pool, `--threads`, GUI "CPU usage"; byte-identical output, ~5x less RAM)
 + handback noise veto default-on (`--no-handback-veto`) + playhead GUI progress trace. See

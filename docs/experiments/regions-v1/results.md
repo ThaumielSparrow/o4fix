@@ -19,7 +19,8 @@ Labels from the render measurement (fbclip pipeline; 0021 all 31 bursts on the n
 render, 0083 capped bursts on the veto render, 0060 two capped bursts): label = pooled
 1-8 Hz correlation probe~render. Predictor = pooled correlation probe~ess (render-free).
 n = 41, corr(label, predictor) = 0.63 (correction magnitude: -0.26).
-- predictor >= 0.75: 6/6 bursts have label 0.87-0.98 (probe right).
+- predictor >= 0.75: 7 bursts, 6 with label 0.87-0.98 (probe right) and 0021 143.0 s at 0.62
+  (under the cap, already refined in production). (Corrected 2026-09-26; first write-up said 6/6.)
 - known-bad: 0021 powerloop 0.29, 0021 109.6 s 0.34, 0060 48.7 s -0.13.
 - 0083 1:53 burst (user-validated B): 0.41 — not admitted by this rule.
 - 0021 and 0060 have no capped burst >= 0.75, so a gate there changes nothing on them.
@@ -37,6 +38,8 @@ n = 41, corr(label, predictor) = 0.63 (correction magnitude: -0.26).
 | control 2:26.2-2:27.0 | 17.3 / 12.4 | 18.9 / 12.7 |
 
 Review page `target/experiments/judder83/review-gate.html` (LEFT current default, RIGHT
-gated). User verdict pending. Caveat: the threshold was read off the same 41 bursts it is
-judged on; validate on another clip before production. The ess estimate is noisy on its own
+gated). User verdict (2026-09-26): "gated refinement side looks noticably better for all
+clips." (all three 0083 review sections: 0:48.8, 2:23.6+2:28.8, 3:31.7 crash). Caveat: the threshold was read off the same 41 bursts it is
+judged on. Out-of-sample check: [regions-v2](../regions-v2/results.md) (held: 1/1 correct admit on 0076,
+no false admits across 10 unseen capped bursts). The ess estimate is noisy on its own
 (calm-section ess noise > probe noise) — use it only as an agreement check, not a correction.

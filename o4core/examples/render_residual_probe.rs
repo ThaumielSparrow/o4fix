@@ -155,17 +155,36 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut buf = vec![0u8; size];
     let mut prev: Option<Mat> = None;
     let mut rows = vec![];
+    // Optional (env O4_HALVES=1): the same fit on the left and right image halves. Real
+    // frame-to-frame motion appears in both; tracking noise is independent between them.
+    let halves = std::env::var("O4_HALVES").is_ok_and(|v| v == "1");
     let mut k = 0usize;
     while out.read_exact(&mut buf).is_ok() {
         let m = Mat::new_rows_cols_with_data(h, w, &buf)?.try_clone()?;
         if let Some(p) = &prev {
             let t = start + (k as f64 - 0.5) / 100.;
-            match pair(p, &m, w as f32, h as f32)? {
+            let mut row = match pair(p, &m, w as f32, h as f32)? {
                 Some((d, n)) => {
-                    rows.push(json!({"t":t,"rate":[d[0]*100.,d[1]*100.,d[2]*100.,d[3]*100.],"n":n}))
+                    json!({"t":t,"rate":[d[0]*100.,d[1]*100.,d[2]*100.,d[3]*100.],"n":n})
                 }
-                None => rows.push(json!({"t":t,"rate":null,"n":0})),
+                None => json!({"t":t,"rate":null,"n":0}),
+            };
+            if halves {
+                for (name, x0) in [("left", 0), ("right", w / 2)] {
+                    let roi = core::Rect::new(x0, 0, w / 2, h);
+                    let (pa, pb) = (
+                        Mat::roi(p, roi)?.try_clone()?,
+                        Mat::roi(&m, roi)?.try_clone()?,
+                    );
+                    row[name] = match pair(&pa, &pb, (w / 2) as f32, h as f32)? {
+                        Some((d, n)) => {
+                            json!({"rate":[d[0]*100.,d[1]*100.,d[2]*100.,d[3]*100.],"n":n})
+                        }
+                        None => serde_json::Value::Null,
+                    };
+                }
             }
+            rows.push(row);
         }
         prev = Some(m);
         k += 1;

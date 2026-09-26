@@ -347,12 +347,18 @@ pub fn process(
             say(
                 Stage::Refine,
                 0.91,
-                match &b.note {
-                    None => format!(
+                match (&b.note, b.agreement) {
+                    (None, Some(g)) if b.max_deg > cfg.refine_cfg.max_correction_deg => format!(
+                        "     [{:7.2}, {:7.2}] residual correction {:4.2} deg (over cap, admitted: agreement {g:.2})",
+                        b.start, b.end, b.max_deg
+                    ),
+                    (None, _) => format!(
                         "     [{:7.2}, {:7.2}] residual correction {:4.2} deg",
                         b.start, b.end, b.max_deg
                     ),
-                    Some(n) => format!("     [{:7.2}, {:7.2}] not refined: {n}", b.start, b.end),
+                    (Some(n), _) => {
+                        format!("     [{:7.2}, {:7.2}] not refined: {n}", b.start, b.end)
+                    }
                 },
             );
         }

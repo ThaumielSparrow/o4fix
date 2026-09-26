@@ -121,6 +121,55 @@ fn bearings(pts: &[Point2f], k: &Mat, d: &Mat) -> opencv::Result<Vec<V3>> {
         .collect())
 }
 
+/// Translation-aware estimate of the residual rotation between two sets of
+/// world-frame bearings (regions-v1 `ess`): the bearings go back into the
+/// pair's mid camera frame, an essential matrix is fitted on their normalized
+/// coordinates, and the smaller-angle rotation of its decomposition is
+/// returned in the telemetry body frame (rad per pair).
+fn essential_residual(wa: &[V3], wb: &[V3], q_mid: [f64; 4]) -> opencv::Result<Option<V3>> {
+    let to_cam = |v: V3| -> V3 {
+        let b = rotate(qconj(q_mid), v);
+        std::array::from_fn(|r| (0..3).map(|c| O4P_MOUNT[c][r] * b[c]).sum())
+    };
+    let (mut p1, mut p2) = (Vector::<Point2f>::new(), Vector::<Point2f>::new());
+    for (a, b) in wa.iter().zip(wb) {
+        let (ca, cb) = (to_cam(*a), to_cam(*b));
+        if ca[2] > 0.1 && cb[2] > 0.1 {
+            p1.push(Point2f::new((ca[0] / ca[2]) as f32, (ca[1] / ca[2]) as f32));
+            p2.push(Point2f::new((cb[0] / cb[2]) as f32, (cb[1] / cb[2]) as f32));
+        }
+    }
+    if p1.len() < 40 {
+        return Ok(None);
+    }
+    let eye = Mat::eye(3, 3, core::CV_64F)?.to_mat()?;
+    let mut inl = Mat::default();
+    let e = calib3d::find_essential_mat(
+        &p1,
+        &p2,
+        &eye,
+        calib3d::RANSAC,
+        0.999,
+        0.001,
+        1000,
+        &mut inl,
+    )?;
+    if e.rows() != 3 || e.cols() != 3 {
+        return Ok(None);
+    }
+    let (mut r1, mut r2, mut tt) = (Mat::default(), Mat::default(), Mat::default());
+    calib3d::decompose_essential_mat(&e, &mut r1, &mut r2, &mut tt)?;
+    let rod = |r: &Mat| -> opencv::Result<V3> {
+        let mut rv = Mat::default();
+        calib3d::rodrigues(r, &mut rv, &mut core::no_array())?;
+        Ok([*rv.at::<f64>(0)?, *rv.at::<f64>(1)?, *rv.at::<f64>(2)?])
+    };
+    let (v1, v2) = (rod(&r1)?, rod(&r2)?);
+    let nn = |v: &V3| v.iter().map(|x| x * x).sum::<f64>();
+    let rc = if nn(&v1) <= nn(&v2) { v1 } else { v2 };
+    Ok(Some(mat_vec(&O4P_MOUNT, rc)))
+}
+
 /// Measure the frame pairs of frames `c0..=c1` (one chunk of a window; see
 /// `threads::chunks`). Pairs are independent (each uses only its two
 /// frames), so concatenating a window's chunks in order reproduces the
@@ -146,6 +195,7 @@ pub fn measure_chunk(
         resid: vec![],
         inliers: vec![],
         tel_rate: vec![],
+        ess: vec![],
     };
     let (mut prev, mut frame) = (None::<Mat>, Mat::default());
     let row_t = |fi: i64, y: f32| fi as f64 / info.fps + y as f64 / info.height as f64 * readout;
@@ -167,6 +217,7 @@ pub fn measure_chunk(
             let tel_rate = (dv[0] * dv[0] + dv[1] * dv[1] + dv[2] * dv[2]).sqrt() * info.fps;
             let tr = track(p, &g, cfg.max_features)?;
             let mut resid = None;
+            let mut ess = None;
             let mut n = 0;
             if tr.len() >= 40 {
                 let ba = bearings(&tr.iter().map(|x| x.0).collect::<Vec<_>>(), &k, &d)?;
@@ -195,12 +246,19 @@ pub fn measure_chunk(
                     let db = rotate(qconj(q_mid), dw);
                     resid = Some([db[0] * info.fps, db[1] * info.fps, db[2] * info.fps]);
                     n = ni;
+                    if cfg.wants_agreement() {
+                        // per-pair seed: RANSAC draws independent of chunking/threads
+                        core::set_rng_seed(1_000_000 + fi as i32)?;
+                        ess = essential_residual(&wa, &wb, q_mid)?
+                            .map(|v| [v[0] * info.fps, v[1] * info.fps, v[2] * info.fps]);
+                    }
                 }
             }
             s.t.push(tmid);
             s.resid.push(resid);
             s.inliers.push(n);
             s.tel_rate.push(tel_rate);
+            s.ess.push(ess);
         }
         prev = Some(g);
     }

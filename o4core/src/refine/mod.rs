@@ -38,6 +38,25 @@ pub struct RefineConfig {
     pub max_motion_ratio: f64,
     pub max_features: i32,
     pub min_inliers: usize,
+    /// Refine a burst over `max_correction_deg` anyway when the rotation-only
+    /// residual agrees with a translation-aware (essential-matrix) estimate of
+    /// the same residual: pooled 1-8 Hz correlation inside the burst >= this.
+    /// None = never refine past the cap. regions-v1/v2 (2026-09-26): 0.75
+    /// admitted no burst the render showed to be harmed on 8 clips.
+    pub cap_gate: Option<f64>,
+    /// Leave a burst under the cap unrefined when the same agreement is below
+    /// this: the rotation-only residual is then not a telemetry error, and
+    /// correcting it adds judder. None = refine every burst under the cap.
+    /// regions-v2 (2026-09-26): 0.3 removed the largest harms (0073 178.8 s
+    /// render 16.8 -> 2.8, 0058 206.9 s 19.7 -> 4.5) at ~1.5 deg/s cost on two bursts.
+    pub agreement_floor: Option<f64>,
+}
+
+impl RefineConfig {
+    /// The essential-matrix estimate is only measured when a rule uses it.
+    pub fn wants_agreement(&self) -> bool {
+        self.cap_gate.is_some() || self.agreement_floor.is_some()
+    }
 }
 
 impl Default for RefineConfig {
@@ -55,6 +74,8 @@ impl Default for RefineConfig {
             max_motion_ratio: 0.94,
             max_features: 1200,
             min_inliers: 30,
+            cap_gate: Some(0.75),
+            agreement_floor: Some(0.3),
         }
     }
 }
@@ -66,6 +87,8 @@ pub struct RefineBurst {
     pub max_deg: f64,
     pub applied: bool,
     pub note: Option<String>,
+    /// Probe/essential-matrix agreement, when an agreement rule measured it.
+    pub agreement: Option<f64>,
 }
 
 #[derive(Debug)]
@@ -97,6 +120,13 @@ impl RefineConfig {
             || nonneg.iter().any(|v| !v.is_finite() || *v < 0.0)
             || self.max_features < 40
             || self.min_inliers < 3
+            || self
+                .cap_gate
+                .is_some_and(|g| !g.is_finite() || g <= 0.0 || g > 1.0)
+            || self
+                .agreement_floor
+                .is_some_and(|f| !f.is_finite() || f <= -1.0 || f >= 1.0)
+            || matches!((self.agreement_floor, self.cap_gate), (Some(f), Some(g)) if f >= g)
         {
             return Err(O4Error::InvalidConfig(
                 "refine settings must be finite and positive".into(),
@@ -196,6 +226,7 @@ pub fn plan(
         max_deg,
         applied: false,
         note: Some(note),
+        agreement: None,
     };
     let mut bursts = vec![];
     for &(a, b) in intervals {
@@ -240,9 +271,37 @@ pub fn plan(
                 cfg.gate_fade_s,
                 dt,
             ));
-            if m > cfg.max_correction_deg {
-                bursts.push(skipped(a, b, m, format!("correction {m:.2} deg over cap")));
-                continue;
+            let over = m > cfg.max_correction_deg;
+            let rule = if over {
+                cfg.cap_gate
+            } else {
+                cfg.agreement_floor
+            };
+            let agreement = rule.and(signal::agreement(c, (a, b), fps));
+            if !over {
+                // unmeasurable agreement keeps the pre-floor behaviour (refine)
+                if let (Some(g), Some(f)) = (agreement, cfg.agreement_floor) {
+                    if g < f {
+                        let mut s =
+                            skipped(a, b, m, format!("measurements disagree (agreement {g:.2})"));
+                        s.agreement = agreement;
+                        bursts.push(s);
+                        continue;
+                    }
+                }
+            }
+            if over {
+                let admit = matches!((agreement, cfg.cap_gate), (Some(g), Some(th)) if g >= th);
+                if !admit {
+                    let note = match agreement {
+                        Some(g) => format!("correction {m:.2} deg over cap (agreement {g:.2})"),
+                        None => format!("correction {m:.2} deg over cap"),
+                    };
+                    let mut s = skipped(a, b, m, note);
+                    s.agreement = agreement;
+                    bursts.push(s);
+                    continue;
+                }
             }
             accepted.push((a, b));
             bursts.push(RefineBurst {
@@ -251,6 +310,7 @@ pub fn plan(
                 max_deg: m,
                 applied: true,
                 note: None,
+                agreement,
             });
         }
         // one union gate (max over accepted bursts), never a sum of per-burst tracks
@@ -347,6 +407,7 @@ pub fn refine(
                 resid: vec![],
                 inliers: vec![],
                 tel_rate: vec![],
+                ess: vec![],
             })
         })
         .collect();
@@ -361,6 +422,7 @@ pub fn refine(
                 s.resid.extend(part.resid);
                 s.inliers.extend(part.inliers);
                 s.tel_rate.extend(part.tel_rate);
+                s.ess.extend(part.ess);
                 stopped[wi] = !complete;
             }
             (Err(e), slot) => {
@@ -428,6 +490,7 @@ mod tests {
             resid: t.iter().map(|&x| Some(resid(x))).collect(),
             inliers: vec![500; n],
             tel_rate: vec![tel; n],
+            ess: vec![None; n],
             t,
         };
         condition(&s, FPS, 1.0).unwrap()
@@ -488,6 +551,104 @@ mod tests {
         assert!(!b.applied && b.max_deg > 4.0, "{b:?}");
         assert!(b.note.as_deref().unwrap().contains("over cap"));
         assert!(p.per_window[0].1.iter().all(|v| *v == [0.0; 3]));
+    }
+
+    fn big(x: f64) -> geometry::V3 {
+        if (4.0..6.0).contains(&x) {
+            [(2.0 * std::f64::consts::PI * 2.0 * x).sin(), 0.0, 0.0]
+        } else {
+            calm(x)
+        }
+    }
+
+    /// Over-cap burst with an essential-matrix estimate `ess(x)` on every pair.
+    fn capped_with_ess(ess: impl Fn(f64) -> geometry::V3) -> Plan {
+        let mut c = cond(0.0, 10.0, big, 0.5);
+        c.ess = c.t.iter().map(|&x| Some(ess(x))).collect();
+        one(c, (0.0, 10.0), &[(4.0, 6.0)], 10.0)
+    }
+
+    #[test]
+    fn cap_gate_admits_over_cap_burst_when_estimates_agree() {
+        let p = capped_with_ess(|x| {
+            let v = big(x);
+            [0.8 * v[0], v[1], v[2]]
+        });
+        let b = &p.bursts[0];
+        assert!(b.applied && b.max_deg > 4.0 && b.note.is_none(), "{b:?}");
+        assert!(b.agreement.unwrap() > 0.99, "{b:?}");
+        assert!(p.per_window[0].1.iter().any(|v| *v != [0.0; 3]));
+    }
+
+    #[test]
+    fn cap_gate_rejects_over_cap_burst_when_estimates_disagree() {
+        // estimate on another axis: zero correlation with the residual
+        let p = capped_with_ess(|x| {
+            let v = big(x);
+            [0.0, v[0], 0.0]
+        });
+        let b = &p.bursts[0];
+        assert!(!b.applied && b.agreement.unwrap().abs() < 0.1, "{b:?}");
+        assert!(b.note.as_deref().unwrap().contains("over cap (agreement"));
+        assert!(p.per_window[0].1.iter().all(|v| *v == [0.0; 3]));
+    }
+
+    #[test]
+    fn cap_gate_off_or_missing_estimate_keeps_the_cap() {
+        let mut c = cond(0.0, 10.0, big, 0.5);
+        c.ess = c.t.iter().map(|&x| Some(big(x))).collect();
+        let cfg = RefineConfig {
+            cap_gate: None,
+            ..Default::default()
+        };
+        let p = plan(&[((0.0, 10.0), c)], &[(4.0, 6.0)], &cfg, FPS, 10.0);
+        assert!(!p.bursts[0].applied && p.bursts[0].agreement.is_none());
+        // gate on but no estimate measured (cond() leaves ess all None)
+        let p = one(cond(0.0, 10.0, big, 0.5), (0.0, 10.0), &[(4.0, 6.0)], 10.0);
+        assert!(!p.bursts[0].applied && p.bursts[0].agreement.is_none());
+    }
+
+    fn small(x: f64) -> geometry::V3 {
+        if (4.0..6.0).contains(&x) {
+            [
+                0.05 * (2.0 * std::f64::consts::PI * 2.0 * x).sin(),
+                0.0,
+                0.0,
+            ]
+        } else {
+            calm(x)
+        }
+    }
+
+    fn under_cap_with_ess(ess: impl Fn(f64) -> geometry::V3) -> Plan {
+        let mut c = cond(0.0, 10.0, small, 0.5);
+        c.ess = c.t.iter().map(|&x| Some(ess(x))).collect();
+        one(c, (0.0, 10.0), &[(4.0, 6.0)], 10.0)
+    }
+
+    #[test]
+    fn agreement_floor_skips_under_cap_burst_when_estimates_disagree() {
+        let p = under_cap_with_ess(|x| [0.0, small(x)[0], 0.0]);
+        let b = &p.bursts[0];
+        assert!(!b.applied && b.max_deg < 4.0, "{b:?}");
+        assert!(b
+            .note
+            .as_deref()
+            .unwrap()
+            .starts_with("measurements disagree"));
+        assert!(p.per_window[0].1.iter().all(|v| *v == [0.0; 3]));
+        // agreeing estimate: refined as before
+        let p = under_cap_with_ess(small);
+        assert!(p.bursts[0].applied && p.bursts[0].agreement.unwrap() > 0.99);
+        // floor off: refined regardless
+        let mut c = cond(0.0, 10.0, small, 0.5);
+        c.ess = c.t.iter().map(|&x| Some([0.0, small(x)[0], 0.0])).collect();
+        let cfg = RefineConfig {
+            agreement_floor: None,
+            ..Default::default()
+        };
+        let p = plan(&[((0.0, 10.0), c)], &[(4.0, 6.0)], &cfg, FPS, 10.0);
+        assert!(p.bursts[0].applied && p.bursts[0].agreement.is_none());
     }
 
     #[test]
@@ -585,5 +746,26 @@ mod tests {
         }
         .validate()
         .is_err());
+        for (floor, gate) in [
+            (Some(0.8), Some(0.75)),
+            (Some(1.0), None),
+            (Some(f64::NAN), None),
+        ] {
+            assert!(RefineConfig {
+                agreement_floor: floor,
+                cap_gate: gate,
+                ..Default::default()
+            }
+            .validate()
+            .is_err());
+        }
+        for bad in [0.0, 1.5, f64::NAN] {
+            assert!(RefineConfig {
+                cap_gate: Some(bad),
+                ..Default::default()
+            }
+            .validate()
+            .is_err());
+        }
     }
 }

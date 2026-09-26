@@ -94,13 +94,30 @@ pub struct Cli {
     /// skip the source-frame residual refinement inside repaired bursts
     /// (default: on). It removes most remaining judder; turn it off only to
     /// save processing time or to reproduce pre-0.1.3 output. Each refined
-    /// burst leaves a small constant world-frame orientation offset (at most
-    /// 4 deg) that never decays; the offsets add up across bursts (about
-    /// 7 deg by the end of a busy clip). Invisible to normal stabilization;
+    /// burst leaves a small constant world-frame orientation offset (usually
+    /// at most 4 deg; more for a burst refined past the cap) that never
+    /// decays; the offsets add up across bursts (about 7 deg by the end of a
+    /// busy clip). Invisible to normal stabilization;
     /// pass --no-refine (and --drift-rebase-above 0) if you stabilize with
     /// Gyroflow horizon lock ON
     #[arg(long)]
     pub no_refine: bool,
+    /// refine a burst whose correction is over the 4 deg cap anyway when the
+    /// rotation-only residual and a translation-aware (essential-matrix)
+    /// estimate of it agree at least this well (1-8 Hz correlation, 0-1)
+    #[arg(long, default_value_t = 0.75, value_name = "AGREEMENT")]
+    pub refine_cap_gate: f64,
+    /// never refine past the 4 deg cap (pre-0.3 behaviour)
+    #[arg(long)]
+    pub no_refine_cap_gate: bool,
+    /// leave a burst under the cap unrefined when that same agreement is below
+    /// this (the measured leftover is then not a gyro error, and correcting it
+    /// adds judder)
+    #[arg(long, default_value_t = 0.3, value_name = "AGREEMENT")]
+    pub refine_agreement_floor: f64,
+    /// refine every burst under the cap regardless of agreement (pre-0.3 behaviour)
+    #[arg(long)]
+    pub no_refine_agreement_floor: bool,
     /// worker threads for video analysis (0 = auto: half the logical cores,
     /// at least 2). Output is identical for every value; lower it to keep
     /// the machine responsive, raise it for speed
@@ -153,7 +170,12 @@ impl Cli {
             drift_rebase_above: self.drift_rebase_above,
             drift_decay_rate: self.drift_decay_rate,
             refine: !self.no_refine,
-            refine_cfg: o4core::refine::RefineConfig::default(),
+            refine_cfg: o4core::refine::RefineConfig {
+                cap_gate: (!self.no_refine_cap_gate).then_some(self.refine_cap_gate),
+                agreement_floor: (!self.no_refine_agreement_floor)
+                    .then_some(self.refine_agreement_floor),
+                ..Default::default()
+            },
             threads: (self.threads > 0).then_some(self.threads),
         }
     }

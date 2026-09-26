@@ -8,6 +8,9 @@ pub struct PairSeries {
     pub resid: Vec<Option<V3>>,
     pub inliers: Vec<usize>,
     pub tel_rate: Vec<f64>,
+    /// Translation-aware estimate of the same residual (essential matrix on the
+    /// telemetry-derotated bearings), body frame, rad/s; only when an agreement rule is on.
+    pub ess: Vec<Option<V3>>,
 }
 
 #[derive(Clone)]
@@ -19,6 +22,7 @@ pub struct Conditioned {
     pub inliers: Vec<usize>,
     pub tel_rate: Vec<f64>,
     pub valid: Vec<bool>,
+    pub ess: Vec<Option<V3>>,
 }
 
 /// Fill missing pairs linearly, zero-phase high-pass, confidence weights.
@@ -74,7 +78,46 @@ pub fn condition(s: &PairSeries, fps: f64, hp_hz: f64) -> Option<Conditioned> {
         inliers: s.inliers.clone(),
         tel_rate: s.tel_rate.clone(),
         valid,
+        ess: s.ess.clone(),
     })
+}
+
+/// Pooled 1-8 Hz correlation between the rotation-only residual and the
+/// essential-matrix estimate inside `burst` (regions-v1 `pred_free`): both
+/// series gap-filled over the whole window, band-passed, then correlated over
+/// the burst's pairs. None when the estimate is missing or too sparse.
+pub fn agreement(c: &Conditioned, burst: (f64, f64), fps: f64) -> Option<f64> {
+    let n = c.t.len();
+    if c.ess.len() != n || fps <= 16.0 {
+        return None;
+    }
+    let known: Vec<usize> = (0..n).filter(|&i| c.ess[i].is_some()).collect();
+    if (known.len() as f64) < 0.6 * n as f64 {
+        return None;
+    }
+    let ba = dsp::butter_band(2, 1.0 / (fps / 2.0), 8.0 / (fps / 2.0));
+    if n <= 3 * ba.b.len().max(ba.a.len()) {
+        return None;
+    }
+    let inside: Vec<usize> = (0..n)
+        .filter(|&i| c.t[i] > burst.0 && c.t[i] < burst.1)
+        .collect();
+    if inside.len() < 20 {
+        return None;
+    }
+    let tk: Vec<f64> = known.iter().map(|&i| c.t[i]).collect();
+    let (mut pp, mut ss, mut ps) = (0.0, 0.0, 0.0);
+    for k in 0..3 {
+        let e: Vec<f64> = known.iter().map(|&i| c.ess[i].unwrap()[k]).collect();
+        let e = dsp::filtfilt(&ba, &dsp::interp(&c.t, &tk, &e));
+        let p = dsp::filtfilt(&ba, &c.raw.iter().map(|r| r[k]).collect::<Vec<_>>());
+        for &i in &inside {
+            pp += p[i] * p[i];
+            ss += e[i] * e[i];
+            ps += p[i] * e[i];
+        }
+    }
+    (pp > 0.0 && ss > 0.0).then(|| ps / (pp * ss).sqrt())
 }
 
 fn env(t: f64, a: f64, b: f64, fade: f64) -> f64 {
@@ -237,6 +280,7 @@ mod tests {
             resid: t.iter().map(|&x| Some(f(x))).collect(),
             inliers: vec![500; n],
             tel_rate: vec![0.5; n],
+            ess: vec![None; n],
             t,
         }
     }

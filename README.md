@@ -22,9 +22,9 @@ needed (Windows 10 may prompt once for Microsoft WebView2).
   burst's leftover orientation drift forward as a constant offset — invisible
   to normal stabilization, but it would fight the horizon reference.
   Refinement (below) also carries a constant offset forward from each
-  refined burst. Each burst adds at most 4 degrees, and the offsets add
-  up: 7 degrees by the end of 0021. For horizon lock, turn refinement off
-  as well.
+  refined burst. Each burst normally adds at most 4 degrees (more for a
+  burst refined past the cap, see below), and the offsets add up: 7 degrees
+  by the end of 0021. For horizon lock, turn refinement off as well.
 - **Refinement (default on; CLI `--no-refine`, GUI "Refine residual
   judder").** After the repair, o4fix re-measures the leftover judder
   inside each repaired burst from the source video frames (feature
@@ -32,7 +32,19 @@ needed (Windows 10 may prompt once for Microsoft WebView2).
   loop) and corrects it. The correction is limited to the burst
   (1 Hz high-pass, 0.25 s pad, 0.15 s fade). A burst is skipped, and its
   repair is kept as is, when the correction would exceed 4 degrees, the
-  window cannot be measured, or it is within 0.5 s of the clip start or end. It
+  window cannot be measured, or it is within 0.5 s of the clip start or end.
+  **Cap gate (default on; CLI `--refine-cap-gate 0.75` or
+  `--no-refine-cap-gate`):** a burst over 4 degrees is still refined when
+  the rotation-only measurement and a translation-aware (essential-matrix)
+  estimate of the same residual agree (1-8 Hz correlation >= 0.75), because
+  then the measurement is trustworthy. Validated on 8 clips: it fixed
+  visible judder on 0083 and 0005 (0:17-0:30) and admitted no burst that
+  forced refinement made worse. **Agreement floor (default on; CLI
+  `--refine-agreement-floor 0.3` or `--no-refine-agreement-floor`):** the
+  same check in reverse under the cap. When the two estimates disagree
+  (below 0.3), the measured leftover is not a gyro error, and correcting it
+  added judder (0073 2:58.8 render wobble 2.9 -> 16.8), so the burst keeps
+  its repair unrefined. It
   is the slowest stage: on 0083 (215 s clip) at the Auto CPU setting on a
   24-thread desktop, refinement takes 53 s of a 95 s repair.
 - **Handback noise veto (default on; CLI `--handback-noise-veto LO HI`,
