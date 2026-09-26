@@ -232,6 +232,14 @@ pub fn optical_patch(
     let bq = dsp::butter_low(2, cfg.optical_cutoff.min(0.45 * vfps) / (vfps / 2.0));
     let strong = &diag.strong;
     let mut supported = vec![false; tm.len()];
+    // Research-only veto (opt-in, default off): a throttle punch can spike
+    // the gyro with monster phantom at the exact instant the fast-handback
+    // ramp says "motion looks fast, hand back to gyro". Precompute the
+    // local noise envelope once (running max over +/-0.15 s) so the
+    // per-burst loop below can zero out handback wherever it is extreme.
+    let noise_veto_env = cfg
+        .handback_noise_veto
+        .map(|_| dsp::running_max1d(&diag.noise, (0.3 * fs).round() as usize));
     for &(a, b) in &noisy {
         let midx: Vec<usize> = (0..tv.len())
             .filter(|&i| tv[i] >= a - 0.3 && tv[i] <= b + 0.3)
@@ -311,7 +319,7 @@ pub fn optical_patch(
         let (lo_n, hi_n) = cfg.gyro_trust_noise;
         let seg_noise = gm.iter().map(|&i| diag.noise[i]).fold(f64::MIN, f64::max);
         let trust = (1.0 - (seg_noise - lo_n) / (hi_n - lo_n).max(1e-6)).clamp(0.0, 1.0);
-        let wf0: Vec<f64> = (0..gm.len())
+        let mut wf0: Vec<f64> = (0..gm.len())
             .map(|i| {
                 let wf_gyro = ((rate_mag[gm[i]] - lo_r) / (hi_r - lo_r).max(1e-6)).clamp(0.0, 1.0);
                 let r_min = rate_mag[gm[i]].min(rate_opt[i]);
@@ -319,6 +327,13 @@ pub fn optical_patch(
                 trust * wf_gyro + (1.0 - trust) * wf_min
             })
             .collect();
+        if let (Some((veto_lo, veto_hi)), Some(env)) = (cfg.handback_noise_veto, &noise_veto_env) {
+            for (i, &gi) in gm.iter().enumerate() {
+                let veto =
+                    (1.0 - (env[gi] - veto_lo) / (veto_hi - veto_lo).max(1e-6)).clamp(0.0, 1.0);
+                wf0[i] *= veto;
+            }
+        }
         let w_fast = dsp::uniform_filter1d(&wf0, ((0.15 * fs) as usize).max(3));
         let burst: Vec<[f64; 3]> = if cfg.anchor_mode {
             // optical = LF drift anchor on band-limited gyro (o4fix.py:513-525)

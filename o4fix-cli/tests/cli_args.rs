@@ -13,7 +13,15 @@ fn defaults_map_to_default_config() {
     assert_eq!(c.fast_wide_ramp, d.fast_wide_ramp);
     assert_eq!(c.fast_wide_accel, d.fast_wide_accel);
     assert!(c.handback_cutoff.is_none() && c.optical_noise.is_none());
+    assert!(c.handback_noise_veto.is_none());
     assert!(!c.anchor_mode);
+}
+
+#[test]
+fn handback_noise_veto_flag_parses_to_some_pair() {
+    let c = Cli::parse_from(["o4fix", "a.MP4", "--handback-noise-veto", "150", "250"]).to_config();
+    assert_eq!(c.handback_noise_veto, Some((150.0, 250.0)));
+    assert!(c.validate().is_ok());
 }
 
 #[test]
