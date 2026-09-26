@@ -203,9 +203,11 @@ class ClipTrace {
       // reduced motion: no animated head/squash preview; jump straight to the
       // final picture when setAfter/stop land (matches the old behavior).
       this.phase = "static";
+      this.host.classList.add("static");
       this.cancel = () => {};
     } else {
       this.phase = "progress";
+      this.host.classList.remove("static");
       this.head.style.opacity = 1;
       this._raf = requestAnimationFrame((t) => this._tick(t));
       this.cancel = () => {
