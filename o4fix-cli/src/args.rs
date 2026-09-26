@@ -93,6 +93,11 @@ pub struct Cli {
     /// Gyroflow horizon lock ON
     #[arg(long)]
     pub no_refine: bool,
+    /// worker threads for video analysis (0 = auto: half the logical cores,
+    /// at least 2). Output is identical for every value; lower it to keep
+    /// the machine responsive, raise it for speed
+    #[arg(long, default_value_t = 0, value_name = "N")]
+    pub threads: usize,
 }
 
 impl Cli {
@@ -139,6 +144,7 @@ impl Cli {
             drift_decay_rate: self.drift_decay_rate,
             refine: !self.no_refine,
             refine_cfg: o4core::refine::RefineConfig::default(),
+            threads: (self.threads > 0).then_some(self.threads),
         }
     }
 }

@@ -49,6 +49,26 @@ fn invalid_numeric_flags_are_usage_errors() {
 }
 
 #[test]
+fn threads_flag_zero_or_absent_is_auto() {
+    assert_eq!(
+        Cli::parse_from(["o4fix", "a.MP4"]).to_config().threads,
+        None
+    );
+    assert_eq!(
+        Cli::parse_from(["o4fix", "a.MP4", "--threads", "0"])
+            .to_config()
+            .threads,
+        None
+    );
+    assert_eq!(
+        Cli::parse_from(["o4fix", "a.MP4", "--threads", "4"])
+            .to_config()
+            .threads,
+        Some(4)
+    );
+}
+
+#[test]
 fn refine_on_by_default_and_flag_disables() {
     assert!(Cli::parse_from(["o4fix", "a.MP4"]).to_config().refine);
     assert!(
