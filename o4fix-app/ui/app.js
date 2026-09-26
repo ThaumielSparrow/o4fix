@@ -164,6 +164,7 @@ function onProgress(e) {
   const pct = Math.round(e.payload.pct * 100);
   clip.pct.textContent = `${pct}%`;
   clip.bar.style.width = `${pct}%`;
+  clip.trace.setProgress(e.payload.pct);
 }
 
 function onLog(e) {
@@ -191,6 +192,7 @@ function onDone(e) {
   const clip = rows.get(id);
   if (!clip) { earlyEvents.push([onDone, e]); return; }
   clip.finished = true;
+  clip.trace.stop(status);
   setState(clip, status);
   clip.pct.textContent = "";
   clip.act.disabled = false;

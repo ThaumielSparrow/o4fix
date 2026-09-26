@@ -30,7 +30,7 @@ function harness() {
         core: { invoke: () => { calls++; return new Promise((a, b) => { resolve = a; reject = b; }); } },
         event: { listen: () => {} },
       },
-      o4trace: { hero() {}, ClipTrace: class { setBefore() {} setAfter() {} } },
+      o4trace: { hero() {}, ClipTrace: class { setBefore() {} setAfter() {} setProgress() {} stop() {} } },
     },
     document: {
       getElementById: k => (elements[k] ??= fakeEl()),

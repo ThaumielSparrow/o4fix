@@ -167,6 +167,8 @@ main { overflow-y: auto; padding: 4px 20px 20px; scrollbar-gutter: stable; }
 .clip.error { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
 .clip.error .status, .clip.error .msg { color: var(--bad); }
 .clip.cancelled .status { color: var(--ink-3); }
+/* once the trace is drawn its playhead is the progress indicator (except reduced motion) */
+.trace.has-data:not(.static) .progress { display: none; }
 .clip.done .trace .progress, .clip.healthy .trace .progress,
 .clip.error .trace .progress, .clip.cancelled .trace .progress { display: none; }
 .clip.error .trace:not(.has-data), .clip.cancelled .trace:not(.has-data) { display: none; }

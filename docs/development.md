@@ -46,7 +46,9 @@ cargo build --release -p o4fix-app  # Build the GUI in release
 ```
 
 Review regression checks: `node tools/test_queue_ui.cjs` checks queue startup
-without a browser. `cargo test -p o4core --release --test rebased_clip -- --ignored`
+without a browser; `node tools/test_trace_warp.cjs` checks the per-clip
+trace's progress-space -> clip-time warp (`o4trace.buildWarp` in trace.js),
+also without a browser. `cargo test -p o4core --release --test rebased_clip -- --ignored`
 runs 0060 with `refine: false` and compares it against the reviewed
 edge-offset research repair `target/experiments/gyro-trace-v1/edgeoffset.MP4`
 (tolerance 1e-6; measured 0.0). It needs both files and does not
