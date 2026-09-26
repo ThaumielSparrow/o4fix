@@ -260,18 +260,24 @@ pub fn process(
         opt_pct.store(p.to_bits(), Ordering::Relaxed);
         say(Stage::Optical, p, String::new()); // pct-only tick
     };
-    let patched = patch::optical_patch(
-        video,
-        &tm,
-        &cleaned,
-        &diag,
-        fs,
-        cfg,
-        &tel.meta,
-        &log,
-        &on_interval,
-        cancel,
-    )?;
+    // Heavy OpenCV stages run on the bounded, below-normal-priority pool
+    // with OpenCV's own threading off (see threads.rs).
+    crate::threads::opencv_serial();
+    let pool = crate::threads::pool(crate::threads::resolve(cfg.threads));
+    let patched = pool.install(|| {
+        patch::optical_patch(
+            video,
+            &tm,
+            &cleaned,
+            &diag,
+            fs,
+            cfg,
+            &tel.meta,
+            &log,
+            &on_interval,
+            cancel,
+        )
+    })?;
 
     check()?;
     patched.require_coverage(&tel.t, &intervals)?;
@@ -317,17 +323,19 @@ pub fn process(
             *p = p.max(0.88 + 0.025 * f.clamp(0.0, 1.0));
             say(Stage::Refine, *p, String::new()); // pct-only tick
         };
-        let r = crate::refine::refine(
-            video,
-            &tel.t,
-            &q_out,
-            &intervals,
-            &tel.meta,
-            &cfg.refine_cfg,
-            &rlog,
-            &rtick,
-            cancel,
-        )?;
+        let r = pool.install(|| {
+            crate::refine::refine(
+                video,
+                &tel.t,
+                &q_out,
+                &intervals,
+                &tel.meta,
+                &cfg.refine_cfg,
+                &rlog,
+                &rtick,
+                cancel,
+            )
+        })?;
         if let Some(reason) = &r.skipped_reason {
             say(
                 Stage::Refine,

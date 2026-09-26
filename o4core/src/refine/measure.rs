@@ -121,23 +121,26 @@ fn bearings(pts: &[Point2f], k: &Mat, d: &Mat) -> opencv::Result<Vec<V3>> {
         .collect())
 }
 
+/// Measure the frame pairs of frames `c0..=c1` (one chunk of a window; see
+/// `threads::chunks`). Pairs are independent (each uses only its two
+/// frames), so concatenating a window's chunks in order reproduces the
+/// sequential per-window loop. The bool is false when the decode ended
+/// before `c1`.
 #[allow(clippy::too_many_arguments)]
-pub fn measure_window(
+pub fn measure_chunk(
     video: &Path,
-    a: f64,
-    b: f64,
+    c0: i64,
+    c1: i64,
     info: &VideoInfo,
     meta: &Meta,
     cfg: &RefineConfig,
     orient: &Orientation,
     cancel: &AtomicBool,
-) -> Result<PairSeries, O4Error> {
+) -> Result<(PairSeries, bool), O4Error> {
     let (k, d) = crate::optical::k_d(meta, info.width, info.height);
     let readout = cfg.readout_ms / 1000.0;
-    let (f0, f1) = window_frames(a, b, info);
-    let mut cap =
-        videoio::VideoCapture::from_file(video.to_str().unwrap_or_default(), videoio::CAP_ANY)?;
-    cap.set(videoio::CAP_PROP_POS_FRAMES, f0 as f64)?;
+    let mut cap = crate::optical::open_chunk_capture(video)?;
+    cap.set(videoio::CAP_PROP_POS_FRAMES, c0 as f64)?;
     let mut s = PairSeries {
         t: vec![],
         resid: vec![],
@@ -146,12 +149,12 @@ pub fn measure_window(
     };
     let (mut prev, mut frame) = (None::<Mat>, Mat::default());
     let row_t = |fi: i64, y: f32| fi as f64 / info.fps + y as f64 / info.height as f64 * readout;
-    for fi in f0..=f1 {
+    for fi in c0..=c1 {
         if cancel.load(Ordering::Relaxed) {
             return Err(O4Error::Cancelled);
         }
         if !cap.read(&mut frame)? {
-            break;
+            return Ok((s, false));
         }
         let mut g = Mat::default();
         imgproc::cvt_color_def(&frame, &mut g, imgproc::COLOR_BGR2GRAY)?;
@@ -201,7 +204,7 @@ pub fn measure_window(
         }
         prev = Some(g);
     }
-    Ok(s)
+    Ok((s, true))
 }
 
 #[cfg(test)]

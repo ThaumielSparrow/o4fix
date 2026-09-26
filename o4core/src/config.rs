@@ -30,6 +30,10 @@ pub struct Config {
     /// Source-frame residual refinement inside severe bursts (spec 2026-09-24).
     pub refine: bool,
     pub refine_cfg: crate::refine::RefineConfig,
+    /// Worker threads for the optical and refine stages. `None` (or 0) =
+    /// auto (`threads::auto_threads`: half the logical cores, at least 2).
+    /// Never changes the output, only speed and machine load.
+    pub threads: Option<usize>,
 }
 
 impl Default for Config {
@@ -63,6 +67,7 @@ impl Default for Config {
             drift_decay_rate: 1.5,
             refine: true,
             refine_cfg: crate::refine::RefineConfig::default(),
+            threads: None,
         }
     }
 }
@@ -227,5 +232,6 @@ mod tests {
         assert_eq!(c.drift_rebase_above, 30.0);
         assert_eq!(c.drift_decay_rate, 1.5);
         assert!(c.refine);
+        assert!(c.threads.is_none());
     }
 }

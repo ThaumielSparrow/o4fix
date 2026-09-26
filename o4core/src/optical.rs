@@ -42,6 +42,25 @@ pub(crate) fn k_d(meta: &Meta, w: i32, h: i32) -> (Mat, Mat) {
     (k_mat, d_mat)
 }
 
+/// Open `video_path` for a chunk worker: FFmpeg limited to
+/// `threads::DECODE_THREADS` decode threads (its default is one per core).
+pub(crate) fn open_chunk_capture(video_path: &Path) -> Result<videoio::VideoCapture, O4Error> {
+    let params = Vector::<i32>::from(vec![
+        videoio::CAP_PROP_N_THREADS,
+        crate::threads::DECODE_THREADS,
+    ]);
+    Ok(videoio::VideoCapture::from_file_with_params(
+        video_path.to_str().unwrap_or_default(),
+        videoio::CAP_ANY,
+        &params,
+    )?)
+}
+
+/// Measure optical rates over `intervals`. The frame pairs of every interval
+/// are split into `threads::CHUNK_PAIRS`-pair chunks that run on the current
+/// rayon pool (the pipeline installs its bounded pool); chunk outputs are
+/// concatenated in order, so the result equals one sequential pass per
+/// interval. `on_interval(done, total)` counts finished chunks.
 pub fn video_rates(
     video_path: &Path,
     intervals: &[(f64, f64)],
@@ -60,50 +79,74 @@ pub fn video_rates(
         ));
     }
     drop(cap);
+    // (interval index, first frame, last frame) per chunk, interval order
+    let tasks: Vec<(usize, i64, i64)> = intervals
+        .iter()
+        .enumerate()
+        .flat_map(|(i, &(a, b))| {
+            let f0 = (a * fps).max(0.0) as i64;
+            let f1 = (b * fps) as i64 + 1;
+            crate::threads::chunks(f0, f1)
+                .into_iter()
+                .map(move |(c0, c1)| (i, c0, c1))
+        })
+        .collect();
     let done = std::sync::atomic::AtomicUsize::new(0);
-    let results: Result<Vec<_>, O4Error> = intervals
+    let results: Vec<Result<(OpticalRates, bool), O4Error>> = tasks
         .par_iter()
-        .map(|&(a, b)| {
+        .with_max_len(1)
+        .map(|&(_, c0, c1)| {
             if cancel.load(Ordering::Relaxed) {
                 return Err(O4Error::Cancelled);
             }
-            let r = interval_rates(video_path, a, b, fps, w, h, meta, cancel);
-            on_interval(done.fetch_add(1, Ordering::Relaxed) + 1, intervals.len());
+            let r = chunk_rates(video_path, c0, c1, fps, w, h, meta, cancel);
+            on_interval(done.fetch_add(1, Ordering::Relaxed) + 1, tasks.len());
             r
         })
         .collect();
+    if results.iter().any(|r| matches!(r, Err(O4Error::Cancelled))) {
+        return Err(O4Error::Cancelled);
+    }
     let mut out = OpticalRates {
         t: vec![],
         omega: vec![],
         quality: vec![],
     };
-    for part in results? {
-        // interval order preserved
+    // Reassemble in interval order. A chunk that stopped early (decode
+    // ended) ends its interval, exactly like the sequential loop's `break`;
+    // later chunks of that interval are dropped, errors included.
+    let mut stopped: Option<usize> = None;
+    for (&(i, _, _), r) in tasks.iter().zip(results) {
+        if stopped == Some(i) {
+            continue;
+        }
+        let (part, complete) = r?;
         out.t.extend(part.t);
         out.omega.extend(part.omega);
         out.quality.extend(part.quality);
+        if !complete {
+            stopped = Some(i);
+        }
     }
     Ok(out)
 }
 
-// cancel is a Rust-only addition over o4fix.py's interval helper (no
-// cancellation in Python); pushes the arg count past clippy's default limit.
+/// Rates for the pairs of frames `c0..=c1`. The bool is false when the
+/// decode ended before `c1`.
 #[allow(clippy::too_many_arguments)]
-fn interval_rates(
+fn chunk_rates(
     video_path: &Path,
-    a: f64,
-    b: f64,
+    c0: i64,
+    c1: i64,
     fps: f64,
     w: i32,
     h: i32,
     meta: &Meta,
     cancel: &AtomicBool,
-) -> Result<OpticalRates, O4Error> {
+) -> Result<(OpticalRates, bool), O4Error> {
     let (k, d) = k_d(meta, w, h);
-    let mut cap = videoio::VideoCapture::from_file(video_path.to_str().unwrap(), videoio::CAP_ANY)?;
-    let f0 = (a * fps).max(0.0) as i64;
-    let f1 = (b * fps) as i64 + 1;
-    cap.set(videoio::CAP_PROP_POS_FRAMES, f0 as f64)?;
+    let mut cap = open_chunk_capture(video_path)?;
+    cap.set(videoio::CAP_PROP_POS_FRAMES, c0 as f64)?;
     let mut out = OpticalRates {
         t: vec![],
         omega: vec![],
@@ -111,12 +154,12 @@ fn interval_rates(
     };
     let mut prev: Option<Mat> = None;
     let mut frame = Mat::default();
-    for fidx in f0..=f1 {
+    for fidx in c0..=c1 {
         if cancel.load(Ordering::Relaxed) {
             return Err(O4Error::Cancelled);
         }
         if !cap.read(&mut frame)? {
-            break;
+            return Ok((out, false));
         }
         let mut gray = Mat::default();
         // API-fix: generated cvt_color() takes (src, dst, code, dst_cn, hint);
@@ -142,7 +185,7 @@ fn interval_rates(
         }
         prev = Some(half);
     }
-    Ok(out)
+    Ok((out, true))
 }
 
 /// Ports o4fix._pair_rotation (o4fix.py:321-349).

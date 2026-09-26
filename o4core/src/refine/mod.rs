@@ -306,29 +306,81 @@ pub fn refine(
     let duration = info.frames as f64 / info.fps;
     let windows = plan_windows(intervals, cfg.margin_s, duration);
     let orient = geometry::Orientation { t, q };
+    // One task per ~1 s chunk of frame pairs (not per window) so the pool
+    // stays balanced; each window's chunks are concatenated in order into
+    // its PairSeries before conditioning, which needs the whole window.
+    let tasks: Vec<(usize, i64, i64)> = windows
+        .iter()
+        .enumerate()
+        .flat_map(|(wi, &(a, b))| {
+            let (f0, f1) = measure::window_frames(a, b, &info);
+            crate::threads::chunks(f0, f1)
+                .into_iter()
+                .map(move |(c0, c1)| (wi, c0, c1))
+        })
+        .collect();
     let done = AtomicUsize::new(0);
-    let measured: Vec<Result<Option<signal::Conditioned>, O4Error>> = windows
+    let measured: Vec<Result<(signal::PairSeries, bool), O4Error>> = tasks
         .par_iter()
-        .map(|&(a, b)| {
-            let r = match measure::measure_window(video, a, b, &info, meta, cfg, &orient, cancel) {
-                Ok(s) => Ok(signal::condition(&s, info.fps, cfg.hp_hz)),
-                Err(O4Error::Cancelled) => Err(O4Error::Cancelled),
-                Err(e) => {
-                    log(&format!(
-                        "     refine: window {a:.2}-{b:.2}s unreadable ({e})"
-                    ));
-                    Ok(None)
-                }
-            };
+        .with_max_len(1)
+        .map(|&(_, c0, c1)| {
+            let r = measure::measure_chunk(video, c0, c1, &info, meta, cfg, &orient, cancel);
             let d = done.fetch_add(1, Ordering::Relaxed) + 1;
-            progress(d as f64 / windows.len() as f64);
+            progress(d as f64 / tasks.len() as f64);
             r
         })
         .collect();
+    if measured
+        .iter()
+        .any(|r| matches!(r, Err(O4Error::Cancelled)))
+    {
+        return Err(O4Error::Cancelled);
+    }
+    // Per window: chunks in frame order; a chunk whose decode ended early
+    // ends the window (the sequential loop's `break`), and the first error
+    // reached makes the window unreadable.
+    let mut series: Vec<Result<signal::PairSeries, O4Error>> = windows
+        .iter()
+        .map(|_| {
+            Ok(signal::PairSeries {
+                t: vec![],
+                resid: vec![],
+                inliers: vec![],
+                tel_rate: vec![],
+            })
+        })
+        .collect();
+    let mut stopped = vec![false; windows.len()];
+    for (&(wi, _, _), r) in tasks.iter().zip(measured) {
+        if stopped[wi] {
+            continue;
+        }
+        match (r, &mut series[wi]) {
+            (Ok((part, complete)), Ok(s)) => {
+                s.t.extend(part.t);
+                s.resid.extend(part.resid);
+                s.inliers.extend(part.inliers);
+                s.tel_rate.extend(part.tel_rate);
+                stopped[wi] = !complete;
+            }
+            (Err(e), slot) => {
+                *slot = Err(e);
+                stopped[wi] = true;
+            }
+            (Ok(_), Err(_)) => unreachable!("an errored window is stopped"),
+        }
+    }
     let mut conds: Vec<((f64, f64), signal::Conditioned)> = vec![];
-    for (w, r) in windows.iter().zip(measured) {
-        if let Some(c) = r? {
-            conds.push((*w, c));
+    for (&(a, b), s) in windows.iter().zip(series) {
+        match s {
+            Ok(s) => {
+                if let Some(c) = signal::condition(&s, info.fps, cfg.hp_hz) {
+                    conds.push(((a, b), c));
+                }
+            }
+            Err(e) => log(&format!(
+                "     refine: window {a:.2}-{b:.2}s unreadable ({e})"
+            )),
         }
     }
     let p = plan(&conds, intervals, cfg, info.fps, duration);
