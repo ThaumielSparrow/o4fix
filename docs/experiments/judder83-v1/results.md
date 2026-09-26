@@ -60,3 +60,17 @@ checks on 0021 powerloop and 0027 86/100 s). User verdict pending. No production
 changed. If A is accepted: make it default-on (config default + GUI + goldens/docs), release
 build. If B's extra gain is visible, the next research problem is a trustworthy per-burst
 (or per-segment) gate for refinement beyond 4 deg.
+
+## User verdict (2026-09-25, review.html)
+
+"A does fix the second burst, but the first one is essentially unchanged. B looks much better
+than A on the first burst, marginally better on the second (its already much better so there
+isnt much left to improve, but still its better). as you said though, we dont have a good way
+to determine when its safe to apply. I can't tell if C is significantly regressed, might be a
+touch worse, if you hadnt said anything i probably wouldnt have noticed. D,E,F, are all
+essentially the same, might be a touch smoother, again not super noticable."
+
+Reading: A (veto) = clear fix at 1:54 with no noticeable regressions (0021 powerloop at most
+a touch worse, 0027 monster bursts a touch smoother). B (forced refinement) is the bigger
+visible win and fixes 1:53 — the missing piece is a render-free safety gate for refinement
+corrections above the 4 deg cap.
