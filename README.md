@@ -33,8 +33,15 @@ needed (Windows 10 may prompt once for Microsoft WebView2).
   (1 Hz high-pass, 0.25 s pad, 0.15 s fade). A burst is skipped, and its
   repair is kept as is, when the correction would exceed 4 degrees, the
   window cannot be measured, or it is within 0.5 s of the clip start or end. It
-  roughly doubles processing time. Examples: 0060 (383 s) takes 231 s
-  instead of 112 s, and 0021 (176 s, 20% noisy) takes 353 s instead of 125 s.
+  is the slowest stage: on 0083 (215 s clip) at the Auto CPU setting on a
+  24-thread desktop, refinement takes 53 s of a 95 s repair.
+- **Handback noise veto (default on; CLI `--handback-noise-veto LO HI`,
+  default 100 200, or `--no-handback-veto`).** During fast motion the repair
+  normally hands orientation back to the gyro. On a throttle punch the gyro
+  can carry its worst noise at that exact moment, so handback is now
+  blocked wherever the local gyro noise (30-180 Hz, max over +/-0.15 s)
+  passes 100-200 deg/s. Fixed the judder at 1:54 in 0083 (render wobble
+  135 -> 41 deg/s); 0060 and 0071 are unchanged.
 - Splice ramps default to 0.19 s (was 0.3 s). The edges of each
   repaired burst now start from the correct orientation offset.
 - **CPU usage (GUI setting; CLI `--threads N`).** Video analysis runs on

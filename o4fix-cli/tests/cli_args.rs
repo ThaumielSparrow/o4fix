@@ -13,7 +13,7 @@ fn defaults_map_to_default_config() {
     assert_eq!(c.fast_wide_ramp, d.fast_wide_ramp);
     assert_eq!(c.fast_wide_accel, d.fast_wide_accel);
     assert!(c.handback_cutoff.is_none() && c.optical_noise.is_none());
-    assert!(c.handback_noise_veto.is_none());
+    assert_eq!(c.handback_noise_veto, d.handback_noise_veto);
     assert!(!c.anchor_mode);
 }
 
@@ -85,4 +85,10 @@ fn refine_on_by_default_and_flag_disables() {
             .refine
     );
     assert_eq!(Cli::parse_from(["o4fix", "a.MP4"]).to_config().ramp, 0.19);
+}
+
+#[test]
+fn no_handback_veto_turns_it_off() {
+    let c = Cli::parse_from(["o4fix", "a.MP4", "--no-handback-veto"]).to_config();
+    assert!(c.handback_noise_veto.is_none());
 }

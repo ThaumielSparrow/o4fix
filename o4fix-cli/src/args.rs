@@ -53,11 +53,14 @@ pub struct Cli {
     #[arg(long, num_args = 2, value_names = ["LO", "HI"],
           default_values_t = [200.0, 300.0])]
     pub gyro_trust_noise: Vec<f64>,
-    /// research-only, default off: veto fast-handback wherever the LOCAL
-    /// gyro noise (running max, +/-0.15s) exceeds LO..HI, even if the
-    /// handback ramp says the motion looks fast enough to trust the gyro
-    #[arg(long, num_args = 2, value_names = ["LO", "HI"])]
-    pub handback_noise_veto: Option<Vec<f64>>,
+    /// deg/s: veto fast-handback to the gyro wherever the LOCAL gyro noise
+    /// (running max, +/-0.15 s) ramps across LO..HI, even when the motion is
+    /// fast enough to otherwise trust the gyro (throttle punches)
+    #[arg(long, num_args = 2, value_names = ["LO", "HI"], default_values_t = [100.0, 200.0])]
+    pub handback_noise_veto: Vec<f64>,
+    /// turn the handback noise veto off (pre-0.3 behaviour)
+    #[arg(long)]
+    pub no_handback_veto: bool,
     #[arg(long, default_value_t = 0.5)]
     pub patch_pad: f64,
     #[arg(long, default_value_t = 1.0)]
@@ -137,7 +140,8 @@ impl Cli {
             handback_cutoff: self.handback_cutoff,
             fast_handback: (self.fast_handback[0], self.fast_handback[1]),
             gyro_trust_noise: (self.gyro_trust_noise[0], self.gyro_trust_noise[1]),
-            handback_noise_veto: self.handback_noise_veto.as_ref().map(|v| (v[0], v[1])),
+            handback_noise_veto: (!self.no_handback_veto)
+                .then(|| (self.handback_noise_veto[0], self.handback_noise_veto[1])),
             patch_pad: self.patch_pad,
             patch_merge: self.patch_merge,
             optical_noise: self.optical_noise.as_ref().map(|v| (v[0], v[1])),

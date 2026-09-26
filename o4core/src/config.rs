@@ -60,7 +60,7 @@ impl Default for Config {
             handback_cutoff: None,
             fast_handback: (100.0, 250.0),
             gyro_trust_noise: (200.0, 300.0),
-            handback_noise_veto: None,
+            handback_noise_veto: Some((100.0, 200.0)),
             patch_pad: 0.5,
             patch_merge: 1.0,
             optical_noise: None,
@@ -254,7 +254,7 @@ mod tests {
         assert_eq!(c.fast_wide_cutoff, 0.0);
         assert_eq!(Config::m4().fast_wide_cutoff, 16.0);
         assert!(c.handback_cutoff.is_none() && c.optical_noise.is_none());
-        assert!(c.handback_noise_veto.is_none());
+        assert_eq!(c.handback_noise_veto, Some((100.0, 200.0)));
         assert!(Config {
             handback_noise_veto: Some((200.0, 300.0)),
             ..Config::default()

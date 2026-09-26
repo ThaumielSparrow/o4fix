@@ -9,6 +9,7 @@ fn legacy(c: Config) -> Config {
     Config {
         ramp: 0.3,
         refine: false,
+        handback_noise_veto: None,
         ..c
     }
 }

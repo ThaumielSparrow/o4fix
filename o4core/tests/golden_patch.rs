@@ -8,7 +8,11 @@ use std::sync::atomic::AtomicBool;
 fn patched_rates_match_python() {
     let video = gt::repo("sample_vids/DJI_20260711124046_0021_D.MP4");
     let tel = o4core::telemetry::extract_quats(&video).unwrap();
-    let cfg = o4core::config::Config::default();
+    // Python goldens predate the handback noise veto
+    let cfg = o4core::config::Config {
+        handback_noise_veto: None,
+        ..o4core::config::Config::default()
+    };
     let fs = o4core::pipeline::fs(&tel.t);
     let (tm, omega) = o4core::quat::quats_to_rates(&tel.t, &tel.q);
     let (cleaned, diag) = o4core::detect::adaptive_clean(&omega, fs, &cfg);

@@ -1,8 +1,24 @@
 # Stabilization research handoff
 
-Last updated: 2026-09-24. This document supersedes stale “work paused / solved” status in historical notes. Start here when resuming in a new session.
+Last updated: 2026-09-25. This document supersedes stale “work paused / solved” status in historical notes. Start here when resuming in a new session.
 
 For the complete experiment-by-experiment index and consolidated user rulings, start with [Stabilization experiments and rulings handoff](STABILIZATION_EXPERIMENTS_HANDOFF.md). That ledger was compiled from every experiment report and the recorded visual verdicts; it supersedes older summary/status wording below when entries conflict. This file retains the production invariants, artifact locations, runtime notes, and historical investigation trail.
+
+## 2026-09-25: merged to main (local build, not released)
+
+`main` now carries: perf-v1 (bounded below-normal worker pool, single-threaded OpenCV/FFmpeg,
+100-pair chunks, EcoQoS opt-out, CLI `--threads`, GUI "CPU usage"; output byte-identical;
+0083 3.5 GB/374 threads -> 0.73 GB/16 threads, 0021 352 s -> 142 s — see
+[perf-v1](experiments/perf-v1/results.md)); the handback noise veto **default-on**
+(`--handback-noise-veto 100 200`, `--no-handback-veto`; user-reviewed on 0083/0021/0027 in
+[judder83-v1](experiments/judder83-v1/results.md)); the playhead-style GUI progress trace
+(harness `o4fix-app/ui/dev/progress-harness.html`). Golden tests pin the veto off (Python
+references predate it). The merged build's 0083 output differs from the reviewed pre-merge
+veto file by at most 1e-5 deg (float32 rounding; deterministic and thread-count independent;
+veto-off output is byte-identical to the old build). Local `targetelease` rebuilt. Next:
+render-free gate for refinement above the 4 deg cap (judder83-v1 candidate B) — test
+regional agreement of the probe residual (parallax vs rotation) on 0083 (good) vs 0021
+powerloop/109.6 s and 0060 48.7 s (probe wrong).
 
 ## Production promotion (2026-09-24): v0.1.3 candidate with residual refinement
 

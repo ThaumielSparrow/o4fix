@@ -96,9 +96,8 @@ impl ConfigDto {
             handback_cutoff: self.handback_cutoff,
             fast_handback: (self.fast_handback[0], self.fast_handback[1]),
             gyro_trust_noise: (self.gyro_trust_noise[0], self.gyro_trust_noise[1]),
-            // Research-only knob (o4fix-cli --handback-noise-veto), not
-            // exposed in the GUI; always off here.
-            handback_noise_veto: None,
+            // Not exposed in the GUI: always the core default (on).
+            handback_noise_veto: o4core::config::Config::default().handback_noise_veto,
             patch_pad: self.patch_pad,
             patch_merge: self.patch_merge,
             optical_noise: self.optical_noise.map(|a| (a[0], a[1])),
