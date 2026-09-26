@@ -17,6 +17,11 @@ pub struct Config {
     pub handback_cutoff: Option<f64>,
     pub fast_handback: (f64, f64),
     pub gyro_trust_noise: (f64, f64),
+    /// Research-only (default off): veto fast-handback when the LOCAL gyro
+    /// noise spikes above (lo, hi), even if the ramp above says "hand back
+    /// to gyro". A throttle punch can put monster phantom on the gyro at
+    /// exactly the instant it looks fast; this keeps optical there instead.
+    pub handback_noise_veto: Option<(f64, f64)>,
     pub patch_pad: f64,
     pub patch_merge: f64,
     pub optical_noise: Option<(f64, f64)>,
@@ -51,6 +56,7 @@ impl Default for Config {
             handback_cutoff: None,
             fast_handback: (100.0, 250.0),
             gyro_trust_noise: (200.0, 300.0),
+            handback_noise_veto: None,
             patch_pad: 0.5,
             patch_merge: 1.0,
             optical_noise: None,
@@ -119,6 +125,13 @@ impl Config {
         ] {
             if !lo.is_finite() || !hi.is_finite() || lo >= hi {
                 return Err(InvalidConfig(format!("{name} must have finite LO < HI")));
+            }
+        }
+        if let Some((lo, hi)) = self.handback_noise_veto {
+            if !lo.is_finite() || !hi.is_finite() || lo < 0.0 || hi < 0.0 || lo >= hi {
+                return Err(InvalidConfig(
+                    "handback_noise_veto must have finite, non-negative LO < HI".into(),
+                ));
             }
         }
         if self.noise_band.0 <= 0.0
@@ -206,6 +219,18 @@ mod tests {
                 hampel_window: usize::MAX,
                 ..Config::default()
             },
+            Config {
+                handback_noise_veto: Some((5.0, 5.0)),
+                ..Config::default()
+            },
+            Config {
+                handback_noise_veto: Some((-1.0, 5.0)),
+                ..Config::default()
+            },
+            Config {
+                handback_noise_veto: Some((f64::NAN, 5.0)),
+                ..Config::default()
+            },
         ] {
             assert!(c.validate().is_err(), "accepted {c:?}");
         }
@@ -224,6 +249,13 @@ mod tests {
         assert_eq!(c.fast_wide_cutoff, 0.0);
         assert_eq!(Config::m4().fast_wide_cutoff, 16.0);
         assert!(c.handback_cutoff.is_none() && c.optical_noise.is_none());
+        assert!(c.handback_noise_veto.is_none());
+        assert!(Config {
+            handback_noise_veto: Some((200.0, 300.0)),
+            ..Config::default()
+        }
+        .validate()
+        .is_ok());
         assert_eq!(c.drift_rebase_above, 30.0);
         assert_eq!(c.drift_decay_rate, 1.5);
         assert!(c.refine);

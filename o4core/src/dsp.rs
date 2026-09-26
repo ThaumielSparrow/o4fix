@@ -224,6 +224,22 @@ pub fn uniform_filter1d(x: &[f64], size: usize) -> Vec<f64> {
         .collect()
 }
 
+/// Centered running maximum, mode="nearest" (clamp at edges), matching
+/// `uniform_filter1d`'s edge handling. `size` is rounded up to the nearest
+/// odd value (0 or 1 both yield a single-sample window).
+pub fn running_max1d(x: &[f64], size: usize) -> Vec<f64> {
+    let size = if size % 2 == 0 { size + 1 } else { size }.max(1);
+    let n = x.len() as isize;
+    let h = (size / 2) as isize;
+    (0..n)
+        .map(|i| {
+            (i - h..=i + h)
+                .map(|j| x[j.clamp(0, n - 1) as usize])
+                .fold(f64::MIN, f64::max)
+        })
+        .collect()
+}
+
 pub fn uniform_filter3(x: &[[f64; 3]], size: usize) -> Vec<[f64; 3]> {
     let cols: Vec<Vec<f64>> = (0..3)
         .map(|k| uniform_filter1d(&x.iter().map(|r| r[k]).collect::<Vec<_>>(), size))
@@ -303,6 +319,20 @@ mod high_tests {
     }
     fn rms(x: &[f64]) -> f64 {
         (x.iter().map(|v| v * v).sum::<f64>() / x.len() as f64).sqrt()
+    }
+    #[test]
+    fn running_max1d_centers_window_and_clamps_edges() {
+        let x = [0.0, 1.0, 0.0, 0.0, 5.0, 0.0, 0.0];
+        // size=3 (odd already): window [i-1, i+1], nearest-clamped at edges.
+        assert_eq!(
+            running_max1d(&x, 3),
+            vec![1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 0.0]
+        );
+        // even size rounds up to odd (4 -> 5): window [i-2, i+2].
+        assert_eq!(running_max1d(&x, 4), running_max1d(&x, 5));
+        // size 0 or 1 is a no-op (single-sample window).
+        assert_eq!(running_max1d(&x, 0), x);
+        assert_eq!(running_max1d(&x, 1), x);
     }
     #[test]
     fn butter_high_passes_high_blocks_low_and_dc() {
