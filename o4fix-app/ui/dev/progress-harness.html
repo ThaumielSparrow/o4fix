@@ -1,171 +1,127 @@
 <!doctype html>
 <!--
-  Standalone dev harness for the per-clip trace's progress-follow playhead
-  (o4fix-app/ui/trace.js). Not wired into the app or CI — open directly in a
-  browser to eyeball the warp/creep/squash/settle/fade behavior against
-  synthetic before/progress/after events, without running the real backend.
-
-  Each row is one ClipTrace with its own fake job: "Start" begins a
-  before-trace + a jittery pct ticker (uneven jumps + occasional stalls, to
-  exercise the creep/ease follow), and its buttons fire the same events
-  app.js would route from job_progress / job_trace / job_done.
+  Dev harness for the per-clip trace playhead (o4fix-app/ui/trace.js). Open directly in a
+  browser. Each card is built with the same markup and state classes app.js uses for a queue
+  row, so it looks exactly like the app; the buttons below each card fake the backend events
+  (job_trace before/after, job_progress, job_done).
 -->
 <html>
 <head>
 <meta charset="utf-8">
-<title>trace progress harness</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trace playhead harness</title>
 <link rel="stylesheet" href="../style.css">
 <style>
-  body { max-width: 720px; margin: 40px auto; font: 14px var(--body); color: var(--ink); background: var(--ground); }
-  h1 { font: 600 20px var(--display); }
-  .row { background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-         padding: 14px 16px; margin-bottom: 14px; }
-  .row h2 { font: 600 14px var(--display); margin: 0 0 8px; }
-  .trace { position: relative; height: 44px; margin: 10px 0 8px; border-radius: 5px;
-           overflow: hidden; background: var(--track); }
-  .trace svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .trace path { fill: none; stroke-width: 1.3; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-  .trace .calm { stroke: var(--ink-3); }
-  .trace .noisy { stroke: var(--noise); stroke-width: 1.6; }
-  .trace .band { fill: var(--noise-soft); stroke: none; transition: fill .4s; }
-  .trace .band.fixed { fill: var(--fixed-soft); }
-  .trace .head { stroke: var(--ink-2); stroke-width: 1; vector-effect: non-scaling-stroke; }
-  .ctl { display: flex; gap: 8px; align-items: center; }
-  .ctl button { font: 12px var(--body); padding: 4px 10px; border-radius: 6px;
-                border: 1px solid var(--line); background: var(--raised); color: var(--ink); cursor: pointer; }
-  .ctl button:hover { border-color: var(--fixed); }
-  .pctlabel { font-variant-numeric: tabular-nums; color: var(--ink-3); min-width: 4ch; }
-  label.top { display: flex; gap: 6px; align-items: center; margin-bottom: 16px; color: var(--ink-2); }
+  /* the app body is a fixed full-window grid; the harness needs a plain scrolling page */
+  body.harness { display: block; overflow: auto; height: auto; }
+  .harness main { max-width: 760px; margin: 0 auto; padding: 28px 16px 60px; }
+  .harness h1 { font: 600 20px var(--display); margin: 0 0 4px; }
+  .harness .lede { color: var(--ink-3); margin: 0 0 18px; }
+  .harness .case { margin-bottom: 22px; }
+  .harness .case h2 { font: 600 14px var(--display); color: var(--ink-2); margin: 0 0 6px; }
+  .harness .ctl { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+  .harness .ctl .speed { color: var(--ink-3); font-size: 13px; margin-left: auto; }
+  .harness .opt { display: flex; gap: 8px; align-items: center; color: var(--ink-2);
+                  font-size: 13px; margin-bottom: 20px; }
 </style>
 </head>
-<body>
-<h1>trace progress harness</h1>
-<label class="top">
-  <input type="checkbox" id="reduced">
-  Force <code>prefers-reduced-motion: reduce</code> (must toggle before "Start")
-</label>
-
-<div class="row">
-  <h2>Normal completion — burst gets refined</h2>
-  <div class="trace" id="t1"></div>
-  <div class="ctl">
-    <button data-act="start">Start</button>
-    <button data-act="after">Send after (finish)</button>
-    <span class="pctlabel" id="p1">0%</span>
-  </div>
-</div>
-
-<div class="row">
-  <h2>Healthy clip — no bursts found</h2>
-  <div class="trace" id="t2"></div>
-  <div class="ctl">
-    <button data-act="start">Start</button>
-    <button data-act="healthy">Finish (healthy)</button>
-    <span class="pctlabel" id="p2">0%</span>
-  </div>
-</div>
-
-<div class="row">
-  <h2>Cancelled mid-burst</h2>
-  <div class="trace" id="t3"></div>
-  <div class="ctl">
-    <button data-act="start">Start</button>
-    <button data-act="cancel">Cancel</button>
-    <span class="pctlabel" id="p3">0%</span>
-  </div>
-</div>
-
-<div class="row">
-  <h2>Error mid-burst</h2>
-  <div class="trace" id="t4"></div>
-  <div class="ctl">
-    <button data-act="start">Start</button>
-    <button data-act="error">Error out</button>
-    <span class="pctlabel" id="p4">0%</span>
-  </div>
-</div>
+<body class="harness">
+<main>
+  <h1>Trace playhead harness</h1>
+  <p class="lede">Each card is a real queue row. Start fakes a repair with uneven progress events.</p>
+  <label class="opt"><input type="checkbox" id="reduced"> Simulate reduced motion (set before Start)</label>
+  <div id="cases"></div>
+</main>
 
 <script>
-  // Let the checkbox override prefers-reduced-motion for this page only.
-  // trace.js calls the bare global matchMedia(); replace it before trace.js loads.
-  const forceReduced = () => document.getElementById("reduced").checked;
-  window.matchMedia = (q) => ({
-    matches: q.includes("prefers-reduced-motion") ? forceReduced() : false,
-  });
+  // lets the checkbox stand in for prefers-reduced-motion; trace.js reads matchMedia at use time
+  const realMM = window.matchMedia.bind(window);
+  window.matchMedia = (q) => q.includes("prefers-reduced-motion")
+    ? { matches: document.getElementById("reduced").checked, addEventListener() {}, removeEventListener() {} }
+    : realMM(q);
 </script>
 <script src="../trace.js"></script>
 <script>
-  // ---- synthetic clip: 60 s, three bursts (one tiny) ----
-  const T0 = 0, T1 = 60, N = 240; // 4 buckets/s
-  const BURSTS = [[8, 12], [24, 24.6], [40, 52]];
-  function inAnyBurst(t) { return BURSTS.some(([a, b]) => t >= a && t < b); }
-  const values = [];
+  // synthetic 215 s clip shaped like 0083: noise level (deg/s) with a handful of bursts
+  const T0 = 0, T1 = 215, N = 600;
+  const BURSTS = [[48.8, 51.7], [53.2, 53.8], [113.1, 114.7], [143.6, 145.8], [180.7, 181.2], [211.7, 214.2]];
+  const tAt = (i) => T0 + ((i + 0.5) / N) * (T1 - T0);
+  const inB = (t) => BURSTS.some(([a, b]) => t >= a && t < b);
+  let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const before = [], after = [], healthy = [];
   for (let i = 0; i < N; i++) {
-    const t = T0 + ((i + 0.5) / N) * (T1 - T0);
-    const calm = 3 + 2 * Math.sin(t * 0.7) + (Math.random() - 0.5);
-    values.push(inAnyBurst(t) ? 22 + 14 * Math.random() : Math.max(1.5, calm));
+    const t = tAt(i), calm = 1.6 + 0.8 * Math.abs(Math.sin(t * 0.37)) + 0.6 * rnd();
+    before.push(inB(t) ? 20 + 260 * rnd() * rnd() : calm);
+    after.push(inB(t) ? 2 + 1.5 * rnd() : calm);
+    healthy.push(calm);
   }
-  // "true" repaired values: bursts come down close to (but not exactly) calm,
-  // so the settle step visibly does something beyond the provisional squash
-  const afterValues = values.map((v, i) => {
-    const t = T0 + ((i + 0.5) / N) * (T1 - T0);
-    return inAnyBurst(t) ? 3.5 + 1.5 * Math.sin(t * 1.3) : v;
-  });
-  const healthyValues = values.map((v, i) => {
-    const t = T0 + ((i + 0.5) / N) * (T1 - T0);
-    return Math.max(1.5, 3 + 2 * Math.sin(t * 0.7));
-  });
 
-  function demo(hostId, pctLabelId, { bursts, values }) {
-    const host = document.getElementById(hostId);
-    const label = document.getElementById(pctLabelId);
-    const trace = new window.o4trace.ClipTrace(host);
-    let pctTimer = 0, pct = 0;
-    function tickPct() {
-      // uneven jumps + occasional stalls, like real job_progress events
-      const stall = Math.random() < 0.15;
-      if (!stall) pct = Math.min(0.97, pct + Math.random() * 0.05);
-      trace.setProgress(pct);
-      label.textContent = Math.round(pct * 100) + "%";
-      pctTimer = setTimeout(tickPct, 120 + Math.random() * 380);
+  const STATUS = { waiting: "Waiting", working: "Patching bursts", done: "Repaired",
+                   healthy: "No repair needed", error: "Failed", cancelled: "Cancelled" };
+
+  function makeRow(name) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div class="clip-head">
+        <span class="fname"></span>
+        <span class="status"><span class="dot"></span><span class="stxt"></span><span class="pct"></span></span>
+      </div>
+      <div class="trace"><div class="progress"></div></div>
+      <div class="clip-foot"><span class="facts"></span><span class="msg"></span></div>`;
+    li.querySelector(".fname").textContent = name;
+    return li;
+  }
+
+  const CASES = [
+    { title: "Repair with bursts", end: "after", endLabel: "Finish repair", bursts: BURSTS, values: before },
+    { title: "Healthy clip, no bursts", end: "healthy", endLabel: "Finish (healthy)", bursts: [], values: healthy },
+    { title: "Cancelled mid-run", end: "cancelled", endLabel: "Cancel", bursts: BURSTS, values: before },
+    { title: "Error mid-run", end: "error", endLabel: "Fail", bursts: BURSTS, values: before },
+  ];
+
+  const host = document.getElementById("cases");
+  CASES.forEach((c, k) => {
+    const sec = document.createElement("section"); sec.className = "case";
+    sec.innerHTML = `<h2>${c.title}</h2><ol class="queue"></ol>
+      <div class="ctl"><button class="ghost small" data-a="start">Start</button>
+      <button class="ghost small" data-a="end">${c.endLabel}</button>
+      <span class="speed">auto-finish at 100%: <input type="checkbox" data-a="auto" ${k === 0 ? "checked" : ""}></span></div>`;
+    host.appendChild(sec);
+    const li = makeRow(`DJI_20260919133302_008${k}_D.MP4`);
+    sec.querySelector(".queue").appendChild(li);
+    const q = (s) => li.querySelector(s);
+    const trace = new window.o4trace.ClipTrace(q(".trace"));
+    let timer = 0, pct = 0, running = false;
+    const setState = (s) => { li.className = "clip " + s; q(".stxt").textContent = STATUS[s]; };
+    const setPct = (p) => { q(".pct").textContent = Math.round(p * 100) + "%"; q(".progress").style.width = (p * 100) + "%"; };
+    setState("waiting"); setPct(0);
+
+    function finish(kind) {
+      if (!running) return;
+      running = false; clearTimeout(timer);
+      if (kind === "after") trace.setAfter({ values: after });
+      trace.stop(kind === "after" ? "done" : kind);
+      setState(kind === "after" ? "done" : kind);
+      q(".pct").textContent = "";
     }
-    return {
-      start() {
-        clearTimeout(pctTimer);
-        pct = 0;
-        trace.setBefore({ t0: T0, t1: T1, values, bursts });
-        tickPct();
-      },
-      after(afterVals) {
-        clearTimeout(pctTimer);
-        trace.setAfter({ values: afterVals });
-      },
-      stop(kind) {
-        clearTimeout(pctTimer);
-        trace.stop(kind);
-      },
+    function tick() {
+      // uneven jumps and occasional stalls, like real job_progress events
+      if (rnd() > 0.15) pct = Math.min(1, pct + rnd() * 0.035);
+      trace.setProgress(pct); setPct(pct);
+      if (pct >= 1 && sec.querySelector('[data-a="auto"]').checked) { finish(c.end === "after" ? "after" : c.end); return; }
+      timer = setTimeout(tick, 100 + rnd() * 400);
+    }
+    sec.querySelector('[data-a="start"]').onclick = () => {
+      clearTimeout(timer); pct = 0; running = true;
+      setState("working"); setPct(0);
+      q(".facts").innerHTML = c.bursts.length
+        ? `<span><b>215.2</b> s</span><span><b>${c.bursts.length}</b> noise bursts</span>`
+        : `<span><b>215.2</b> s</span>`;
+      q(".msg").textContent = "";
+      trace.setBefore({ t0: T0, t1: T1, values: c.values, bursts: c.bursts });
+      tick();
     };
-  }
-
-  const demos = {
-    t1: demo("t1", "p1", { bursts: BURSTS, values }),
-    t2: demo("t2", "p2", { bursts: [], values: healthyValues }),
-    t3: demo("t3", "p3", { bursts: BURSTS, values }),
-    t4: demo("t4", "p4", { bursts: BURSTS, values }),
-  };
-
-  document.querySelectorAll(".row").forEach((row, idx) => {
-    const id = "t" + (idx + 1);
-    row.querySelectorAll("button").forEach((btn) => {
-      btn.onclick = () => {
-        const act = btn.dataset.act;
-        if (act === "start") demos[id].start();
-        else if (act === "after") demos[id].after(afterValues);
-        else if (act === "healthy") demos[id].stop("healthy");
-        else if (act === "cancel") demos[id].stop("cancelled");
-        else if (act === "error") demos[id].stop("error");
-      };
-    });
+    sec.querySelector('[data-a="end"]').onclick = () => finish(c.end);
   });
 </script>
 </body>

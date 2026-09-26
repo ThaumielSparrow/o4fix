@@ -170,6 +170,14 @@ class ClipTrace {
         if (this.inBurst[k] < 0) { s += values[k]; c++; }
       return c ? s / c : v;
     });
+    // provisional squash target inside each burst: a straight line between the calm
+    // levels just outside it (the real repaired values replace it at settle)
+    this.flat = this.calm.slice();
+    for (const [i0, i1] of this.ranges) {
+      const a = i0 > 0 ? this.calm[i0 - 1] : i1 + 1 < this.n ? this.calm[i1 + 1] : FLOOR;
+      const b = i1 + 1 < this.n ? this.calm[i1 + 1] : a;
+      for (let i = i0; i <= i1; i++) this.flat[i] = a + (b - a) * ((i - i0 + 1) / (i1 - i0 + 2));
+    }
 
     this.svg.innerHTML = "";
     this.bands = bursts.map(([a, b]) => {
@@ -231,7 +239,7 @@ class ClipTrace {
     const vals = this.before.slice();
     for (const [i0, i1] of this.ranges)
       for (let i = i0; i <= i1; i++)
-        vals[i] = this.before[i] + (this.calm[i] - this.before[i]) * ease((headX - this.x(i)) / SQUASH_WIDTH);
+        vals[i] = this.before[i] + (this.flat[i] - this.before[i]) * ease((headX - this.x(i)) / SQUASH_WIDTH);
     return vals;
   }
   renderAtHeadX(headX) {
