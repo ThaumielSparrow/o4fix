@@ -1,5 +1,11 @@
 # DJI O4 Pro gyro noise fix — v0.1.2 baseline, active stabilization research
 
+**2026-09-25 (main, local build, not released):** v0.2.0 + perf-v1 (bounded
+below-normal worker pool, `--threads`, GUI "CPU usage"; byte-identical output, ~5x less RAM)
++ handback noise veto default-on (`--no-handback-veto`) + playhead GUI progress trace. See
+the top section of `docs/SESSION_HANDOFF.md` and `docs/experiments/{perf-v1,judder83-v1}`.
+Next research: render-free gate for refinement above the 4 deg cap.
+
 **v0.1.3 candidate (2026-09-24, branch `refine-v013`, not released):**
 the Gyroflow-free residual refinement (research wp1c) is now in production.
 It is on by default (`--no-refine` / GUI toggle) and sits alongside the
