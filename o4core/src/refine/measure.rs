@@ -46,7 +46,25 @@ pub fn window_frames(a: f64, b: f64, info: &VideoInfo) -> (i64, i64) {
     )
 }
 
-fn track(p: &Mat, g: &Mat, max_features: i32) -> opencv::Result<Vec<(Point2f, Point2f)>> {
+/// LK pyramid (with derivatives) of one frame. Built once per frame and shared by the
+/// forward and backward flow of both pairs the frame belongs to; the flow is identical to
+/// passing the images, which rebuilt both pyramids inside every call.
+fn pyramid(img: &Mat) -> opencv::Result<Vector<Mat>> {
+    let mut pyr = Vector::<Mat>::new();
+    video::build_optical_flow_pyramid(
+        img,
+        &mut pyr,
+        Size::new(21, 21),
+        4,
+        true,
+        core::BORDER_REFLECT_101,
+        core::BORDER_CONSTANT,
+        true,
+    )?;
+    Ok(pyr)
+}
+
+fn features(p: &Mat, max_features: i32) -> opencv::Result<Vector<Point2f>> {
     let mut a = Vector::<Point2f>::new();
     imgproc::good_features_to_track(
         p,
@@ -59,7 +77,16 @@ fn track(p: &Mat, g: &Mat, max_features: i32) -> opencv::Result<Vec<(Point2f, Po
         false,
         0.04,
     )?;
-    if a.len() < 40 {
+    Ok(a)
+}
+
+/// Forward/backward LK of `a` from frame p to g; tracks passing the 0.5 px check, in order.
+fn track(
+    a: &Vector<Point2f>,
+    pp: &Vector<Mat>,
+    gp: &Vector<Mat>,
+) -> opencv::Result<Vec<(Point2f, Point2f)>> {
+    if a.is_empty() {
         return Ok(vec![]);
     }
     let crit = TermCriteria::new(core::TermCriteria_COUNT + core::TermCriteria_EPS, 30, 0.01)?;
@@ -69,9 +96,9 @@ fn track(p: &Mat, g: &Mat, max_features: i32) -> opencv::Result<Vec<(Point2f, Po
         Vector::<f32>::new(),
     );
     video::calc_optical_flow_pyr_lk(
-        p,
-        g,
-        &a,
+        pp,
+        gp,
+        a,
         &mut b,
         &mut st,
         &mut err,
@@ -87,8 +114,8 @@ fn track(p: &Mat, g: &Mat, max_features: i32) -> opencv::Result<Vec<(Point2f, Po
         Vector::<f32>::new(),
     );
     video::calc_optical_flow_pyr_lk(
-        g,
-        p,
+        gp,
+        pp,
         &b,
         &mut r,
         &mut sr,
@@ -197,7 +224,7 @@ pub fn measure_chunk(
         tel_rate: vec![],
         ess: vec![],
     };
-    let (mut prev, mut frame) = (None::<Mat>, Mat::default());
+    let (mut prev, mut frame) = (None::<(Mat, Vector<Mat>)>, Mat::default());
     let row_t = |fi: i64, y: f32| fi as f64 / info.fps + y as f64 / info.height as f64 * readout;
     for fi in c0..=c1 {
         if cancel.load(Ordering::Relaxed) {
@@ -208,25 +235,44 @@ pub fn measure_chunk(
         }
         let mut g = Mat::default();
         imgproc::cvt_color_def(&frame, &mut g, imgproc::COLOR_BGR2GRAY)?;
-        if let Some(p) = &prev {
+        let gp = pyramid(&g)?;
+        if let Some((p, pp)) = &prev {
             let fa = fi - 1;
             let tmid = fi as f64 / info.fps + readout * 0.5;
             let qa_mid = orient.at(fa as f64 / info.fps + readout * 0.5);
             let qb_mid = orient.at(tmid);
             let dv = qlog(qmul(qconj(qa_mid), qb_mid));
             let tel_rate = (dv[0] * dv[0] + dv[1] * dv[1] + dv[2] * dv[2]).sqrt() * info.fps;
-            let tr = track(p, &g, cfg.max_features)?;
+            let inside = |v: &V3| {
+                v[2] > 0.0 && (v[0] / v[2]).abs() < cfg.crop.0 && (v[1] / v[2]).abs() < cfg.crop.1
+            };
+            // Features whose start point is outside the render crop are dropped after the
+            // fit's crop test anyway, so they are not tracked. The one decision that saw
+            // them, `tracks >= 40`, is kept exact: >= 40 inside tracks implies it, fewer
+            // than min_inliers inside tracks cannot fit either way, and only the band in
+            // between falls back to tracking every feature.
+            let all = features(p, cfg.max_features)?;
+            let mut tr = vec![];
+            if all.len() >= 40 {
+                let b0 = bearings(&all.to_vec(), &k, &d)?;
+                let pre: Vector<Point2f> = (0..all.len())
+                    .filter(|&i| inside(&b0[i]))
+                    .map(|i| all.get(i))
+                    .collect::<Result<_, _>>()?;
+                tr = track(&pre, pp, &gp)?;
+                if tr.len() < 40 {
+                    let bb = bearings(&tr.iter().map(|x| x.1).collect::<Vec<_>>(), &k, &d)?;
+                    if bb.iter().filter(|v| inside(v)).count() >= cfg.min_inliers {
+                        tr = track(&all, pp, &gp)?;
+                    }
+                }
+            }
             let mut resid = None;
             let mut ess = None;
             let mut n = 0;
             if tr.len() >= 40 {
                 let ba = bearings(&tr.iter().map(|x| x.0).collect::<Vec<_>>(), &k, &d)?;
                 let bb = bearings(&tr.iter().map(|x| x.1).collect::<Vec<_>>(), &k, &d)?;
-                let inside = |v: &V3| {
-                    v[2] > 0.0
-                        && (v[0] / v[2]).abs() < cfg.crop.0
-                        && (v[1] / v[2]).abs() < cfg.crop.1
-                };
                 let (mut wa, mut wb) = (vec![], vec![]);
                 for i in 0..tr.len() {
                     if !(inside(&ba[i]) && inside(&bb[i])) {
@@ -260,7 +306,7 @@ pub fn measure_chunk(
             s.tel_rate.push(tel_rate);
             s.ess.push(ess);
         }
-        prev = Some(g);
+        prev = Some((g, gp));
     }
     Ok((s, true))
 }

@@ -9,6 +9,20 @@ For the complete experiment-by-experiment index and consolidated user rulings, s
 Agreement floor added after review (clips 1-3 slightly better, 4-5 minimal): default 0.3,
 `--no-refine-agreement-floor`. Both rules share one essential-matrix estimate; no runtime cost.
 
+### Idea backlog: partial refinement (user: "a good idea", 2026-09-26, not started)
+
+Refinement is all-or-nothing per burst. Over-cap bursts the gate rejects keep their full
+residual, and some still render 35-55 deg/s 1-8 Hz (0076 258.8 s / 290.5 s, 0058 41.3 s,
+0083 1:53). Often the probe and the essential-matrix estimate agree on one axis or over part
+of the burst but not the rest. Candidates:
+- per-axis gate: correct only the body axes whose 1-8 Hz agreement passes;
+- time-local gate: sliding-window agreement (e.g. 0.3-0.5 s) as a weight on the correction;
+- consensus correction: use the component common to both estimates (e.g. the projection of
+  the probe onto the essential-matrix estimate) instead of the probe alone.
+Validate like regions-v2: forced renders on the rejected bursts, the outcome proxy
+(`pool.py` ratio), then a user review. Tooling: `docs/experiments/regions-v2/gatecheck.py`,
+`warp_residual_probe` with `O4_REGIONS=1` (per-pair `rate` and `ess`).
+
 ### Detail
 
 Branch `refine-cap-gate` (uncommitted): `RefineConfig.cap_gate` default 0.75, CLI

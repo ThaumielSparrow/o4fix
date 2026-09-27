@@ -8,7 +8,7 @@
   fbclip.py reviews CLIP TAG                   side-by-side exports (LEFT base render, RIGHT TAG)
 
 Uses the 0073 perturbation calibration (same camera/lens/output settings) for M and lag."""
-import json, math, subprocess, sys
+import json, math, os, subprocess, sys
 from pathlib import Path
 import numpy as np
 
@@ -237,9 +237,29 @@ def correct2(c, tag, prev):
         json.dump({'t': t.tolist(), 'angle': ang.tolist()}, fh)
 
 
+LOW = getattr(subprocess, 'BELOW_NORMAL_PRIORITY_CLASS', 0)
+
+
+def run_low(args, check=True, **kw):
+    """Run a child at below-normal priority (the machine stays usable) with EcoQoS turned off
+    for it: Windows 11 otherwise confines low-priority background processes to the efficiency
+    cores of a hybrid CPU (measured on the i9-12900K: render probes 62 s -> 35 s)."""
+    p = subprocess.Popen(args, creationflags=LOW, **kw)
+    if os.name == 'nt':
+        import ctypes
+        class State(ctypes.Structure):
+            _fields_ = [('Version', ctypes.c_ulong), ('ControlMask', ctypes.c_ulong), ('StateMask', ctypes.c_ulong)]
+        st = State(1, 1, 0)       # PROCESS_POWER_THROTTLING_CURRENT_VERSION, EXECUTION_SPEED, off
+        ctypes.windll.kernel32.SetProcessInformation(int(p._handle), 4, ctypes.byref(st), ctypes.sizeof(st))
+    rc = p.wait()
+    if check and rc:
+        raise subprocess.CalledProcessError(rc, args)
+    return rc
+
+
 def gyroflow(args, log):
     with open(str(log) + '.out', 'w') as o, open(str(log) + '.err', 'w') as e:
-        subprocess.run([str(GF)] + args, stdout=o, stderr=e, check=False)
+        run_low([str(GF)] + args, check=False, stdout=o, stderr=e)
 
 
 def frames_of(p):

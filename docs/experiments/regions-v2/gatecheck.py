@@ -20,7 +20,7 @@ ROOT = F.ROOT; RV2 = F.E / 'regions-v2'
 SRC = {'0076': 'DJI_20260919130352_0076_D', '0057': 'DJI_20260808145055_0057_D',
        '0058': 'DJI_20260808145758_0058_D', '0059': 'DJI_20260808151054_0059_D',
        '0027': 'DJI_20260721141550_0027_D', '0071': 'DJI_20260829140442_0071_D', '0073': 'DJI_20260829141435_0073_D',
-       '0005': 'DJI_20260613164205_0005_D'}
+       '0005': 'DJI_20260613164205_0005_D', '0083': 'DJI_20260919133302_0083_D'}
 # CLIP ids ending in 'nr' = the same source repaired with --no-refine; every severe burst is then
 # unrefined, so the probe~render label and the gate predictor are defined on all bursts.
 SRC.update({k + 'nr': v for k, v in list(SRC.items())})
@@ -59,8 +59,8 @@ def probe(clip):
     for s, du in windows(clip):
         out = d(clip) / f'src-{s}.json'
         if not out.exists():
-            subprocess.run([str(ROOT / 'target/release/examples/warp_residual_probe.exe'), str(RV2 / f'cur_{clip}.MP4'),
-                            str(s), str(du), '5.092569', '0', '3', str(out)], check=True, cwd=ROOT,
+            F.run_low([str(ROOT / 'target/release/examples/warp_residual_probe.exe'), str(RV2 / f'cur_{clip}.MP4'),
+                            str(s), str(du), '5.092569', '0', '3', str(out)], cwd=ROOT,
                            env=dict(ENV, O4_REGIONS='1', O4_CROP='1.30,0.72'), stdout=subprocess.DEVNULL)
 
 
@@ -71,17 +71,55 @@ def mp4_of(clip, tag):
 def render(clip, tag):
     proj = d(clip) / f'{tag}.gyroflow'
     if not proj.exists():
-        subprocess.run([sys.executable, str(ROOT / 'python/analysis/make_project.py'), str(TEMPLATE), str(mp4_of(clip, tag)),
+        F.run_low([sys.executable, str(ROOT / 'python/analysis/make_project.py'), str(TEMPLATE), str(mp4_of(clip, tag)),
                         str(proj), f'{tag}-render.mp4', str(d(clip))], check=True)
     F.render_and_export(proj, d(clip) / f'{tag}-render.mp4', d(clip) / f'{tag}-camera.json')
 
 
+RENDER_PROBE = ROOT / 'target/release/examples/render_residual_probe.exe'
+SUB = 15.0                                  # seconds of render per parallel probe process
+# Keep the machine usable: half the logical cores (o4fix's own default), below-normal priority.
+WORKERS = max(2, (os.cpu_count() or 4) // 2)
+LOW = F.LOW
+
+
+def probe_render(render, jobs):
+    """Run render_residual_probe over many (start, dur, out) windows in parallel: each window is
+    split into SUB-second pieces that overlap by one frame (so no pair is lost at a seam), every
+    piece runs single-threaded (O4_CV_THREADS=1, no oversubscription), and the pieces are merged
+    back into the window's JSON in frame order."""
+    from concurrent.futures import ThreadPoolExecutor
+    env = dict(ENV, O4_CV_THREADS='1')
+    pieces = []
+    for s, du, out in jobs:
+        n = int(round(du * 100)); step = int(SUB * 100)
+        for k, f0 in enumerate(range(0, n - 1, step)):
+            f1 = min(f0 + step, n - 1)       # inclusive last frame: pieces share one frame
+            pieces.append((out, k, round(s + f0 / 100, 2), (f1 - f0 + 1) / 100))
+
+    def one(pc):
+        out, k, s0, d0 = pc
+        part = out.with_name(out.stem + f'.part{k}.json')
+        if not part.exists():
+            F.run_low([str(RENDER_PROBE), str(render), f'{s0:.2f}', f'{d0:.2f}', str(part)],
+                      env=env, stdout=subprocess.DEVNULL)
+        return part
+    with ThreadPoolExecutor(WORKERS) as ex:
+        parts = list(ex.map(one, pieces))
+    for s, du, out in jobs:
+        mine = [pt for pc, pt in zip(pieces, parts) if pc[0] == out]
+        mine.sort(key=lambda pt: int(pt.stem.rsplit('part', 1)[1]))
+        docs = [json.load(open(pt)) for pt in mine]
+        merged = dict(docs[0], start=s, frames=sum(dd['frames'] for dd in docs) - (len(docs) - 1),
+                      pairs=[pr for dd in docs for pr in dd['pairs']])
+        json.dump(merged, open(out, 'w'))
+        for pt in mine: pt.unlink()
+
+
 def measure(clip, tag):
-    for s, du in windows(clip):
-        out = d(clip) / f'ren-{tag}-{s}.json'
-        if not out.exists():
-            subprocess.run([str(ROOT / 'target/release/examples/render_residual_probe.exe'), str(d(clip) / f'{tag}-render.mp4'),
-                            str(s), str(du), str(out)], check=True, env=ENV, stdout=subprocess.DEVNULL)
+    render = d(clip) / f'{tag}-render.mp4'
+    probe_render(render, [(s, du, d(clip) / f'ren-{tag}-{s}.json') for s, du in windows(clip)
+                          if not (d(clip) / f'ren-{tag}-{s}.json').exists()])
 
 
 def ser(rows, key):

@@ -152,7 +152,7 @@ fn chunk_rates(
         omega: vec![],
         quality: vec![],
     };
-    let mut prev: Option<Mat> = None;
+    let mut prev: Option<(Mat, Vector<Mat>)> = None;
     let mut frame = Mat::default();
     for fidx in c0..=c1 {
         if cancel.load(Ordering::Relaxed) {
@@ -175,21 +175,40 @@ fn chunk_rates(
             0.0,
             imgproc::INTER_LINEAR,
         )?;
-        if let Some(p) = &prev {
+        // One LK pyramid per frame, used as the "next" image of this pair and the "prev"
+        // image of the following one (identical flow to rebuilding it inside each call).
+        let mut hp = Vector::<Mat>::new();
+        video::build_optical_flow_pyramid(
+            &half,
+            &mut hp,
+            Size::new(21, 21),
+            3,
+            true,
+            core::BORDER_REFLECT_101,
+            core::BORDER_CONSTANT,
+            true,
+        )?;
+        if let Some((p, pp)) = &prev {
             core::set_rng_seed(1_000_000 + fidx as i32)?;
-            let (rvec, q) = pair_rotation(p, &half, &k, &d)?;
+            let (rvec, q) = pair_rotation(p, pp, &hp, &k, &d)?;
             out.t.push((fidx as f64 - 0.5) / fps);
             out.omega
                 .push([rvec[0] * fps, rvec[1] * fps, rvec[2] * fps]);
             out.quality.push(q);
         }
-        prev = Some(half);
+        prev = Some((half, hp));
     }
     Ok((out, true))
 }
 
 /// Ports o4fix._pair_rotation (o4fix.py:321-349).
-fn pair_rotation(prev: &Mat, gray: &Mat, k: &Mat, d: &Mat) -> Result<([f64; 3], f64), O4Error> {
+fn pair_rotation(
+    prev: &Mat,
+    prev_pyr: &Vector<Mat>,
+    gray_pyr: &Vector<Mat>,
+    k: &Mat,
+    d: &Mat,
+) -> Result<([f64; 3], f64), O4Error> {
     let mut p0 = Vector::<Point2f>::new();
     imgproc::good_features_to_track(prev, &mut p0, 600, 0.01, 12.0, &no_array(), 7, false, 0.04)?;
     if p0.len() < 40 {
@@ -199,8 +218,8 @@ fn pair_rotation(prev: &Mat, gray: &Mat, k: &Mat, d: &Mat) -> Result<([f64; 3], 
     let mut st = Vector::<u8>::new();
     let mut err = Vector::<f32>::new();
     video::calc_optical_flow_pyr_lk(
-        prev,
-        gray,
+        prev_pyr,
+        gray_pyr,
         &p0,
         &mut p1,
         &mut st,

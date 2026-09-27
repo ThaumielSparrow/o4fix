@@ -151,6 +151,11 @@ Review page (both steps): `target/experiments/regions-v2/review-capgate-floor.ht
 User verdict (2026-09-26, review-capgate-floor): "clips 1-3: looks slightly better / clip 4 and 5: difference is minimal" (1 = production gate 0076 275.1 s; 2-3 = floor 0073 178.8, 0058 206.9; 4-5 = floor 0058 318.5, 0057 45.3).
 The floor is not implemented in production yet.
 
+## Next idea (backlog): partial refinement
+
+See the backlog entry in `docs/SESSION_HANDOFF.md` (per-axis / time-local / consensus correction for
+over-cap bursts the gate rejects).
+
 ## Agreement floor in production (2026-09-26)
 
 After the review ("clips 1-3: looks slightly better, clip 4 and 5: difference is minimal"),
@@ -163,3 +168,29 @@ Production skip sets (1 s windows, so agreement values differ from the 2 s resea
   adds 9.04 (refining hurt 2.0 -> 6.7), 80.00 and 196.54 (neutral). It no longer skips 120.86
   (neutral) or 201.71 (refinement helped).
 - 0073: skips 9.73, 178.84, 188.73. It keeps 220.20 (refinement helped) and 275.02 (neutral).
+
+## Remap: where judder remains after the cap gate + floor (2026-09-26)
+
+`remap.py` runs the final build on 9 clips, renders each with Gyroflow, measures the whole render
+(`render_residual_probe`, 0.5 s bins, 1-8 Hz after intended-path removal) and classifies every bin
+by production state. `outside.py` explains the worst bins outside bursts. Only reliable bins
+(>= 150 tracker inliers, 5733 of 5940) count. "Excess" is the sum of max(0, wobble - 8 deg/s):
+
+| state | bins | median | p90 | share of excess |
+|---|---|---|---|---|
+| outside bursts, > 1.5 s from any burst | 4100 | 1.3 | 5.8 | **43%** |
+| outside bursts, < 1.5 s from a burst | 720 | 2.1 | 8.8 | 18% |
+| refined | 702 | 2.9 | 9.8 | 16% |
+| over cap, rejected by the gate | 33 | 11.4 | 35.4 | 10% (worst per bin) |
+| floor-skipped | 127 | 4.4 | 13.2 | 6.5% |
+| refined past cap | 46 | 3.0 | 21.3 | 5% |
+
+About 60% of the remaining excess is outside the repaired bursts, concentrated in 0076 (and 0083).
+Of the 109 worst outside bins (> 15 deg/s): source gyro noise (30-180 Hz band RMS) is 1.5-5 in 72
+(the light-blend zone, where the gyro is trusted), 5-8 in 12, >= 8 in 9 (brief spikes that
+never became a burst), and clean in 16. 70 of 109 are at moderate rates (< 150 deg/s), so the
+bins are mostly not tracker failure on fast motion. Hypothesis: on the noisier Sep-19 clips, phantom
+motion in the light-noise zone leaks into 1-8 Hz. The 0021-era fact "mild-zone 2-8 Hz gyro is
+trustworthy" may not hold there. Next test: probe these bins with the source-frame probe and
+check probe~render and probe~essential agreement. Where both are high, the agreement-gated
+refinement could be extended to noisy non-burst stretches.
