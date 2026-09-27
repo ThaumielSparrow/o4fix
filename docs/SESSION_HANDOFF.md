@@ -9,7 +9,27 @@ For the complete experiment-by-experiment index and consolidated user rulings, s
 Agreement floor added after review (clips 1-3 slightly better, 4-5 minimal): default 0.3,
 `--no-refine-agreement-floor`. Both rules share one essential-matrix estimate; no runtime cost.
 
-### Idea backlog: partial refinement (user: "a good idea", 2026-09-26, not started)
+### Remap + outside-burst probe (2026-09-26)
+
+Remaining judder after the gate+floor (9 clips, whole renders): ~60% of the excess is outside
+bursts, but the source-frame probe does not see it (label 0.20, proxy 0.99): the telemetry rotation is
+right there. It is tracker noise plus real non-rotational motion (translation/parallax), which
+rotation-only stabilization cannot remove. The gyro-fixable remainder is in over-cap rejected /
+floor-skipped / refined bursts, so partial refinement is the next target. Also done: perf-v2
+(commit 8933905): o4fix 98 -> 88 s on 0083 (byte-identical); harness measurement 2.4x faster.
+Details: [regions-v2](experiments/regions-v2/results.md).
+
+### Partial refinement: tested, SHELVED (2026-09-27)
+
+[partial-v1](experiments/partial-v1/results.md): six variants were screened render-free. A
+sliding 0.4 s agreement weight was the only one that did not lose anywhere. Renders on
+0058/0076/0073 showed it breaks even with gate + floor overall. On gate-rejected bursts it made
+two real render gains: 0076 290.5 s 57 -> 46 and 0058 345.1 s 37 -> 30. The monster rejects
+stay unrefinable, because the estimates never agree there. User review: "cant really tell the
+difference... not any worse". Not ported. Lesson: partial cuts on bursts that stay at 30+ deg/s
+are invisible; only calm-ending outcomes have been visible wins.
+
+### (original backlog entry, kept for reference) partial refinement (user: "a good idea", 2026-09-26)
 
 Refinement is all-or-nothing per burst. Over-cap bursts the gate rejects keep their full
 residual, and some still render 35-55 deg/s 1-8 Hz (0076 258.8 s / 290.5 s, 0058 41.3 s,

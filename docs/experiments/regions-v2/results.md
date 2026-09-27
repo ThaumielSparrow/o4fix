@@ -194,3 +194,29 @@ motion in the light-noise zone leaks into 1-8 Hz. The 0021-era fact "mild-zone 2
 trustworthy" may not hold there. Next test: probe these bins with the source-frame probe and
 check probe~render and probe~essential agreement. Where both are high, the agreement-gated
 refinement could be extended to noisy non-burst stretches.
+
+## Step 2: is the outside-burst judder a telemetry error? No (2026-09-26)
+
+`outside_probe.py`: the source-frame probe (`O4_REGIONS=1`) on the production output for the 109
+worst outside bins, plus 72 calm control bins (1-8 Hz, 0.5 s bins):
+
+| set | n | label (probe~render) | agreement (probe~ess) | proxy (subtract probe) |
+|---|---|---|---|---|
+| worst outside bins | 109 | median 0.20 | 0.10 | 0.99 (helps 25, hurts 6) |
+| calm controls | 72 | 0.24 | 0.12 | 1.04 |
+| worst, severe-level brief spikes | 9 | 0.41 | 0.39 | 0.93 |
+
+corr(label, agreement) = 0.09. The probe does not see this motion: the telemetry's rotation is
+right there, so no telemetry correction (and no gate on one) can remove it. The only exception
+is the brief severe-level spikes that never became bursts, a small share. Left/right render
+halves on the 10 worst 0076/0083 bins: 4 are real global frame motion (common motion > 1.5x the
+halves' disagreement: 0076 4:38, 3:03, 4:20; 0083 2:08.5), 3 are mixed, and 3 are mostly tracker noise.
+So the remaining outside-burst residual is a mix of tracker noise and real non-rotational image
+motion (likely translation: bobbing or parallax in low flight, the "bounce/panning" of
+generalization-v1). Rotation-only stabilization cannot remove it from any telemetry. The only
+tool for it is post-render image correction (render-selective-v1 translation was visibly
+positive, but it re-encodes the video and is outside o4fix's telemetry-only workflow).
+
+Consequence for the remap: the gyro-fixable remainder is the over-cap bursts the gate rejects
+(10% of excess, worst per bin), floor-skipped bursts (6.5%) and refined bursts' residual (16%).
+That makes partial refinement (backlog) the best next telemetry-side target.
