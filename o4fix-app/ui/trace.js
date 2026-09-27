@@ -5,6 +5,22 @@ const NS = "http://www.w3.org/2000/svg";
 const reduceMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const ease = (x) => (x <= 0 ? 0 : x >= 1 ? 1 : 1 - Math.pow(1 - x, 3));
 const mix = (p) => `color-mix(in srgb, var(--fixed) ${Math.round(p * 100)}%, var(--noise))`;
+const mixSoft = (p) => `color-mix(in srgb, var(--fixed-soft) ${Math.round(p * 100)}%, var(--noise-soft))`;
+const PULSE_PERIOD = 1.6; // s: burst shading breathes while waiting for the head
+
+// Position (0..1) along a "cruise" move over u in 0..1: a soft start that
+// quickly reaches a steady speed, holds it, then glides to a stop. Velocity
+// is a trapezoid with half-cosine ramps (ta = accel share, td = decel share),
+// so both speed and position are continuous.
+function cruise(u, ta = 0.16, td = 0.34) {
+  if (u <= 0) return 0;
+  if (u >= 1) return 1;
+  const V = 1 / (1 - ta / 2 - td / 2); // cruise speed that lands exactly on 1
+  const ramp = (x, a) => V * (x / 2 - (a / (2 * Math.PI)) * Math.sin((Math.PI * x) / a));
+  if (u < ta) return ramp(u, ta);
+  if (u > 1 - td) return 1 - ramp(1 - u, td);
+  return ramp(ta, ta) + V * (u - ta);
+}
 
 function el(tag, attrs, parent) {
   const e = document.createElementNS(NS, tag);
@@ -65,11 +81,15 @@ function hero(svg) {
   });
   const head = el("line", { class: "head", y1: 4, y2: H - 4 }, svg);
 
-  const T = 2.4, delay = 0.4, dur = T + delay + 0.6;
-  const headX = (t) => Math.min(1, Math.max(0, (t - delay) / T)) * W;
+  const T = 2.6, delay = 0.35, dur = T + delay + 0.7;
+  const u = (t) => Math.min(1, Math.max(0, (t - delay) / T));
+  const headX = (t) => cruise(u(t)) * W;
   return animate((t) => {
     const hx = headX(t);
-    const k = (i) => 1 - ease((hx - x(i)) / 60); // noise left at sample i
+    // the squash smears wider while the head is at speed, tighter as it lands
+    const pv = u(t), vel = (cruise(Math.min(1, pv + 0.01)) - cruise(Math.max(0, pv - 0.01))) / 0.02;
+    const smear = 40 + 40 * Math.min(1.3, vel) / 1.3;
+    const k = (i) => 1 - ease((hx - x(i)) / smear); // noise left at sample i
     segs.forEach((sg, j) => {
       let d = "";
       for (let i = sg.i0; i <= sg.i1; i++)
@@ -79,7 +99,7 @@ function hero(svg) {
     });
     head.setAttribute("x1", hx);
     head.setAttribute("x2", hx);
-    head.style.opacity = t > dur - 0.4 ? Math.max(0, (dur - t) / 0.4) : t < delay ? 0 : 1;
+    head.style.opacity = t < delay ? 0 : t > dur - 0.5 ? Math.max(0, (dur - t) / 0.5) : Math.min(1, (t - delay) / 0.2);
   }, dur);
 }
 
@@ -140,7 +160,13 @@ class ClipTrace {
     this.before = null;
     this.phase = "idle"; // idle -> progress|static -> finish -> settle -> fadeAfter|fadeAbort -> done
     this.cancel = () => {};
+    this.onDisplay = null; // (p) => void: smoothed progress as drawn, each frame
   }
+
+  // true while the playhead (not raw job_progress) is the progress readout
+  get animating() { return this.phase === "progress"; }
+  // repaired values already landed and are being drawn in
+  get finishing() { return ["finish", "settle", "fadeAfter"].includes(this.phase); }
 
   // bucket index -> x, and the bucket range each burst covers
   x(i) { return ((i + 0.5) / this.n) * VW; }
@@ -231,7 +257,15 @@ class ClipTrace {
       this.lines[j].setAttribute("d", dd);
       const p = fixedAt((i0 + i1) >> 1);
       this.lines[j].style.stroke = mix(p);
-      this.bands[j].classList.toggle("fixed", p >= 1);
+      // shading tracks the line exactly; unrepaired bands breathe while the job
+      // runs, settling to full opacity as the head passes
+      const band = this.bands[j];
+      band.style.fill = mixSoft(p);
+      band.classList.toggle("fixed", p >= 1);
+      if (this.phase === "progress" || this.phase === "finish") {
+        const breath = 0.5 - 0.5 * Math.cos((2 * Math.PI * performance.now()) / 1000 / PULSE_PERIOD);
+        band.style.opacity = (1 - 0.75 * breath * (1 - p)).toFixed(3);
+      } else band.style.opacity = "";
     });
   }
 
@@ -249,6 +283,16 @@ class ClipTrace {
     this.draw(this.squashAt(headX), (i) => ease((headX - this.x(i)) / SQUASH_WIDTH));
     this.head.setAttribute("x1", headX);
     this.head.setAttribute("x2", headX);
+  }
+
+  // back to an empty track, ready for a fresh setBefore (restarting a clip)
+  reset() {
+    this.cancel();
+    this.svg.innerHTML = "";
+    this.before = null;
+    this.phase = "idle";
+    this.cancel = () => {};
+    this.host.classList.remove("has-data", "static");
   }
 
   // latest job_progress pct (0..1, monotonic overall progress from the backend)
@@ -278,6 +322,7 @@ class ClipTrace {
     const k = 1 - Math.exp(-dt / FOLLOW_TAU);
     this.disp = Math.min(this.disp + (this._creepTo - this.disp) * k, cap);
     this.renderAtHeadX((this.warp.indexAt(this.disp) / this.n) * VW);
+    if (this.onDisplay) this.onDisplay(this.disp);
   }
 
   _stepFinish(now) {
@@ -321,7 +366,8 @@ class ClipTrace {
   // repaired values arrive: finish the sweep, settle onto them, fade the head
   setAfter({ values }) {
     if (!this.before) return;
-    if (this.phase === "static" || this.phase === "idle" || this.phase === "done") {
+    // fadeAbort: a cancel that came too late - the job finished anyway
+    if (["static", "idle", "done", "fadeAbort"].includes(this.phase)) {
       this.draw(values, () => 1);
       this.head.style.opacity = 0;
       this.phase = "done";
@@ -337,6 +383,7 @@ class ClipTrace {
   // we never actually finished repairing, so nothing should look fixed.
   stop(kind) {
     if (!this.before || this.phase === "done" || kind === "done") return;
+    if (this.phase === "fadeAbort") return; // already stopped (cancel click, then job_done)
     if (this.phase === "static" || this.phase === "idle") {
       if (kind !== "healthy") this.draw(this.before, () => 0);
       this.head.style.opacity = 0;
@@ -345,9 +392,9 @@ class ClipTrace {
     }
     if (kind === "healthy") { this._runFinish(this.before); return; }
     if (this._raf) cancelAnimationFrame(this._raf);
+    this.phase = "fadeAbort"; // before draw: stops the band pulse
     this.draw(this.before, () => 0);
     this._phaseStart = performance.now();
-    this.phase = "fadeAbort";
     this._raf = requestAnimationFrame((t) => this._tick(t));
   }
 }

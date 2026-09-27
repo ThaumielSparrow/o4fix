@@ -68,13 +68,48 @@ fn bucket_peaks(t: &[f64], v: &[f64], t0: f64, t1: f64, n: usize) -> Vec<f32> {
     out
 }
 
-/// Optical-stage share of overall progress: calib intervals 0.10-0.30,
-/// noisy intervals 0.30-0.85 (optical dominates wall time).
-pub fn optical_pct(phase: crate::patch::OptPhase, done: usize, total: usize) -> f64 {
+/// Overall-progress budget. Refinement costs about as much wall time as the
+/// optical stage, so when it runs the two split the bar roughly evenly;
+/// otherwise optical takes the whole middle. The numbers are for a steady
+/// bar, not a measurement - the GUI smooths between reports anyway.
+pub struct Budget {
+    /// optical stage ends here (calib + noisy intervals start at 0.10)
+    pub optical_end: f64,
+    /// splice log lines
+    pub splice: f64,
+    /// refine runs refine_start..=refine_end
+    pub refine_start: f64,
+    pub refine_end: f64,
+}
+
+impl Budget {
+    pub fn new(refine: bool) -> Self {
+        if refine {
+            Budget {
+                optical_end: 0.49,
+                splice: 0.50,
+                refine_start: 0.51,
+                refine_end: 0.90,
+            }
+        } else {
+            Budget {
+                optical_end: 0.85,
+                splice: 0.87,
+                refine_start: 0.88,
+                refine_end: 0.905,
+            }
+        }
+    }
+}
+
+/// Optical-stage share of overall progress: calib intervals take the first
+/// 4/15 of 0.10..`end`, noisy intervals the rest.
+pub fn optical_pct(phase: crate::patch::OptPhase, done: usize, total: usize, end: f64) -> f64 {
     let f = done as f64 / total.max(1) as f64;
+    let split = 0.10 + (end - 0.10) * (4.0 / 15.0);
     match phase {
-        crate::patch::OptPhase::Calib => 0.10 + 0.20 * f,
-        crate::patch::OptPhase::Noisy => 0.30 + 0.55 * f,
+        crate::patch::OptPhase::Calib => 0.10 + (split - 0.10) * f,
+        crate::patch::OptPhase::Noisy => split + (end - split) * f,
     }
 }
 
@@ -255,8 +290,9 @@ pub fn process(
             s.to_string(),
         )
     };
+    let budget = Budget::new(cfg.refine);
     let on_interval = |ph, d, n| {
-        let p = optical_pct(ph, d, n);
+        let p = optical_pct(ph, d, n, budget.optical_end);
         opt_pct.store(p.to_bits(), Ordering::Relaxed);
         say(Stage::Optical, p, String::new()); // pct-only tick
     };
@@ -293,7 +329,7 @@ pub fn process(
     for b in &bursts {
         say(
             Stage::Splice,
-            0.87,
+            budget.splice,
             format!(
                 "     [{:7.2}, {:7.2}] optical drift over burst: {:5.2} deg{}",
                 b.start,
@@ -308,19 +344,20 @@ pub fn process(
         check()?;
         say(
             Stage::Refine,
-            0.88,
+            budget.refine_start,
             format!("   refining residual judder in {} bursts", intervals.len()),
         );
         // Refine reports from rayon workers; one lock keeps pcts monotone in
-        // 0.88..=0.905 across log lines and per-window pct-only ticks.
-        let refine_pct = std::sync::Mutex::new(0.88f64);
+        // refine_start..=refine_end across log lines and pct-only ticks.
+        let refine_pct = std::sync::Mutex::new(budget.refine_start);
         let rlog = |s: &str| {
             let p = refine_pct.lock().unwrap_or_else(|e| e.into_inner());
             say(Stage::Refine, *p, s.to_string());
         };
         let rtick = |f: f64| {
             let mut p = refine_pct.lock().unwrap_or_else(|e| e.into_inner());
-            *p = p.max(0.88 + 0.025 * f.clamp(0.0, 1.0));
+            let span = budget.refine_end - budget.refine_start;
+            *p = p.max(budget.refine_start + span * f.clamp(0.0, 1.0));
             say(Stage::Refine, *p, String::new()); // pct-only tick
         };
         let r = pool.install(|| {
@@ -339,14 +376,14 @@ pub fn process(
         if let Some(reason) = &r.skipped_reason {
             say(
                 Stage::Refine,
-                0.91,
+                budget.refine_end,
                 format!("   refinement skipped: {reason}"),
             );
         }
         for b in &r.bursts {
             say(
                 Stage::Refine,
-                0.91,
+                budget.refine_end,
                 match (&b.note, b.agreement) {
                     (None, Some(g)) if b.max_deg > cfg.refine_cfg.max_correction_deg => format!(
                         "     [{:7.2}, {:7.2}] residual correction {:4.2} deg (over cap, admitted: agreement {g:.2})",
@@ -436,11 +473,13 @@ mod tests {
     #[test]
     fn optical_pct_anchors() {
         use crate::patch::OptPhase::*;
-        assert!((optical_pct(Calib, 0, 4) - 0.10).abs() < 1e-12);
-        assert!((optical_pct(Calib, 4, 4) - 0.30).abs() < 1e-12);
-        assert!((optical_pct(Noisy, 0, 23) - 0.30).abs() < 1e-12);
-        assert!((optical_pct(Noisy, 23, 23) - 0.85).abs() < 1e-12);
-        assert!(optical_pct(Noisy, 0, 0).is_finite()); // total=0 guarded by max(1)
-        assert!(optical_pct(Calib, 1, 4) < optical_pct(Calib, 2, 4)); // monotone
+        assert!((optical_pct(Calib, 0, 4, 0.85) - 0.10).abs() < 1e-12);
+        assert!((optical_pct(Calib, 4, 4, 0.85) - 0.30).abs() < 1e-12);
+        assert!((optical_pct(Noisy, 0, 23, 0.85) - 0.30).abs() < 1e-12);
+        assert!((optical_pct(Noisy, 23, 23, 0.85) - 0.85).abs() < 1e-12);
+        assert!((optical_pct(Noisy, 23, 23, 0.49) - 0.49).abs() < 1e-12);
+        assert!(optical_pct(Noisy, 0, 0, 0.85).is_finite()); // total=0 guarded by max(1)
+        assert!(optical_pct(Calib, 1, 4, 0.85) < optical_pct(Calib, 2, 4, 0.85));
+        // monotone
     }
 }

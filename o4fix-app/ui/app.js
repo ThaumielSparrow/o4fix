@@ -16,15 +16,17 @@ const busy = () => starting || activeJobs > 0;
 const baseName = (p) => p.split(/[\\/]/).pop();
 const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
 
-// backend stage/status -> what the user reads
+// backend stage/status -> what the user reads; every working stage reads the
+// same (the playhead and % already show how far along it is)
+const WORKING = "Repairing";
 const STATUS = {
   queued: "Ready",
   waiting: "Waiting",
-  analyzing: "Reading telemetry",
-  "measuring motion": "Measuring video motion",
-  patching: "Patching bursts",
-  refining: "Refining",
-  verifying: "Writing file",
+  analyzing: WORKING,
+  "measuring motion": WORKING,
+  patching: WORKING,
+  refining: WORKING,
+  verifying: WORKING,
   done: "Repaired",
   healthy: "No repair needed",
   error: "Failed",
@@ -54,25 +56,57 @@ function makeClip(path) {
     trace: new window.o4trace.ClipTrace(q(".trace")), bar: q(".progress"),
     facts: q(".facts"), msg: q(".msg"), logBtn: q(".toggle-log"), log: q(".log"),
   };
+  // while the playhead runs, the % readout follows it (smooth) rather than
+  // the raw, bursty job_progress events
+  clip.trace.onDisplay = (p) => {
+    if (!clip.finished) clip.pct.textContent = `${Math.floor(p * 100)}%`;
+  };
   clip.name.textContent = baseName(path);
   clip.name.title = path;
   clip.logBtn.onclick = () => {
     clip.log.hidden = !clip.log.hidden;
     clip.logBtn.textContent = clip.log.hidden ? "Details" : "Hide details";
   };
-  setState(clip, "queued");
+  setQueued(clip);
+  return clip;
+}
+
+// a row waiting for the next start(): Ready while idle, Waiting while a batch runs
+function setQueued(clip) {
+  setState(clip, busy() ? "waiting" : "queued");
+  clip.act.hidden = false;
+  clip.act.disabled = false;
   clip.act.textContent = "Remove";
   clip.act.onclick = () => {
     pending = pending.filter(p => p.clip !== clip);
-    li.remove();
+    clip.li.remove();
     refresh();
   };
-  return clip;
+}
+
+// cancelled run -> fresh row back in the queue; starts right away when idle,
+// otherwise as soon as the running batch finishes (see onDone)
+function restart(clip) {
+  rows.delete(clip.id);
+  Object.assign(clip, { id: null, cancelling: false, finished: false, lateAfter: null });
+  clip.trace.reset();
+  clip.bar.style.width = "0%";
+  clip.pct.textContent = "";
+  clip.facts.innerHTML = "";
+  clip.msg.textContent = "";
+  clip.msg.title = "";
+  clip.log.textContent = "";
+  clip.log.hidden = true;
+  clip.logBtn.hidden = true;
+  clip.logBtn.textContent = "Details";
+  pending.push({ path: clip.path, clip });
+  setQueued(clip);
+  if (busy()) refresh(); else start();
 }
 
 function setState(clip, state) {
   clip.li.className = "clip " + stateClass(state);
-  clip.stxt.textContent = STATUS[state] ?? state;
+  clip.stxt.textContent = STATUS[state] ?? (stateClass(state) === "working" ? WORKING : state);
 }
 function stateClass(state) {
   if (["done", "healthy", "error", "cancelled", "queued", "waiting"].includes(state))
@@ -97,7 +131,8 @@ function refresh() {
   $("queue").hidden = clips === 0;
   $("add").hidden = clips === 0 || busy();
   const finished = [...rows.values()].filter(c => c.finished).length;
-  $("clear").disabled = busy() || finished === 0;
+  // finished rows (cancelled included) can be cleared even while others run
+  $("clear").disabled = finished === 0;
   const start = $("start");
   start.disabled = busy() || pending.length === 0;
   if (busy()) {
@@ -136,7 +171,11 @@ async function start() {
       clip.act.onclick = () => {
         clip.cancelling = true;
         clip.stxt.textContent = "Cancelling…";
+        clip.pct.textContent = "";
         clip.act.disabled = true;
+        // stop the picture now; the backend can take a moment to wind down
+        // (unless the repaired trace is already drawing in: nearly done)
+        if (!clip.trace.finishing) clip.trace.stop("cancelled");
         invoke("cancel_job", { id });
       };
       rows.set(id, clip);
@@ -159,12 +198,12 @@ async function start() {
 function onProgress(e) {
   const clip = rows.get(e.payload.id);
   if (!clip) { earlyEvents.push([onProgress, e]); return; }
-  if (clip.finished) return;
-  if (!clip.cancelling) setState(clip, e.payload.stage);
+  if (clip.finished || clip.cancelling) return;
+  setState(clip, e.payload.stage);
   const pct = Math.round(e.payload.pct * 100);
-  clip.pct.textContent = `${pct}%`;
   clip.bar.style.width = `${pct}%`;
   clip.trace.setProgress(e.payload.pct);
+  if (!clip.trace.animating) clip.pct.textContent = `${pct}%`;
 }
 
 function onLog(e) {
@@ -179,6 +218,10 @@ function onLog(e) {
 function onTrace(e) {
   const clip = rows.get(e.payload.id);
   if (!clip) { earlyEvents.push([onTrace, e]); return; }
+  if (clip.cancelling) {
+    if (e.payload.kind === "after") clip.lateAfter = e.payload; // see onDone
+    return;
+  }
   if (e.payload.kind === "before") {
     clip.trace.setBefore(e.payload);
     renderFacts(clip, e.payload);
@@ -192,6 +235,7 @@ function onDone(e) {
   const clip = rows.get(id);
   if (!clip) { earlyEvents.push([onDone, e]); return; }
   clip.finished = true;
+  if (status === "done" && clip.lateAfter) clip.trace.setAfter(clip.lateAfter);
   clip.trace.stop(status);
   setState(clip, status);
   clip.pct.textContent = "";
@@ -202,6 +246,9 @@ function onDone(e) {
     clip.act.textContent = "Show in folder";
     clip.act.onclick = () => invoke("reveal_file", { path: message })
       .catch((err) => { clip.msg.textContent = String(err); });
+  } else if (status === "cancelled") {
+    clip.act.textContent = "Restart";
+    clip.act.onclick = () => restart(clip);
   } else {
     clip.act.hidden = true;
     if (status === "healthy") {
@@ -212,7 +259,8 @@ function onDone(e) {
     if (status === "error" && !clip.log.textContent) clip.logBtn.hidden = true;
   }
   activeJobs -= 1;
-  refresh();
+  // clips restarted while this batch ran go as soon as it is done
+  if (!busy() && pending.length) start(); else refresh();
 }
 
 // ---------- settings ----------

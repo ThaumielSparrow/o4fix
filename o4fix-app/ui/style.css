@@ -133,7 +133,10 @@ main { overflow-y: auto; padding: 4px 20px 20px; scrollbar-gutter: stable; }
               vector-effect: non-scaling-stroke; }
 .trace .calm { stroke: var(--ink-3); }
 .trace .noisy { stroke: var(--noise); stroke-width: 1.6; }
-.trace .band { fill: var(--noise-soft); stroke: none; transition: fill .4s; }
+.trace .band { fill: var(--noise-soft); stroke: none; }
+/* animated mode: trace.js blends fill (and the working pulse) per frame in step
+   with the line; only the reduced-motion picture uses a CSS fade and pulse */
+.trace.static .band { transition: fill .4s; }
 .trace .band.fixed { fill: var(--fixed-soft); }
 .trace .head { stroke: var(--ink-2); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .trace .progress {
@@ -142,7 +145,7 @@ main { overflow-y: auto; padding: 4px 20px 20px; scrollbar-gutter: stable; }
 }
 .clip.waiting .trace { height: 8px; opacity: .6; }
 .clip.working .trace:not(.has-data) { opacity: .6; }
-.clip.working .trace .band:not(.fixed) { animation: pulse 1.6s ease-in-out infinite; }
+.clip.working .trace.static .band:not(.fixed) { animation: pulse 1.6s ease-in-out infinite; }
 
 .clip-foot { display: flex; align-items: baseline; gap: 16px;
              font-size: 13px; color: var(--ink-3); min-height: 20px; }
